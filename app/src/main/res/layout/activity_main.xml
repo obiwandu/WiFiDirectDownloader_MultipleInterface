@@ -66,6 +66,12 @@
             android:layout_height="wrap_content"
             android:onClick="stopServer"
             android:text="@string/stop_server_button" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onListen"
+            android:text="Listen" />
     </LinearLayout>
 
     <TextView

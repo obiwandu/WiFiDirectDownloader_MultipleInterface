@@ -24,7 +24,7 @@
  */
 
 
-package edu.pdx.cs410.wifi.direct.file.transfer;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 
 import java.io.BufferedInputStream;

@@ -23,7 +23,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package edu.pdx.cs410.wifi.direct.file.transfer;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
