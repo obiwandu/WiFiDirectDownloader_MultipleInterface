@@ -51,21 +51,21 @@ import edu.pdx.cs410.wifi.direct.file.transfer.R;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.ClientActivity;
 
 public class MainActivity extends Activity {
-	public final int fileRequestID = 55;
-	/*transfer port*/
+    public final int fileRequestID = 55;
+    /*transfer port*/
 //	public final int port = 7950;
-	private WifiP2pManager wifiManager;
-	private Channel wifichannel;
-	private BroadcastReceiver wifiServerReceiver;
-	private IntentFilter wifiServerReceiverIntentFilter;
-	private String path;
-	private File downloadTarget;
-	private Intent serverServiceIntent;
-	private boolean serverThreadActive;
-	public WifiP2pInfo wifiInfo;
+    private WifiP2pManager wifiManager;
+    private Channel wifichannel;
+    private BroadcastReceiver wifiServerReceiver;
+    private IntentFilter wifiServerReceiverIntentFilter;
+    private String path;
+    private File downloadTarget;
+    private Intent serverServiceIntent;
+    private boolean serverThreadActive;
+    public WifiP2pInfo wifiInfo;
     public InetAddress masterIp;
-	public InetAddress slaveIp;
-	public final int nrsPort = 8010;
+    public InetAddress slaveIp;
+    public final int nrsPort = 8010;
 //	public InetSocketAddress masterAddr;
 //	public InetSocketAddress slaveAddr;
 
@@ -73,13 +73,13 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         //Block auto opening keyboard
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-		//set status to stopped
-		TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
-		serverServiceStatus.setText(R.string.server_stopped);
+        //set status to stopped
+        TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
+        serverServiceStatus.setText(R.string.server_stopped);
 /*        
         wifiManager.createGroup(wifichannel,  new WifiP2pManager.ActionListener()  {
     	    public void onSuccess() {
@@ -103,82 +103,72 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
-       
+
     public void startFileBrowseActivity(View view) {
         Intent clientStartIntent = new Intent(this, FileBrowser.class);
-        startActivityForResult(clientStartIntent, fileRequestID);  
+        startActivityForResult(clientStartIntent, fileRequestID);
         //Path returned to onActivityResult
     }
-      
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode == Activity.RESULT_OK && requestCode == fileRequestID) {
-    		//Fetch result
-    		File targetDir = (File) data.getExtras().get("file");
-    		
-    		if(targetDir.isDirectory())
-    		{
-    			if(targetDir.canWrite())
-    			{
-    				downloadTarget = targetDir;
-	    	    	TextView filePath = (TextView) findViewById(R.id.server_file_path);
-	    	    	filePath.setText(targetDir.getPath());
-	    			setServerFileTransferStatus("Download directory set to " + targetDir.getName());
-    			}
-    			else
-    			{
-	    			setServerFileTransferStatus("You do not have permission to write to " + targetDir.getName());
-    			}
-    		}
-    		else
-    		{
-    			setServerFileTransferStatus("The selected file is not a directory. Please select a valid download directory.");
-    		}
+        if (resultCode == Activity.RESULT_OK && requestCode == fileRequestID) {
+            //Fetch result
+            File targetDir = (File) data.getExtras().get("file");
+
+            if (targetDir.isDirectory()) {
+                if (targetDir.canWrite()) {
+                    downloadTarget = targetDir;
+                    TextView filePath = (TextView) findViewById(R.id.server_file_path);
+                    filePath.setText(targetDir.getPath());
+                    setServerFileTransferStatus("Download directory set to " + targetDir.getName());
+                } else {
+                    setServerFileTransferStatus("You do not have permission to write to " + targetDir.getName());
+                }
+            } else {
+                setServerFileTransferStatus("The selected file is not a directory. Please select a valid download directory.");
+            }
         }
     }
 
-	public void onListen(View view) {
-		//If server is already listening on port or transfering data, do not attempt to start server service
-		if(!serverThreadActive)
-		{
-			//Create new thread, open socket, wait for connection, and transfer file
-			serverServiceIntent = new Intent(this, SlaveService.class);
+    public void onListen(View view) {
+        //If server is already listening on port or transfering data, do not attempt to start server service
+        if (!serverThreadActive) {
+            //Create new thread, open socket, wait for connection, and transfer file
+            serverServiceIntent = new Intent(this, SlaveService.class);
 //	    	serverServiceIntent.putExtra("saveLocation", downloadTarget);
-			serverServiceIntent.putExtra("port", nrsPort);
-			serverServiceIntent.putExtra("masterIp", masterIp);
-			serverServiceIntent.putExtra("slaveIp", slaveIp);
-			serverServiceIntent.putExtra("slaveResult", new ResultReceiver(null) {
-				@Override
-				protected void onReceiveResult(int resultCode, final Bundle resultData) {
-					if(resultCode == nrsPort )
-					{
-						if (resultData == null) {
-							//Server service has shut down. Download may or may not have completed properly.
-							serverThreadActive = false;
+            serverServiceIntent.putExtra("port", nrsPort);
+            serverServiceIntent.putExtra("masterIp", masterIp);
+            serverServiceIntent.putExtra("slaveIp", slaveIp);
+            serverServiceIntent.putExtra("slaveResult", new ResultReceiver(null) {
+                @Override
+                protected void onReceiveResult(int resultCode, final Bundle resultData) {
+                    if (resultCode == nrsPort) {
+                        if (resultData == null) {
+                            //Server service has shut down. Download may or may not have completed properly.
+                            serverThreadActive = false;
 
-							final TextView server_status_text = (TextView) findViewById(R.id.server_status_text);
-							server_status_text.post(new Runnable() {
-								public void run() {
-									server_status_text.setText(R.string.server_stopped);
-								}
-							});
-						}
-						else
-						{
-							final TextView server_file_status_text = (TextView) findViewById(R.id.server_file_transfer_status);
+                            final TextView server_status_text = (TextView) findViewById(R.id.server_status_text);
+                            server_status_text.post(new Runnable() {
+                                public void run() {
+                                    server_status_text.setText(R.string.server_stopped);
+                                }
+                            });
+                        } else {
+                            final TextView server_file_status_text = (TextView) findViewById(R.id.server_file_transfer_status);
 
-							server_file_status_text.post(new Runnable() {
-								public void run() {
-									server_file_status_text.setText((String)resultData.get("message"));
-								}
-							});
-						}
-					}
-				}
-			});
+                            server_file_status_text.post(new Runnable() {
+                                public void run() {
+                                    server_file_status_text.setText((String) resultData.get("message"));
+                                }
+                            });
+                        }
+                    }
+                }
+            });
 
-			serverThreadActive = true;
-			startService(serverServiceIntent);
+            serverThreadActive = true;
+            startService(serverServiceIntent);
 //
 //            /*start a thread to listen to master*/
 ////			Handler handler = new Handler(Looper.getMainLooper()){
@@ -204,62 +194,60 @@ public class MainActivity extends Activity {
 //	    	//Set status to running
 //	    	TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
 //	    	serverServiceStatus.setText(R.string.server_running);
-		}
-		else
-		{
-			//Set status to already running
-			TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
-			serverServiceStatus.setText("The server is already running");
-		}
-	}
+        } else {
+            //Set status to already running
+            TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
+            serverServiceStatus.setText("The server is already running");
+        }
+    }
 
     public void startServer(View view) {
-		path = "/";
-		downloadTarget = new File(path);
-		serverServiceIntent = null;
-		serverThreadActive = false;
+        path = "/";
+        downloadTarget = new File(path);
+        serverServiceIntent = null;
+        serverThreadActive = false;
 
 		/*initial wifi direct manager*/
-		wifiManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-		wifichannel = wifiManager.initialize(this, getMainLooper(), null);
-		wifiServerReceiver = new WiFiServerBroadcastReceiver(wifiManager, wifichannel, this);
-		wifiServerReceiverIntentFilter = new IntentFilter();;
-		wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-		wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-		wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-		wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-		registerReceiver(wifiServerReceiver, wifiServerReceiverIntentFilter);
+        wifiManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        wifichannel = wifiManager.initialize(this, getMainLooper(), null);
+        wifiServerReceiver = new WiFiServerBroadcastReceiver(wifiManager, wifichannel, this);
+        wifiServerReceiverIntentFilter = new IntentFilter();
+        ;
+        wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        wifiServerReceiverIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        registerReceiver(wifiServerReceiver, wifiServerReceiverIntentFilter);
 
-		setServerFileTransferStatus("No File being transfered");
+        setServerFileTransferStatus("No File being transfered");
 
 		/*initialize storage directory*/
-		try {
-			String recvPath;
-			String sendPath;
-			String recvFileName;
-			String sendFileName;
-			sendPath = recvPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-			sendPath += "/A-NRS-Send";
-			recvPath += "/A-NRS-Recv";
-			sendFileName = "ToBeSent";
-			recvFileName = "Recved";
-			File dir = new File(recvPath);
-			dir.mkdirs();
-			dir = new File(sendPath);
-			dir.mkdirs();
-			/*write something to the file*/
-			File file = new File(sendPath, sendFileName);
-			FileOutputStream fos = new FileOutputStream(file);
-			String content = "Just for test, here is all the content...";
-			fos.write(content.getBytes());
-			fos.close();
-			downloadTarget = new File(recvPath + "/" + recvFileName);
-		}
-		catch (Exception e){
-			setServerFileTransferStatus(e.getMessage());
-		}
-		wifiManager.discoverPeers(wifichannel, null);
-		/*start slave thread*/
+        try {
+            String recvPath;
+            String sendPath;
+            String recvFileName;
+            String sendFileName;
+            sendPath = recvPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            sendPath += "/A-NRS-Send";
+            recvPath += "/A-NRS-Recv";
+            sendFileName = "ToBeSent";
+            recvFileName = "Recved";
+            File dir = new File(recvPath);
+            dir.mkdirs();
+            dir = new File(sendPath);
+            dir.mkdirs();
+            /*write something to the file*/
+            File file = new File(sendPath, sendFileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            String content = "Just for test, here is all the content...";
+            fos.write(content.getBytes());
+            fos.close();
+            downloadTarget = new File(recvPath + "/" + recvFileName);
+        } catch (Exception e) {
+            setServerFileTransferStatus(e.getMessage());
+        }
+        wifiManager.discoverPeers(wifichannel, null);
+        /*start slave thread*/
 //		if (!serverThreadActive) {
 //			Thread slaveThread = new Thread(new SlaveThread(masterIp, port));
 //			serverThreadActive = true;
@@ -268,64 +256,70 @@ public class MainActivity extends Activity {
 
 
     }
-    
+
     public void stopServer(View view) {
-    	//stop download thread 
-    	if(serverServiceIntent != null)
-    	{
-    		stopService(serverServiceIntent);
-    	}
+        //stop download thread
+        if (serverServiceIntent != null) {
+            stopService(serverServiceIntent);
+        }
     }
-    
+
     public void startClientActivity(View view) {
-    	stopServer(null);
+        stopServer(null);
         Intent clientStartIntent = new Intent(this, ClientActivity.class);
-        startActivity(clientStartIntent);    		
+        startActivity(clientStartIntent);
     }
-    
+
     @Override
     protected void onResume() {
-		super.onResume();
+        super.onResume();
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
         //stopServer(null);
         //unregisterReceiver(wifiServerReceiver);
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        
-        stopServer(null);
-        //stopService(serverServiceIntent);
-        //Unregister broadcast receiver		
-		try {
-			unregisterReceiver(wifiServerReceiver);
-		} catch (IllegalArgumentException e) {
-			// This will happen if the server was never running and the stop
-			// button was pressed.
-			// Do nothing in this case.
-		}      
-    }
-    
-    public void setServerWifiStatus(String message)
-    {
-    	TextView server_wifi_status_text = (TextView) findViewById(R.id.server_wifi_status_text);
-    	server_wifi_status_text.setText(message);	
-    }
-    
-    public void setServerStatus(String message)
-    {
-    	TextView server_status_text = (TextView) findViewById(R.id.server_status_text_2);
-    	server_status_text.setText(message);	
+
+        try {
+            /* Unregister broadcast receiver */
+            if (wifiServerReceiver != null) {
+                unregisterReceiver(wifiServerReceiver);
+            }
+
+            /* remove wifi direct group */
+            if (wifiManager != null) {
+                wifiManager.removeGroup(wifichannel, null);
+            }
+
+            /* stop master service */
+            if (serverServiceIntent != null) {
+                stopService(serverServiceIntent);
+            }
+        } catch (IllegalArgumentException e) {
+            /* This will happen if the server was never running and the stop
+               button was pressed.
+               Do nothing in this case. */
+        }
     }
 
-    public void setServerFileTransferStatus(String message)
-    {
-    	TextView server_status_text = (TextView) findViewById(R.id.server_file_transfer_status);
-    	server_status_text.setText(message);	
+    public void setServerWifiStatus(String message) {
+        TextView server_wifi_status_text = (TextView) findViewById(R.id.server_wifi_status_text);
+        server_wifi_status_text.setText(message);
+    }
+
+    public void setServerStatus(String message) {
+        TextView server_status_text = (TextView) findViewById(R.id.server_status_text_2);
+        server_status_text.setText(message);
+    }
+
+    public void setServerFileTransferStatus(String message) {
+        TextView server_status_text = (TextView) findViewById(R.id.server_file_transfer_status);
+        server_status_text.setText(message);
     }
 }

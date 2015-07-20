@@ -85,8 +85,6 @@ public class ClientActivity extends Activity {
     public InetAddress masterIp;
     public InetAddress slaveIp;
     public final int nrsPort = 8010;
-//    public InetSocketAddress masterAddr;
-//    public InetSocketAddress slaveAddr;
     public String url = "https://notepad-plus-plus.org/repository/6.x/6.7.9.2/npp.6.7.9.2.Installer.exe";
 
     @Override
@@ -356,8 +354,7 @@ public class ClientActivity extends Activity {
             }
             if (!connectedAndReadyToSendFile) {
                 setClientFileTransferStatus("You must be connected to a server before attempting to send a file");
-            }
-            else if (wifiInfo == null) {
+            } else if (wifiInfo == null) {
                 setClientFileTransferStatus("Missing Wifi P2P information");
             } else {
                 clientServiceIntent = new Intent(this, MasterService.class);
@@ -407,12 +404,26 @@ public class ClientActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        //Kill thread that is transferring data 
+        try {
+            /* Unregister broadcast receiver */
+            if (wifiClientReceiver != null) {
+                unregisterReceiver(wifiClientReceiver);
+            }
 
-        //Unregister broadcast receiver
-        stopClientReceiver();
+            /* remove wifi direct group */
+            if (wifiManager != null) {
+                wifiManager.removeGroup(wifichannel, null);
+            }
+
+            /* stop master service */
+            if (clientServiceIntent != null) {
+                stopService(clientServiceIntent);
+            }
+        } catch (IllegalArgumentException e) {
+            /* This will happen if the server was never running and the stop button was pressed.
+               Do nothing in this case. */
+        }
     }
-
 
     public void setClientWifiStatus(String message) {
         TextView connectionStatusText = (TextView) findViewById(R.id.client_wifi_status_text);
@@ -495,8 +506,8 @@ public class ClientActivity extends Activity {
 
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = wifiPeer.deviceAddress;
-		/*Make sure that client is always the group owner*/
-		/*the greater groupOwnerIntent is, the greater possibility the current end can be the GO*/
+        /*Make sure that client is always the group owner*/
+        /*the greater groupOwnerIntent is, the greater possibility the current end can be the GO*/
         config.groupOwnerIntent = 15;
         wifiManager.connect(wifichannel, config, new WifiP2pManager.ActionListener() {
             public void onSuccess() {

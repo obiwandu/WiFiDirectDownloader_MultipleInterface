@@ -66,7 +66,6 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
         this.channel = channel;
         this.activity = activity;
         activity.setClientStatus("Client Broadcast receiver created");
-
     }
 
     @Override
@@ -85,16 +84,12 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             //This broadcast is sent when status of in range peers changes. Attempt to get current list of peers.
             manager.requestPeers(channel, new WifiP2pManager.PeerListListener() {
-
                 public void onPeersAvailable(WifiP2pDeviceList peers) {
-
                     activity.displayPeers(peers);
-
                 }
             });
             //update UI with list of peers
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-
             NetworkInfo networkState = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             WifiP2pInfo wifiInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO);
             WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
@@ -111,28 +106,8 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
                         activity.setClientWifiStatus("WiFi Direct Connection Info is exchanging...");
                         activity.masterIp = wifiInfo.groupOwnerAddress;
                         InetSocketAddress localAddr = new InetSocketAddress(wifiInfo.groupOwnerAddress, 8001);  // specify a port for this transmission
-//                        activity.setClientWifiStatus("master IP is " + activity.masterIp.getHostAddress());
                         Thread conn = new Thread(new FirstRecvThd(localAddr, handler));
                         conn.start();
-//                        Handler h = new Handler(Looper.getMainLooper()) {
-//                            @Override
-//                            public void handleMessage(Message msg) {
-//                                switch (msg.what) {
-//                                    case 1:
-//                                    /*data has been sent back, start listen to master again*/
-////                                        activity.slaveIp = (InetAddress) msg.obj;
-//                                        activity.setClientWifiStatus("Connection Status: Connected, slave IP is " + (String)msg.obj);
-//                                        activity.slaveIp = (String)msg.obj;
-//                                    case 2:
-//                                        activity.setClientWifiStatus("Connection Status: " + (String) msg.obj);
-//                                    default:
-//                                        super.handleMessage(msg);
-//                                }
-//                            }
-//                        };
-//                        byte[] buf = new byte[256];
-//                        Thread con = new Thread(new RecvThread(activity.port, h, buf));
-//                        con.start();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
