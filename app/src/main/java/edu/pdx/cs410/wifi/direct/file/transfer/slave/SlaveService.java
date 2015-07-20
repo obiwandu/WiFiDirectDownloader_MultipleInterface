@@ -2,6 +2,7 @@ package edu.pdx.cs410.wifi.direct.file.transfer.slave;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import java.net.InetAddress;
@@ -25,10 +26,19 @@ public class SlaveService extends IntentService {
         nrsPort = ((Integer) intent.getExtras().get("port")).intValue();
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
-        slaveResult = (ResultReceiver) intent.getExtras().get("masterResult");
+        slaveResult = (ResultReceiver) intent.getExtras().get("slaveResult");
 
-        InetSocketAddress localSockAddr = new InetSocketAddress(slaveIp, nrsPort);
+        try {
+            InetSocketAddress localSockAddr = new InetSocketAddress(slaveIp, nrsPort);
+            SlaveAcceptor.listen(localSockAddr, this);
+        } catch (Exception e) {
+            signalActivity("Failure in downloading:" + e.toString());
+        }
+    }
 
-        SlaveAcceptor.listen(localSockAddr);
+    public void signalActivity(String msg) {
+        Bundle b = new Bundle();
+        b.putString("message", msg);
+        slaveResult.send(nrsPort, b);
     }
 }

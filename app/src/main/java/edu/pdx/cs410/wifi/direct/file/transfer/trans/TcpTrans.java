@@ -20,7 +20,7 @@ import java.net.SocketAddress;
  * Created by User on 7/6/2015.
  */
 public class TcpTrans {
-    static public InetAddress connect(InetSocketAddress remoteAddr) {
+    static public InetAddress connect(InetSocketAddress remoteAddr) throws Exception {
         InetAddress localIp = null;
         try {
             Socket socket = new Socket();
@@ -38,7 +38,7 @@ public class TcpTrans {
         return localIp;
     }
 
-    static public InetAddress listen(InetSocketAddress localAddr) {
+    static public InetAddress listen(InetSocketAddress localAddr) throws Exception {
         InetAddress remoteIp = null;
         try {
             ServerSocket serverSocket = new ServerSocket();
@@ -58,7 +58,7 @@ public class TcpTrans {
         return remoteIp;
     }
 
-    static public InetSocketAddress[] recv(InetSocketAddress localAddr, byte[] recvBuf) {
+    static public InetSocketAddress[] recv(InetSocketAddress localAddr, byte[] recvBuf) throws Exception {
         InetSocketAddress[] retSockAddr = new InetSocketAddress[2];
         try {
             ServerSocket serverSocket = new ServerSocket();
@@ -86,7 +86,7 @@ public class TcpTrans {
         return retSockAddr;
     }
 
-    static public InetSocketAddress[] recv(InetSocketAddress localAddr, File recvFile) {
+    static public InetSocketAddress[] recv(InetSocketAddress localAddr, File recvFile) throws Exception {
         InetSocketAddress[] retSockAddr = new InetSocketAddress[2];
         try {
             ServerSocket serverSocket = new ServerSocket();
@@ -123,7 +123,7 @@ public class TcpTrans {
         return retSockAddr;
     }
 
-    static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, byte[] sendBuf) {
+    static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, byte[] sendBuf) throws Exception {
         try {
             Socket socket = new Socket();
             socket.setReuseAddress(true);
@@ -147,7 +147,7 @@ public class TcpTrans {
         }
     }
 
-    static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, File sendFile) {
+    static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, File sendFile) throws Exception {
         try {
             Socket socket = new Socket();
             socket.setReuseAddress(true);

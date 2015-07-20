@@ -1,4 +1,4 @@
-package edu.pdx.cs410.wifi.direct.file.transfer.master;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import android.os.Environment;
 import android.os.Handler;

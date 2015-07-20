@@ -9,7 +9,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
  * Created by User on 7/12/2015.
  */
 public class SlaveProcessor {
-    static private DownloadTask parseRequest(String request) {
+    static private DownloadTask parseRequest(String request) throws Exception {
         int start = 0;
         int end = 0;
         boolean isPartial = false;
@@ -24,7 +24,7 @@ public class SlaveProcessor {
             } else if (kv[0].equals("partial")) {
                 isPartial = Boolean.parseBoolean(kv[1]);
             } else if (kv[0].equals("url")) {
-                url = kv[1];
+                url = kv[1] + ":" + kv[2];
             }
         }
 
@@ -32,11 +32,11 @@ public class SlaveProcessor {
         return task;
     }
 
-    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr) {
+    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr, SlaveService slaveService) throws Exception {
 //        String req = request.toString();
         String req = new String(request);
         DownloadTask task = parseRequest(req);
-
-        SlaveInvoker.downLoad(task, sockAddr);
+        slaveService.signalActivity("Start downloading...");
+        SlaveInvoker.downLoad(task, sockAddr, slaveService);
     }
 }

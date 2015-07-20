@@ -1,4 +1,4 @@
-package edu.pdx.cs410.wifi.direct.file.transfer.slave;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import android.os.Handler;
 import android.os.Looper;

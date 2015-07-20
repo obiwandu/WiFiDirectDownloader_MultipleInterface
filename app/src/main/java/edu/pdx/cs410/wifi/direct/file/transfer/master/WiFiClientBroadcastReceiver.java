@@ -165,6 +165,10 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
                     activity.setClientWifiStatus("master IP: " + activity.masterIp.getHostAddress()
                             + " | slave IP:" + activity.slaveIp.getHostAddress());
                     break;
+                case 2:
+                    String str_msg = (String)msg.obj;
+                    activity.setClientFileTransferStatus(str_msg);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -182,7 +186,12 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
         }
 
         public void run() {
-            remoteIp = TcpTrans.listen(localAddr);
+            try {
+                remoteIp = TcpTrans.listen(localAddr);
+            } catch (Exception e){
+                Message msg = handler.obtainMessage(2, e.toString());
+                msg.sendToTarget();
+            }
             Message msg = handler.obtainMessage(1, remoteIp);
             msg.sendToTarget();
         }

@@ -2,6 +2,7 @@ package edu.pdx.cs410.wifi.direct.file.transfer.master;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.ResultReceiver;
 
@@ -18,7 +19,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
  */
 public class MasterService extends IntentService {
     private String url;
-//    private String slaveIp;
+    //    private String slaveIp;
 //    private String masterIp;
 //    private int transPort;
     private InetAddress masterIp;
@@ -43,7 +44,7 @@ public class MasterService extends IntentService {
 
 //        transPort = ((Integer) intent.getExtras().get("port")).intValue();
         url = (String) intent.getExtras().get("url");
-        nrsPort = (Integer)intent.getExtras().get("port");
+        nrsPort = (Integer) intent.getExtras().get("port");
         masterIp = (InetAddress) intent.getExtras().get("masterAddr");
         slaveIp = (InetAddress) intent.getExtras().get("slaveAddr");
 //        slaveIp = (String) intent.getExtras().get("slaveIp");
@@ -59,7 +60,7 @@ public class MasterService extends IntentService {
             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
             totalLen = conn.getContentLength();
         } catch (Exception e) {
-            e.printStackTrace();
+            signalActivity("Fail to get http length:" + e.toString());
         }
 
         /*start master thread*/
@@ -75,18 +76,21 @@ public class MasterService extends IntentService {
             File tempRecv = new File(recvFilePath);
 
             try {
-
                 /*download on slave*/
-                MasterOperation.remoteDownload(sTask, tempRecv, slaveSockAddr, masterSockAddr);
-//                TcpTrans.send(transPort, InetAddress.getByName(slaveIp), cmdBuf);
-//                TcpTrans.recv(transPort, tempRecv);
+                MasterOperation.remoteDownload(sTask, tempRecv, slaveSockAddr, masterSockAddr, this);
 
                 /**/
             } catch (Exception e) {
-                e.printStackTrace();
+                signalActivity("Failure in remote downloading:" + e.toString());
             }
             /*execute downloading*/
 //            Thread dlThread = new Thread(new HttpDownload(url, mTask));
         }
+    }
+
+    public void signalActivity(String msg) {
+        Bundle b = new Bundle();
+        b.putString("message", msg);
+        masterResult.send(nrsPort, b);
     }
 }

@@ -144,8 +144,6 @@ public class ClientActivity extends Activity {
         } catch (Exception e) {
             setClientFileTransferStatus(e.getMessage());
         }
-
-        //setTargetFileStatus("testing");
     }
 
     @Override
@@ -199,30 +197,23 @@ public class ClientActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         //fileToSend
-
         if (resultCode == Activity.RESULT_OK && requestCode == fileRequestID) {
             //Fetch result
             File targetDir = (File) data.getExtras().get("file");
-
             if (targetDir.isFile()) {
                 if (targetDir.canRead()) {
                     fileToSend = targetDir;
                     filePathProvided = true;
-
                     setTargetFileStatus(targetDir.getName() + " selected for file transfer");
-
                 } else {
                     filePathProvided = false;
                     setTargetFileStatus("You do not have permission to read the file " + targetDir.getName());
                 }
-
             } else {
                 filePathProvided = false;
                 setTargetFileStatus("You may not transfer a directory, please select a single file");
             }
-
         }
     }
 
@@ -358,11 +349,6 @@ public class ClientActivity extends Activity {
 //	}
 
     public void sendFile(View view) {
-        /*start master thread*/
-//        if (!transferActive) {
-//            Thread masterThread = new Thread(new MasterThread(url, slaveIp, port));
-//            transferActive = true;
-//        }
         //Only try to send file if there isn't already a transfer active
         if (!transferActive) {
             if (!filePathProvided) {
@@ -403,10 +389,6 @@ public class ClientActivity extends Activity {
                 startService(clientServiceIntent);
             }
         }
-    }
-
-    public void masterDownlad() {
-        // to be continued
     }
 
     @Override

@@ -140,6 +140,10 @@ public class WiFiServerBroadcastReceiver extends BroadcastReceiver {
                     activity.setServerWifiStatus("master IP: " + activity.masterIp.getHostAddress()
                                                   + " | slave IP:" + activity.slaveIp.getHostAddress());
                     break;
+                case 2:
+                    String str_msg = (String)msg.obj;
+                    activity.setServerFileTransferStatus(str_msg);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -158,7 +162,13 @@ public class WiFiServerBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void run() {
-            localIp = TcpTrans.connect(remoteAddr);
+            try {
+                localIp = TcpTrans.connect(remoteAddr);
+            }
+            catch (Exception e) {
+                Message msg = handler.obtainMessage(2, e.toString());
+                msg.sendToTarget();
+            }
             Message msg = handler.obtainMessage(1, localIp);
             msg.sendToTarget();
         }
