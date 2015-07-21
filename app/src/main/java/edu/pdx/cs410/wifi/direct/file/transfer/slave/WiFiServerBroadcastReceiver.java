@@ -93,37 +93,19 @@ public class WiFiServerBroadcastReceiver extends BroadcastReceiver {
                         activity.setServerWifiStatus("WiFi Direct Connection Info is exchanging...");
                         activity.masterIp = wifiInfo.groupOwnerAddress;
                         InetSocketAddress remoteAddr = new InetSocketAddress(wifiInfo.groupOwnerAddress, 8001);  // specify a port number here
-//                        activity.masterAddr = new InetSocketAddress(wifiInfo.groupOwnerAddress, 8001);  // specify a port number here
-//                        activity.setServerWifiStatus("master IP is " + activity.masterAddr.getAddress().getHostAddress());
 
                         Thread conn = new Thread(new FirstSendThd(remoteAddr, handler));
                         conn.start();
-//                        Handler h = new Handler(Looper.getMainLooper()) {
-//                            @Override
-//                            public void handleMessage(Message msg) {
-//                                switch (msg.what) {
-//                                    case 1:
-//                                /*data has been sent back, start listen to master again*/
-//
-//                                    default:
-//                                        super.handleMessage(msg);
-//                                }
-//                            }
-//                        };
-//                        String text = "for test";
-//                        Thread con = new Thread(new SendThread(activity.port, wifiInfo.groupOwnerAddress, h, text));
-//                        con.start();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        activity.setServerFileTransferStatus("Exception:"+ e.toString());
                     }
                 }
                 else{
-                    activity.setServerStatus("Slave can not be GO!");
+                    activity.setServerStatus("Error: Slave can not be GO!");
                 }
             } else {
                 activity.setServerStatus("Connection Status: Disconnected");
                 manager.cancelConnect(channel, null);
-
             }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {

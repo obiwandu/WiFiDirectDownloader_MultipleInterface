@@ -360,8 +360,8 @@ public class ClientActivity extends Activity {
                 clientServiceIntent = new Intent(this, MasterService.class);
                 clientServiceIntent.putExtra("url", url);
                 clientServiceIntent.putExtra("port", nrsPort);
-                clientServiceIntent.putExtra("masterAddr", masterIp);
-                clientServiceIntent.putExtra("slaveAddr", slaveIp);
+                clientServiceIntent.putExtra("masterIp", masterIp);
+                clientServiceIntent.putExtra("slaveIp", slaveIp);
                 clientServiceIntent.putExtra("masterResult", new ResultReceiver(null) {
                     @Override
                     protected void onReceiveResult(int resultCode, final Bundle resultData) {
@@ -452,10 +452,8 @@ public class ClientActivity extends Activity {
 
         //Get list view
         ListView peerView = (ListView) findViewById(R.id.peers_listview);
-
         //Make array list
         ArrayList<String> peersStringArrayList = new ArrayList<String>();
-
         //Fill array list with strings of peer names
         for (WifiP2pDevice wd : peers.getDeviceList()) {
             peersStringArrayList.add(wd.deviceName);
@@ -463,21 +461,14 @@ public class ClientActivity extends Activity {
 
         //Set list view as clickable
         peerView.setClickable(true);
-
         //Make adapter to connect peer data to list view
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, peersStringArrayList.toArray());
-
         //Show peer data in listview
         peerView.setAdapter(arrayAdapter);
-
-
         peerView.setOnItemClickListener(new OnItemClickListener() {
-
             public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
-
                 //Get string from textview
                 TextView tv = (TextView) view;
-
                 WifiP2pDevice device = null;
 
                 //Search all known peers for matching name
@@ -489,11 +480,9 @@ public class ClientActivity extends Activity {
                 if (device != null) {
                     //Connect to selected peer
                     connectToPeer(device);
-
                 } else {
                     dialog.setMessage("Failed");
                     dialog.show();
-
                 }
             }
             // TODO Auto-generated method stub

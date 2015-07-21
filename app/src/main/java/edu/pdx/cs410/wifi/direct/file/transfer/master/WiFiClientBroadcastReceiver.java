@@ -109,19 +109,17 @@ public class WiFiClientBroadcastReceiver extends BroadcastReceiver {
                         Thread conn = new Thread(new FirstRecvThd(localAddr, handler));
                         conn.start();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        activity.setClientFileTransferStatus("Exception:" + e.toString());
                     }
                 }
                 else{
-                    activity.setClientStatus("Master must be GO");
+                    activity.setClientStatus("Error: Master is GO(Master must be GO)");
                 }
             } else {
                 //set variables to disable file transfer and reset client back to original state
-
                 activity.setTransferStatus(false);
                 activity.setClientStatus("Connection Status: Disconnected");
                 manager.cancelConnect(channel, null);
-
             }
             //activity.setClientStatus(networkState.isConnected());
 

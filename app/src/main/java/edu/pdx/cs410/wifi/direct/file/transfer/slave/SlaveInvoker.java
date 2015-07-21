@@ -27,7 +27,7 @@ public class SlaveInvoker {
         /*write something to the file*/
         tempFile = new File(recvPath, recvFileName);
 
-        tempFile = SlaveOperation.httpDownload(task, tempFile);
+        tempFile = SlaveOperation.httpDownload(task, tempFile, slaveService);
         slaveService.signalActivity("Download complete, ready to send back");
         SlaveOperation.transBack(tempFile, sockAddr);
         slaveService.signalActivity("Send back succefully, task complete");

@@ -16,7 +16,7 @@ public class MasterConnector {
         byte[] sendBuf = command.getBytes();
         TcpTrans.send(remoteAddr, localAddr, sendBuf);
         masterService.signalActivity("Command is sent successfully, start waiting for data sent back");
-        TcpTrans.recv(localAddr, recvFile);
+        TcpTrans.recv(localAddr, recvFile, masterService);
         masterService.signalActivity("Final data got successfully, task complete");
     }
 }

@@ -51,7 +51,7 @@ public class SlaveThread extends Thread {
 
 //            HttpDownload httpDl = new HttpDownload(url, task);
             File recvFile = new File("");
-            HttpDownload.download(url, recvFile);
+//            HttpDownload.download(url, recvFile);
             File file = new File("temp");
 
             try {

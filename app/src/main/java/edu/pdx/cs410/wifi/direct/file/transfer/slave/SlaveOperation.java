@@ -12,8 +12,21 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
  * Created by User on 7/12/2015.
  */
 public class SlaveOperation {
+    static public File httpDownload(DownloadTask task, File dlFile, SlaveService slaveService) throws Exception {
+        if (task.isPartial){
+            HttpDownload.partialDownload(task.url, dlFile, task);
+        } else {
+            HttpDownload.download(task.url, dlFile, slaveService);
+        }
+        return dlFile;
+    }
+
     static public File httpDownload(DownloadTask task, File dlFile) throws Exception {
-        HttpDownload.download(task.url, dlFile);
+        if (task.isPartial){
+            HttpDownload.partialDownload(task.url, dlFile, task);
+        } else {
+            HttpDownload.download(task.url, dlFile);
+        }
         return dlFile;
     }
 

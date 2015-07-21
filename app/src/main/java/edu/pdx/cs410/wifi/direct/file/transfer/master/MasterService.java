@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 
 /**
  * Created by User on 7/9/2015.
@@ -41,14 +42,13 @@ public class MasterService extends IntentService {
         boolean isDone = false;
         boolean slaveDone = false;
         boolean masterDone = false;
+        int masterBw = 0;
+        int slaveBw = 0;
 
-//        transPort = ((Integer) intent.getExtras().get("port")).intValue();
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
-        masterIp = (InetAddress) intent.getExtras().get("masterAddr");
-        slaveIp = (InetAddress) intent.getExtras().get("slaveAddr");
-//        slaveIp = (String) intent.getExtras().get("slaveIp");
-//        masterIp = (String) intent.getExtras().get("masterIp");
+        masterIp = (InetAddress) intent.getExtras().get("masterIp");
+        slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
         masterResult = (ResultReceiver) intent.getExtras().get("masterResult");
 
         InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);
@@ -84,7 +84,6 @@ public class MasterService extends IntentService {
                 signalActivity("Failure in remote downloading:" + e.toString());
             }
             /*execute downloading*/
-//            Thread dlThread = new Thread(new HttpDownload(url, mTask));
         }
     }
 
