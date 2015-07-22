@@ -94,17 +94,6 @@ public class MasterService extends IntentService {
                 signalActivity("Exception during task scheduling:" + e.toString());
                 return;
             }
-//            masterLen = totalLen / 2;
-//            slaveLen = totalLen - masterLen;
-//            DownloadTask mTask = new DownloadTask(0, masterLen - 1, true, url);
-//            DownloadTask sTask = new DownloadTask(masterLen, totalLen - 1, true, url);
-
-            /*set storage path*/
-//            String recvFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/A-NRS-Recv";
-//            String recvFileName = "slave-recv.temp";
-//            File slaveTempRecv = new File(recvFilePath, recvFileName);
-//            recvFileName = "master-recv.temp";
-//            File masterTempRecv = new File(recvFilePath, recvFileName);
 
             try {
                 if (sTask != null) {
