@@ -378,6 +378,16 @@ public class ClientActivity extends Activity {
                                     }
                                 });
                             }
+                        } else if (resultCode == 1) {
+                            if (resultData != null) {
+                                final TextView client_filename_text = (TextView) findViewById(R.id.selected_filename);
+
+                                client_filename_text.post(new Runnable() {
+                                    public void run() {
+                                        client_filename_text.setText((String) resultData.get("progress"));
+                                    }
+                                });
+                            }
                         }
                     }
                 });

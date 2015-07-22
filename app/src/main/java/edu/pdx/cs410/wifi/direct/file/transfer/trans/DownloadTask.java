@@ -23,7 +23,7 @@ public class DownloadTask {
             isPartial = true;
         }
 
-        if (start < end) {
+        if (start <= end) {
             isDone = false;
         } else {
             isDone = true;
@@ -48,7 +48,7 @@ public class DownloadTask {
 
             start = newEnd + 1;
 
-            if (start == end) {
+            if (start > end) {
                 isDone = true;
             }
 

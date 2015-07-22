@@ -86,7 +86,8 @@ public class MasterService extends IntentService {
             DownloadTask sTask;
             DownloadTask retTasks[];
             try {
-                retTasks = taskScheduler.scheduleTask(4 * 1024);
+//                retTasks = taskScheduler.scheduleTask(4 * 1024);
+                retTasks = taskScheduler.scheduleTask(100 * 1024);
                 mTask = retTasks[0];
                 sTask = retTasks[1];
             } catch (Exception e) {
@@ -129,6 +130,12 @@ public class MasterService extends IntentService {
             }
             /*submit tasks*/
             taskScheduler.submitTask(masterBw, slaveBw);
+            signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+        }
+        try {
+            tempRecvFile.close();
+        } catch (Exception e) {
+            signalActivity("Exception during closing file:" + e.toString());
         }
     }
 
@@ -136,5 +143,11 @@ public class MasterService extends IntentService {
         Bundle b = new Bundle();
         b.putString("message", msg);
         masterResult.send(nrsPort, b);
+    }
+
+    public void signalActivityProgress(String msg) {
+        Bundle b = new Bundle();
+        b.putString("progress", msg);
+        masterResult.send(1, b);
     }
 }

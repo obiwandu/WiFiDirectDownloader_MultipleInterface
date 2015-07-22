@@ -10,7 +10,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 public class TaskScheduler {
     private int totalLen;
     //    private ArrayList<DownloadTask> leftTaskList;
-    private DownloadTask leftTask;
+    public DownloadTask leftTask;
     private DownloadTask[] taskList;
     private int mBw;
     private int sBw;
