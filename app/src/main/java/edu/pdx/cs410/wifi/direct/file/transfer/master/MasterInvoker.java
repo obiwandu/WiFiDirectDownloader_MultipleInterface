@@ -1,6 +1,7 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.master;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -12,15 +13,27 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 public class MasterInvoker {
     static private String encapCmd(DownloadTask task) {
         String command = "taskstart:" + Integer.toString(task.start) + "\n" + "taskend:" + Integer.toString(task.end) + "\n"
-                         + "partial:" + task.isPartial + "\n"+ "url:" + task.url + "\n";
+                         + "totallen:" + task.totalLen + "\n"+ "url:" + task.url + "\n";
         return command;
     }
 
-    static public void remoteDownload(DownloadTask task, File recvFile,
+    static public int remoteDownload(DownloadTask task, File recvFile,
                                          InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                          MasterService masterService) throws Exception {
+        int bw;
         String command = encapCmd(task);
         masterService.signalActivity("Ready to send command to slave");
-        MasterConnector.remoteDownload(command, recvFile, remoteAddr, localAddr, masterService);
+        bw = MasterConnector.remoteDownload(command, recvFile, remoteAddr, localAddr, masterService);
+        return bw;
+    }
+
+    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                     MasterService masterService) throws Exception {
+        int bw;
+        String command = encapCmd(task);
+        masterService.signalActivity("Ready to send command to slave");
+        bw = MasterConnector.remoteDownload(command, recvFile, remoteAddr, localAddr, masterService);
+        return bw;
     }
 }

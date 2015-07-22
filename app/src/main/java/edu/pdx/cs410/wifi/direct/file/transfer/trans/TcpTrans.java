@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -28,11 +29,14 @@ public class TcpTrans {
     static public InetAddress connect(InetSocketAddress remoteAddr) throws Exception {
         InetAddress localIp = null;
         Socket socket = new Socket();
-        socket.setReuseAddress(true);
-        socket.connect(remoteAddr, 0);
-        InetSocketAddress localSockAddr = (InetSocketAddress) socket.getLocalSocketAddress();
-        localIp = localSockAddr.getAddress();
-        socket.close();
+        try {
+            socket.setReuseAddress(true);
+            socket.connect(remoteAddr, 0);
+            InetSocketAddress localSockAddr = (InetSocketAddress) socket.getLocalSocketAddress();
+            localIp = localSockAddr.getAddress();
+        } finally {
+            socket.close();
+        }
 
         return localIp;
     }
@@ -40,150 +44,192 @@ public class TcpTrans {
     static public InetAddress listen(InetSocketAddress localAddr) throws Exception {
         InetAddress remoteIp = null;
         ServerSocket serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.bind(localAddr);
-        Socket socket = serverSocket.accept();
-        InetSocketAddress remoteSockAddr = (InetSocketAddress) socket.getRemoteSocketAddress();
-        remoteIp = remoteSockAddr.getAddress();
-        socket.close();
-        serverSocket.close();
-
+        try {
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(localAddr);
+            Socket socket = serverSocket.accept();
+            InetSocketAddress remoteSockAddr = (InetSocketAddress) socket.getRemoteSocketAddress();
+            remoteIp = remoteSockAddr.getAddress();
+            socket.close();
+        } finally {
+            serverSocket.close();
+        }
         return remoteIp;
     }
 
     static public InetSocketAddress[] recv(InetSocketAddress localAddr, byte[] recvBuf) throws Exception {
         InetSocketAddress[] retSockAddr = new InetSocketAddress[2];
         ServerSocket serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.bind(localAddr);
-        Socket socket = serverSocket.accept();
-        retSockAddr[0] = (InetSocketAddress) socket.getRemoteSocketAddress();
-        retSockAddr[1] = localAddr;
-        InputStream is = socket.getInputStream();
-        int bytesRead;
-
-        bytesRead = is.read(recvBuf, 0, recvBuf.length);
-        if (bytesRead == -1) {
-            throw new Exception();
+        try {
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(localAddr);
+            Socket socket = serverSocket.accept();
+            InputStream is = socket.getInputStream();
+            retSockAddr[0] = (InetSocketAddress) socket.getRemoteSocketAddress();
+            retSockAddr[1] = localAddr;
+            int bytesRead;
+            bytesRead = is.read(recvBuf, 0, recvBuf.length);
+            if (bytesRead == -1) {
+                throw new Exception();
+            }
+            is.close();
+            socket.close();
+        } finally {
+            serverSocket.close();
         }
-
-        is.close();
-        socket.close();
-        serverSocket.close();
-
         return retSockAddr;
     }
 
-    static public InetSocketAddress[] recv(InetSocketAddress localAddr, File recvFile, MasterService masterService) throws Exception {
-        InetSocketAddress[] retSockAddr = new InetSocketAddress[2];
+    static public int recv(InetSocketAddress localAddr, File recvFile, MasterService masterService) throws Exception {
         ServerSocket serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.bind(localAddr);
-        Socket socket = serverSocket.accept();
-        retSockAddr[0] = (InetSocketAddress) socket.getRemoteSocketAddress();
-        retSockAddr[1] = localAddr;
-        InputStream is = socket.getInputStream();
-        byte[] buffer = new byte[4096];
-        int bytesRead;
         BwMetric bwMetric = new BwMetric(masterService);
+        try {
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(localAddr);
+            Socket socket = serverSocket.accept();
+            InputStream is = socket.getInputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            FileOutputStream fos = new FileOutputStream(recvFile);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            while (true) {
+                bytesRead = is.read(buffer, 0, buffer.length);
+                if (bytesRead == -1) {
+                    break;
+                }
 
-        FileOutputStream fos = new FileOutputStream(recvFile);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        while (true) {
-            bytesRead = is.read(buffer, 0, buffer.length);
-            if (bytesRead == -1) {
-                break;
+                /* update bw */
+                bwMetric.bwMetric(bytesRead);
+
+                bos.write(buffer, 0, bytesRead);
+                bos.flush();
             }
+            fos.close();
+            bos.close();
+            is.close();
+            socket.close();
+        } finally {
+            serverSocket.close();
+        }
+        return bwMetric.bw;
+    }
+
+    static public int recv(InetSocketAddress localAddr, RandomAccessFile recvFile, MasterService masterService) throws Exception {
+        ServerSocket serverSocket = new ServerSocket();
+        BwMetric bwMetric = new BwMetric(masterService);
+        try {
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(localAddr);
+            Socket socket = serverSocket.accept();
+            InputStream is = socket.getInputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+//        while ((bytesRead = is.read(buffer, 0, buffer.length)) != -1)
+//        FileOutputStream fos = new FileOutputStream(recvFile);
+//        BufferedOutputStream bos = new BufferedOutputStream(fos);
+            while (true) {
+                bytesRead = is.read(buffer, 0, buffer.length);
+                if (bytesRead == -1) {
+                    break;
+                }
 
             /* update bw */
-            bwMetric.bwMetric(bytesRead);
+                bwMetric.bwMetric(bytesRead);
 
-            bos.write(buffer, 0, bytesRead);
-            bos.flush();
+                recvFile.write(buffer, 0, bytesRead);
+//            bos.write(buffer, 0, bytesRead);
+//            bos.flush();
+            }
+//        fos.close();
+//        bos.close();
+            is.close();
+            socket.close();
+        } finally {
+            serverSocket.close();
         }
-        fos.close();
-        bos.close();
-
-        is.close();
-        socket.close();
-        serverSocket.close();
-
-        return retSockAddr;
+        return bwMetric.bw;
     }
 
     static public InetSocketAddress[] recv(InetSocketAddress localAddr, File recvFile) throws Exception {
         InetSocketAddress[] retSockAddr = new InetSocketAddress[2];
         ServerSocket serverSocket = new ServerSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.bind(localAddr);
-        Socket socket = serverSocket.accept();
-        retSockAddr[0] = (InetSocketAddress) socket.getRemoteSocketAddress();
-        retSockAddr[1] = localAddr;
-        InputStream is = socket.getInputStream();
-        byte[] buffer = new byte[4096];
-        int bytesRead;
+        try {
+            serverSocket.setReuseAddress(true);
+            serverSocket.bind(localAddr);
+            Socket socket = serverSocket.accept();
+            retSockAddr[0] = (InetSocketAddress) socket.getRemoteSocketAddress();
+            retSockAddr[1] = localAddr;
+            InputStream is = socket.getInputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
 
-        FileOutputStream fos = new FileOutputStream(recvFile);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        while (true) {
-            bytesRead = is.read(buffer, 0, buffer.length);
-            if (bytesRead == -1) {
-                break;
+            FileOutputStream fos = new FileOutputStream(recvFile);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            while (true) {
+                bytesRead = is.read(buffer, 0, buffer.length);
+                if (bytesRead == -1) {
+                    break;
+                }
+                bos.write(buffer, 0, bytesRead);
+                bos.flush();
             }
-            bos.write(buffer, 0, bytesRead);
-            bos.flush();
-        }
-        fos.close();
-        bos.close();
+            fos.close();
+            bos.close();
 
-        is.close();
-        socket.close();
-        serverSocket.close();
+            is.close();
+            socket.close();
+        } finally {
+            serverSocket.close();
+        }
 
         return retSockAddr;
     }
 
     static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, byte[] sendBuf) throws Exception {
         Socket socket = new Socket();
-        socket.setReuseAddress(true);
-        socket.bind(localAddr);
-        socket.connect(remoteAddr, 0);
-        OutputStream os = socket.getOutputStream();
-        byte[] buffer;
-        int bytesRead;
+        try {
+            socket.setReuseAddress(true);
+            socket.bind(localAddr);
+            socket.connect(remoteAddr, 0);
+            OutputStream os = socket.getOutputStream();
+            byte[] buffer;
+            int bytesRead;
 
-        buffer = sendBuf;
-        bytesRead = buffer.length;
-        os.write(buffer, 0, bytesRead);
-        os.flush();
-
-        os.close();
-        socket.close();
+            buffer = sendBuf;
+            bytesRead = buffer.length;
+            os.write(buffer, 0, bytesRead);
+            os.flush();
+            os.close();
+        } finally {
+            socket.close();
+        }
     }
 
     static public void send(InetSocketAddress remoteAddr, InetSocketAddress localAddr, File sendFile) throws Exception {
         Socket socket = new Socket();
-        socket.setReuseAddress(true);
-        socket.bind(localAddr);
-        socket.connect(remoteAddr, 0);
-        OutputStream os = socket.getOutputStream();
-        byte[] buffer = new byte[4096];
-        int bytesRead;
+        try {
+            socket.setReuseAddress(true);
+            socket.bind(localAddr);
+            socket.connect(remoteAddr, 0);
+            OutputStream os = socket.getOutputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
 
-        FileInputStream fis = new FileInputStream(sendFile);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        while (true) {
-            bytesRead = bis.read(buffer, 0, buffer.length);
-            if (bytesRead == -1) {
-                break;
+            FileInputStream fis = new FileInputStream(sendFile);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            while (true) {
+                bytesRead = bis.read(buffer, 0, buffer.length);
+                if (bytesRead == -1) {
+                    break;
+                }
+                os.write(buffer, 0, bytesRead);
+                os.flush();
             }
-            os.write(buffer, 0, bytesRead);
-            os.flush();
+            fis.close();
+            bis.close();
+            os.close();
+        } finally {
+            socket.close();
         }
-        fis.close();
-        bis.close();
-
-        os.close();
-        socket.close();
     }
 }

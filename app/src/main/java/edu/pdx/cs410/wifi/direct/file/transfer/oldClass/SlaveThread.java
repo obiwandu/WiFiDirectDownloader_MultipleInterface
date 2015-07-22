@@ -47,7 +47,7 @@ public class SlaveThread extends Thread {
             recvThread.start();
 
             String url = "www.test.com";
-            DownloadTask task = new DownloadTask(1001, 2001, true, url);
+//            DownloadTask task = new DownloadTask(1001, 2001, true, url);
 
 //            HttpDownload httpDl = new HttpDownload(url, task);
             File recvFile = new File("");

@@ -73,8 +73,8 @@ public class MasterThread extends Thread {
             /*schedule task*/
             masterLen = totalLen/2;
             slaveLen = totalLen - masterLen;
-            DownloadTask mTask = new DownloadTask(0, masterLen - 1, false, url);
-            DownloadTask sTask = new DownloadTask(masterLen, totalLen - 1, false, url);
+            DownloadTask mTask = new DownloadTask(0, masterLen - 1, totalLen, url);
+            DownloadTask sTask = new DownloadTask(masterLen, totalLen - 1, totalLen, url);
             /*build command*/
             String command = "taskstart:" + Integer.toString(masterLen) + "\n" + "taskend:" + Integer.toString(totalLen - 1) + "\n" + "url:" + url + "\n";
             /*set storage path*/

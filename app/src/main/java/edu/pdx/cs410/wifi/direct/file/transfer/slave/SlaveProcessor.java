@@ -12,7 +12,7 @@ public class SlaveProcessor {
     static private DownloadTask parseRequest(String request) throws Exception {
         int start = 0;
         int end = 0;
-        boolean isPartial = false;
+        int totalLen = 0;
         String url = "";
         String[] commands = request.split("\n");
         for (String cmd : commands) {
@@ -21,14 +21,14 @@ public class SlaveProcessor {
                 start = Integer.parseInt(kv[1]);
             } else if (kv[0].equals("taskend")) {
                 end = Integer.parseInt(kv[1]);
-            } else if (kv[0].equals("partial")) {
-                isPartial = Boolean.parseBoolean(kv[1]);
+            } else if (kv[0].equals("totallen")) {
+                totalLen = Integer.parseInt(kv[1]);
             } else if (kv[0].equals("url")) {
                 url = kv[1] + ":" + kv[2];
             }
         }
 
-        DownloadTask task = new DownloadTask(start, end, isPartial, url);
+        DownloadTask task = new DownloadTask(start, end, totalLen, url);
         return task;
     }
 

@@ -14,10 +14,12 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
 public class SlaveAcceptor {
     static public void listen(InetSocketAddress localAddr, SlaveService slaveService) throws Exception {
         byte[] recvBuf = new byte[1024];
-        slaveService.signalActivity("Start listening for command");
-        InetSocketAddress[] sockAddr = TcpTrans.recv(localAddr, recvBuf);
-        slaveService.signalActivity("Command got, start downloading");
-        SlaveProcessor.processRequest(recvBuf, sockAddr, slaveService);
+        while (true) {
+            slaveService.signalActivity("Start listening for command");
+            InetSocketAddress[] sockAddr = TcpTrans.recv(localAddr, recvBuf);
+            slaveService.signalActivity("Command got, start downloading");
+            SlaveProcessor.processRequest(recvBuf, sockAddr, slaveService);
+        }
     }
 
 }

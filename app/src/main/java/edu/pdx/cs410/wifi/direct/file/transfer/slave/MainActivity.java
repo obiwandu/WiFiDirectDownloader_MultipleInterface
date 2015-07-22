@@ -253,8 +253,6 @@ public class MainActivity extends Activity {
 //			serverThreadActive = true;
 //			setServerStatus("server is running");
 //		}
-
-
     }
 
     public void stopServer(View view) {

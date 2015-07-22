@@ -1,6 +1,7 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.master;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -14,8 +15,18 @@ public class MasterOperation  {
     static public int remoteDownload(DownloadTask task, File recvFile,
                                          InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                          MasterService masterService) throws Exception {
-        MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
-        int bw = 0;
+        int bw;
+        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+
+        return bw;
+    }
+
+    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                     MasterService masterService) throws Exception {
+        int bw;
+        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+
         return bw;
     }
 
@@ -30,12 +41,24 @@ public class MasterOperation  {
     }
 
     static public int httpDownload(DownloadTask task, File recvFile, MasterService masterService) throws Exception {
+        int bw;
         if (task.isPartial){
-            HttpDownload.partialDownload(task.url, recvFile, task);
+            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
         } else {
-            HttpDownload.download(task.url, recvFile, masterService);
+            bw = HttpDownload.download(task.url, recvFile, masterService);
         }
-        int bw = 0;
+
+        return bw;
+    }
+
+    static public int httpDownload(DownloadTask task, RandomAccessFile recvFile, MasterService masterService) throws Exception {
+        int bw;
+        if (task.isPartial){
+            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
+        } else {
+            bw = HttpDownload.download(task.url, recvFile, masterService);
+        }
+
         return bw;
     }
 }
