@@ -17,7 +17,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.SendThread;
 /**
  * Created by User on 7/5/2015.
  */
-public class MasterThread extends Thread {
+public class OldMasterThread extends Thread {
     public boolean isDone;
     public boolean slaveDone;
     public boolean masterDone;
@@ -30,7 +30,7 @@ public class MasterThread extends Thread {
     private int alreadyMasterLen;
     private int alreadySlaveLen;
 
-    public MasterThread(String l, String sIp, int port) {
+    public OldMasterThread(String l, String sIp, int port) {
         url = l;
         slaveIp = sIp;
         transPort = port;

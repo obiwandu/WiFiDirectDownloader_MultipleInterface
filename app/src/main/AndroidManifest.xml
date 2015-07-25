@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".oldClass.ServerService"
+            android:name=".master.MultithreadMasterService"
             android:exported="false" />
         <service
             android:name=".oldClass.ClientService"

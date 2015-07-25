@@ -85,7 +85,9 @@ public class ClientActivity extends Activity {
     public InetAddress masterIp;
     public InetAddress slaveIp;
     public final int nrsPort = 8010;
-    public String url = "https://notepad-plus-plus.org/repository/6.x/6.7.9.2/npp.6.7.9.2.Installer.exe";
+//    public String url = "https://notepad-plus-plus.org/repository/6.x/6.7.9.2/npp.6.7.9.2.Installer.exe";
+//    public String url = "http://dldir1.qq.com/weixin/android/weixin622android580.apk";
+    public String url = "http://d3g.qq.com/sngapp/app/update/20150616190155_8476/qzone_5.5.1.192_android_r98080_20150616175052_release_QZGW_D.apk";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -357,7 +359,8 @@ public class ClientActivity extends Activity {
             } else if (wifiInfo == null) {
                 setClientFileTransferStatus("Missing Wifi P2P information");
             } else {
-                clientServiceIntent = new Intent(this, MasterService.class);
+//                clientServiceIntent = new Intent(this, MasterService.class);
+                clientServiceIntent = new Intent(this, MultithreadMasterService.class);
                 clientServiceIntent.putExtra("url", url);
                 clientServiceIntent.putExtra("port", nrsPort);
                 clientServiceIntent.putExtra("masterIp", masterIp);

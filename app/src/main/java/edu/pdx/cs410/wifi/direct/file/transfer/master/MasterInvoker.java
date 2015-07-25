@@ -13,13 +13,19 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 public class MasterInvoker {
     static private String encapCmd(DownloadTask task) {
         String command = "taskstart:" + Integer.toString(task.start) + "\n" + "taskend:" + Integer.toString(task.end) + "\n"
-                         + "totallen:" + task.totalLen + "\n"+ "url:" + task.url + "\n";
+                + "totallen:" + task.totalLen + "\n" + "url:" + task.url + "\n";
+        return command;
+    }
+
+    static private String encapCmd() {
+        String command = "stop";
+
         return command;
     }
 
     static public int remoteDownload(DownloadTask task, File recvFile,
-                                         InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                         MasterService masterService) throws Exception {
+                                       InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                       MasterService masterService) throws Exception {
         int bw;
         String command = encapCmd(task);
         masterService.signalActivity("Ready to send command to slave");
@@ -35,5 +41,12 @@ public class MasterInvoker {
         masterService.signalActivity("Ready to send command to slave");
         bw = MasterConnector.remoteDownload(command, recvFile, remoteAddr, localAddr, masterService);
         return bw;
+    }
+
+    static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                     MasterService masterService) throws Exception{
+        String command = encapCmd();
+        masterService.signalActivity("Ready to send command to slave");
+        MasterConnector.remoteStop(command, remoteAddr, localAddr, masterService);
     }
 }

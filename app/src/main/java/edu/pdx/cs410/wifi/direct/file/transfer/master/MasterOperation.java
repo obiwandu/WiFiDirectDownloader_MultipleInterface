@@ -30,6 +30,11 @@ public class MasterOperation  {
         return bw;
     }
 
+    static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                     MasterService masterService) throws Exception {
+        MasterInvoker.remoteStop(remoteAddr, localAddr, masterService);
+    }
+
     static public int httpDownload(DownloadTask task, File recvFile) throws Exception {
         if (task.isPartial){
             HttpDownload.partialDownload(task.url, recvFile, task);

@@ -30,10 +30,17 @@ public class MasterConnector {
         int bw;
         byte[] sendBuf = command.getBytes();
         TcpTrans.send(remoteAddr, localAddr, sendBuf);
-        masterService.signalActivity("Command is sent successfully, start waiting for data sent back");
+        masterService.signalActivity("Task command is sent successfully, start waiting for data sent back");
         bw = TcpTrans.recv(localAddr, recvFile, masterService);
         masterService.signalActivity("Final data got successfully, task complete");
 
         return bw;
+    }
+
+    static public void remoteStop (String command, InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                      MasterService masterService) throws Exception {
+        byte[] sendBuf = command.getBytes();
+        TcpTrans.send(remoteAddr, localAddr, sendBuf);
+        masterService.signalActivity("Stop command is sent successfully, slave will be shut down");
     }
 }

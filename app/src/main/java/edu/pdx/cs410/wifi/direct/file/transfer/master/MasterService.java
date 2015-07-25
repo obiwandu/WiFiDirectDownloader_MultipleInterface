@@ -21,14 +21,14 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
  * Created by User on 7/9/2015.
  */
 public class MasterService extends IntentService {
-    private String url;
+    protected String url;
     //    private String slaveIp;
 //    private String masterIp;
 //    private int transPort;
-    private InetAddress masterIp;
-    private InetAddress slaveIp;
-    private ResultReceiver masterResult;
-    private int nrsPort;
+    protected InetAddress masterIp;
+    protected InetAddress slaveIp;
+    protected ResultReceiver masterResult;
+    protected int nrsPort;
 
     public MasterService() {
         super("MasterService");
@@ -46,6 +46,7 @@ public class MasterService extends IntentService {
         boolean masterDone = false;
         int masterBw = 0;
         int slaveBw = 0;
+        String originalFileName = "unnamed";
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
@@ -61,13 +62,15 @@ public class MasterService extends IntentService {
             URL urlObj = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
             totalLen = conn.getContentLength();
+            originalFileName = "weixin622android580.apk";
         } catch (Exception e) {
             signalActivity("Exception during getting http length:" + e.toString());
         }
 
         /* set recv file path */
         String recvFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/A-NRS-Recv";
-        String recvFileName = "recvFile";
+//        String recvFileName = "recvFile";
+        String recvFileName = originalFileName;
         File recvFile = new File(recvFilePath, recvFileName);
         RandomAccessFile tempRecvFile;
         try {
@@ -78,8 +81,17 @@ public class MasterService extends IntentService {
         }
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
+
         /*start master thread*/
-        while (!taskScheduler.isTaskDone()) {
+        while (true) {
+            try {
+                isDone = taskScheduler.isTaskDone();
+                if (isDone) {
+                    break;
+                }
+            } catch (Exception e) {
+                signalActivity("Exception during terminal condition fetching:" + e.toString());
+            }
 //        while (!isDone || !slaveDone || !masterDone) {
             /*schedule task*/
             DownloadTask mTask;
@@ -98,10 +110,10 @@ public class MasterService extends IntentService {
             try {
                 if (sTask != null) {
                     tempRecvFile.seek(sTask.start);
-                /*download on slave*/
+                    /*download on slave*/
                     slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, this);
                     slaveDone = true;
-                /*submit task*/
+                    /*submit task*/
                 }
             } catch (Exception e) {
                 signalActivity("Exception during remote downloading:" + e.toString());
@@ -121,8 +133,10 @@ public class MasterService extends IntentService {
             taskScheduler.submitTask(masterBw, slaveBw);
             signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
+        /* when transmission is done, close file and stop slave*/
         try {
             tempRecvFile.close();
+            /* no need to stop slave */
         } catch (Exception e) {
             signalActivity("Exception during closing file:" + e.toString());
         }
