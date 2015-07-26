@@ -8,6 +8,7 @@ import java.net.SocketAddress;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
@@ -32,17 +33,29 @@ public class MasterOperation  {
 //        return bw;
 //    }
 
-    static public int remoteDownload(TcpConnectorLong conn, DownloadTask task, RandomAccessFile recvFile,
+    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                      BackendService masterService) throws Exception {
         int bw;
-        bw = MasterProxy.remoteDownload(conn, task, recvFile, remoteAddr, localAddr, masterService);
+        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
 
         return bw;
     }
 
-    static public void remoteStop(TcpConnectorLong conn, BackendService masterService) throws Exception {
-        MasterInvoker.remoteStop(conn, masterService);
+    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+                                     TcpConnector conn) throws Exception {
+        int bw;
+        bw = MasterProxy.remoteDownload(task, recvFile, conn);
+
+        return bw;
+    }
+
+    static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService masterService) throws Exception {
+        MasterInvoker.remoteStop(remoteAddr, localAddr, masterService);
+    }
+
+    static public void remoteStop(TcpConnector conn) throws Exception {
+        MasterInvoker.remoteStop(conn);
     }
 
     static public int httpDownload(DownloadTask task, File recvFile) throws Exception {

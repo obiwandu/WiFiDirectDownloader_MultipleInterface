@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
-import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 
 /**
  * Created by User on 7/24/2015.
@@ -19,7 +19,7 @@ public class SlaveTaskThread extends Thread {
     InetSocketAddress masterSockAddr;
     MultithreadMasterService masterService;
     ResultReceiver masterResult;
-    TcpConnectorLong conn;
+    TcpConnector conn;
 
     public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms) {
         taskScheduler = ts;
@@ -29,7 +29,7 @@ public class SlaveTaskThread extends Thread {
         masterService = ms;
 
         try {
-            conn = new TcpConnectorLong(ssa, msa, ms, 0);
+            conn = new TcpConnector(ssa, msa, ms, 0);
         } catch (Exception e) {
             masterService.signalActivity("Exception during setting up data connection:" + e.toString());
         }
@@ -66,7 +66,8 @@ public class SlaveTaskThread extends Thread {
                 if (sTask != null) {
                     tempRecvFile.seek(sTask.start);
                     /*execute downloading*/
-                    slaveBw = MasterOperation.remoteDownload(conn, sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
+//                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
+                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn);
                     taskScheduler.updateMasterBw(slaveBw);
                 }
             } catch (Exception e) {
@@ -80,8 +81,9 @@ public class SlaveTaskThread extends Thread {
 
         /* when transmission is done, close file and stop slave*/
         try {
+            masterService.signalActivity("All tasks have been done, downloading complete!");
             tempRecvFile.close();
-            MasterOperation.remoteStop(conn, masterService);
+            MasterOperation.remoteStop(conn);
             /* no need to stop slave */
         } catch (Exception e) {
             masterService.signalActivity("Exception during closing file:" + e.toString());

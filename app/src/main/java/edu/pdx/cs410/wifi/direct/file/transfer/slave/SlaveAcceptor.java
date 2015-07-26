@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
 
@@ -16,15 +17,18 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
  * Created by User on 7/12/2015.
  */
 public class SlaveAcceptor {
-    static public void listen(TcpConnectorLong conn, BackendService slaveService) throws Exception {
+    static public void listen(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService slaveService) throws Exception {
         byte[] recvHeader = new byte[16];
         byte[] urlBuf = new byte[1024];
+        ProtocolHeader header = new ProtocolHeader();
 
+        TcpConnector conn = new TcpConnector(remoteAddr, localAddr, slaveService, 1);
         while (true) {
             slaveService.signalActivity("Start listening for command");
 //            InetSocketAddress[] sockAddr = TcpTrans.recv(localAddr, recvBuf);
-            ProtocolHeader header = new ProtocolHeader();
+
             String url;
+
             conn.recv(recvHeader);
             header.decapPro(recvHeader);
             if (header.type == 2222) {
@@ -33,11 +37,11 @@ public class SlaveAcceptor {
                 break;
             }
             conn.recv(urlBuf, header.urlLen);
-//            url = String.valueOf(urlBuf);
             url = new String(urlBuf);
             slaveService.signalActivity("Command got, start downloading");
 //            SlaveProcessor.processRequest(recvBuf, sockAddr, slaveService);
-            SlaveProcessor.processRequest(conn, header, url, slaveService);
+            SlaveProcessor.processRequest(header, url, conn);
+            slaveService.signalActivity("Data sent back succefully");
         }
     }
 }

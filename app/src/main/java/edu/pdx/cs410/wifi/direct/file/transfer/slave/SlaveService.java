@@ -19,7 +19,7 @@ public class SlaveService extends BackendService {
 //    private ResultReceiver slaveResult;
 //    private InetAddress masterIp;
 //    private InetAddress slaveIp;
-    private TcpConnectorLong conn;
+//    private TcpConnectorLong conn;
 
     public SlaveService() {
         super();
@@ -35,8 +35,8 @@ public class SlaveService extends BackendService {
         try {
             InetSocketAddress localSockAddr = new InetSocketAddress(slaveIp, nrsPort);
             InetSocketAddress remoteSockAddr = new InetSocketAddress(masterIp, nrsPort);
-            conn = new TcpConnectorLong(remoteSockAddr, localSockAddr, this, 1);
-            SlaveAcceptor.listen(conn, this);
+//            conn = new TcpConnectorLong(remoteSockAddr, localSockAddr, this, 1);
+            SlaveAcceptor.listen(remoteSockAddr, localSockAddr, this);
         } catch (Exception e) {
             signalActivity("Failure in downloading:" + e.toString());
         }

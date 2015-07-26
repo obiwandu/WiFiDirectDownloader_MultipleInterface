@@ -157,6 +157,7 @@ public class HttpDownload {
         BwMetric bwMetric = new BwMetric(masterService);
         OutputStream output = null;
         InputStream input = null;
+        int totalLen = 0;
         URL url = new URL(strUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Range", "bytes=" + Integer.toString(task.start) +
@@ -167,12 +168,15 @@ public class HttpDownload {
         int bytesRead = 0;
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
+            totalLen += bytesRead;
             bwMetric.bwMetric(bytesRead);
             output.write(buffer);
         }
         output.flush();
         input.close();
         output.close();
+
+        int a = totalLen;
 
         return bwMetric.bw;
     }

@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
@@ -44,10 +45,15 @@ public class SlaveProcessor {
         SlaveInvoker.downLoad(task, sockAddr, slaveService);
     }
 
-    static public void processRequest(TcpConnectorLong conn, ProtocolHeader header, String url, BackendService slaveService) throws Exception {
+    static public void processRequest(InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, String url, BackendService slaveService) throws Exception {
 //        String req = request.toString();
         DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
-        slaveService.signalActivity("Start downloading...");
-        SlaveInvoker.downLoad(conn, task, slaveService);
+        SlaveInvoker.downLoad(remoteAddr, localAddr, task, slaveService);
+    }
+
+    static public void processRequest(ProtocolHeader header, String url, TcpConnector conn) throws Exception {
+//        String req = request.toString();
+        DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
+        SlaveInvoker.downLoad(task, conn);
     }
 }
