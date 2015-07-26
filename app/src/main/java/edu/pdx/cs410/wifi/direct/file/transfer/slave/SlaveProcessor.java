@@ -1,9 +1,13 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.slave;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/12/2015.
@@ -32,11 +36,18 @@ public class SlaveProcessor {
         return task;
     }
 
-    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr, SlaveService slaveService) throws Exception {
+    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr, BackendService slaveService) throws Exception {
 //        String req = request.toString();
         String req = new String(request);
         DownloadTask task = parseRequest(req);
         slaveService.signalActivity("Start downloading...");
         SlaveInvoker.downLoad(task, sockAddr, slaveService);
+    }
+
+    static public void processRequest(TcpConnectorLong conn, ProtocolHeader header, String url, BackendService slaveService) throws Exception {
+//        String req = request.toString();
+        DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
+        slaveService.signalActivity("Start downloading...");
+        SlaveInvoker.downLoad(conn, task, slaveService);
     }
 }

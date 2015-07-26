@@ -5,7 +5,9 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/11/2015.
@@ -13,17 +15,25 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 public class MasterProxy {
     static public int remoteDownload(DownloadTask task, File recvFile,
                                          InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                         MasterService masterService) throws Exception {
+                                     BackendService masterService) throws Exception {
         int bw;
         bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
         return bw;
     }
 
-    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+//    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+//                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+//                                     MasterService masterService) throws Exception {
+//        int bw;
+//        bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+//        return bw;
+//    }
+
+    static public int remoteDownload(TcpConnectorLong conn, DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     MasterService masterService) throws Exception {
+                                     BackendService masterService) throws Exception {
         int bw;
-        bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+        bw = MasterInvoker.remoteDownload(conn, task, recvFile, remoteAddr, localAddr, masterService);
         return bw;
     }
 }

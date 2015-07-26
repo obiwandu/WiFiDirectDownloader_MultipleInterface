@@ -36,21 +36,27 @@ public class TaskScheduler {
         return isDone;
     }
 
-    public DownloadTask[] scheduleTask(int baseLen) throws Exception {
+    public DownloadTask scheduleTask(int baseLen, boolean isMaster) throws Exception {
         semaphore.acquire();
         if (!leftTask.isDone) {
-            DownloadTask[] retTask = new DownloadTask[2];
+            DownloadTask retTask;
             int leftLen = leftTask.end - leftTask.start + 1;
 
             if (leftLen <= baseLen) {
                 /* last scheduling, only a small part of task left */
                 if (mBw >= sBw) {
 //                    retTask[0] = new DownloadTask(leftTask.start, leftTask.end, totalLen, url);
-                    retTask[0] = leftTask.schedule(leftLen);
-                    retTask[1] = null;
+                    if (isMaster) {
+                        retTask = leftTask.schedule(leftLen);
+                    } else {
+                        retTask = null;
+                    }
                 } else {
-                    retTask[0] = null;
-                    retTask[1] = leftTask.schedule(leftLen);
+                    if (isMaster) {
+                        retTask = null;
+                    } else {
+                        retTask = leftTask.schedule(leftLen);
+                    }
 //                    retTask[1] = new DownloadTask(leftTask.start, leftTask.end, totalLen, url);
                 }
 
@@ -93,27 +99,15 @@ public class TaskScheduler {
                 }
 
                 /*schedule new tasks for master and slave*/
-//                curStart = leftTask.start;
-//                curEnd = leftTask.start + mLen - 1;
-//                retTask[0] = new DownloadTask(curStart, curEnd, true, leftTask.url);
-                retTask[0] = leftTask.schedule(mLen);
-//                curStart = leftTask.start + mLen;
-//                curEnd = leftTask.start + mLen + sLen - 1;
-//                retTask[1] = new DownloadTask(curStart, curEnd, true, leftTask.url);
-                retTask[1] = leftTask.schedule(sLen);
-                //            curStart = leftTask.start;
-                //            curEnd = (leftTask.start + mLen - 1 > leftTask.end) ? leftTask.start + mLen - 1 : leftTask.end;
-                //            retTask[0] = new DownloadTask(curStart, curEnd, true, leftTask.url);
-                //            curStart = leftTask.start + mLen;
-                //            curEnd = (leftTask.start + mLen + sLen - 1 > leftTask.end) ? leftTask.start + mLen - 1 : leftTask.end;
-                //            retTask[1] = new DownloadTask(leftTask.start + mLen, leftTask.start + mLen + sLen - 1, false, leftTask.url);
-
-                /*re-calculate the left task*/
-//                leftTask.start += curTaskLen;
-//                leftTask.isPartial = true;
+                if (isMaster) {
+                    retTask = leftTask.schedule(mLen);
+                } else {
+                    retTask = leftTask.schedule(sLen);
+                }
+//                retTask[0] = leftTask.schedule(mLen);
+//                retTask[1] = leftTask.schedule(sLen);
 
                 /*all tasks have been done*/
-//                if (leftTask.start == leftTask.end) {
                 semaphore.release();
                 return retTask;
             }
@@ -196,13 +190,17 @@ public class TaskScheduler {
         return;
     }
 
-    public void updateMasterBw(int m) {
+    public void updateMasterBw(int m) throws Exception {
+        semaphore.acquire();
         mBw = m;
+        semaphore.release();
         return;
     }
 
-    public void updateSlaveBw(int s) {
+    public void updateSlaveBw(int s) throws Exception {
+        semaphore.acquire();
         sBw = s;
+        semaphore.release();
         return;
     }
 }

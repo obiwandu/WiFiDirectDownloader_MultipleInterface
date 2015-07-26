@@ -9,6 +9,7 @@ import java.util.concurrent.Semaphore;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/24/2015.
@@ -20,6 +21,7 @@ public class MasterTaskThread extends Thread{
     InetSocketAddress masterSockAddr;
     MultithreadMasterService masterService;
     ResultReceiver masterResult;
+//    TcpConnectorLong conn;
 
     public MasterTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms){
         taskScheduler = ts;
@@ -27,6 +29,12 @@ public class MasterTaskThread extends Thread{
         slaveSockAddr = ssa;
         masterSockAddr = msa;
         masterService = ms;
+
+//        try {
+//            conn = new TcpConnectorLong(ssa, msa, ms, 0);
+//        } catch (Exception e) {
+//            masterService.signalActivity("Exception during setting up data connection:" + e.toString());
+//        }
     }
 
     public void run() {
@@ -44,11 +52,11 @@ public class MasterTaskThread extends Thread{
 
             /*schedule task*/
             DownloadTask mTask;
-            DownloadTask retTasks[];
+            DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024);
-                mTask = retTasks[0];
+                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                mTask = retTasks;
             } catch (Exception e) {
                 masterService.signalActivity("Exception during task scheduling:" + e.toString());
                 return;
@@ -75,6 +83,7 @@ public class MasterTaskThread extends Thread{
         try {
             tempRecvFile.close();
             /* no need to stop slave */
+//            MasterOperation.remoteStop(conn, masterService);
         } catch (Exception e) {
             masterService.signalActivity("Exception during closing file:" + e.toString());
         }

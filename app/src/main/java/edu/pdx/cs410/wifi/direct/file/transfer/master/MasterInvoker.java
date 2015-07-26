@@ -5,7 +5,10 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/11/2015.
@@ -25,7 +28,7 @@ public class MasterInvoker {
 
     static public int remoteDownload(DownloadTask task, File recvFile,
                                        InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                       MasterService masterService) throws Exception {
+                                     BackendService masterService) throws Exception {
         int bw;
         String command = encapCmd(task);
         masterService.signalActivity("Ready to send command to slave");
@@ -33,20 +36,22 @@ public class MasterInvoker {
         return bw;
     }
 
-    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+    static public int remoteDownload(TcpConnectorLong conn, DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     MasterService masterService) throws Exception {
+                                     BackendService masterService) throws Exception {
         int bw;
-        String command = encapCmd(task);
+//        String command = encapCmd(task);
+        ProtocolHeader header = new ProtocolHeader();
+        header.encapPro(task, 0);
         masterService.signalActivity("Ready to send command to slave");
-        bw = MasterConnector.remoteDownload(command, recvFile, remoteAddr, localAddr, masterService);
+        bw = MasterConnector.remoteDownload(conn, header, task.url, recvFile, remoteAddr, localAddr, masterService);
         return bw;
     }
 
-    static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     MasterService masterService) throws Exception{
-        String command = encapCmd();
+    static public void remoteStop(TcpConnectorLong conn, BackendService masterService) throws Exception{
+        ProtocolHeader header = new ProtocolHeader();
+        header.encapPro(new DownloadTask(0, 0, 0, ""), 2222);
         masterService.signalActivity("Ready to send command to slave");
-        MasterConnector.remoteStop(command, remoteAddr, localAddr, masterService);
+        MasterConnector.remoteStop(header, conn, masterService);
     }
 }

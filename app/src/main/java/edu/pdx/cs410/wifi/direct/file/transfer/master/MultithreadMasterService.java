@@ -12,13 +12,14 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.concurrent.Semaphore;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 
 /**
  * Created by User on 7/9/2015.
  */
-public class MultithreadMasterService extends MasterService {
-//    private String url;
+public class MultithreadMasterService extends BackendService {
+    private String url;
 //
 //    private InetAddress masterIp;
 //    private InetAddress slaveIp;
@@ -48,7 +49,7 @@ public class MultithreadMasterService extends MasterService {
         nrsPort = (Integer) intent.getExtras().get("port");
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
-        masterResult = (ResultReceiver) intent.getExtras().get("masterResult");
+        resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
 
         InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);
         InetSocketAddress slaveSockAddr = new InetSocketAddress(slaveIp, nrsPort);
@@ -81,8 +82,8 @@ public class MultithreadMasterService extends MasterService {
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
-        masterThd.start();
+//        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
+//        masterThd.start();
 
         /*start slave thread*/
         Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));

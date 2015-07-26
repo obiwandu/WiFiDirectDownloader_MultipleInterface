@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
@@ -20,18 +21,14 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 /**
  * Created by User on 7/9/2015.
  */
-public class MasterService extends IntentService {
+public class MasterService extends BackendService {
     protected String url;
     //    private String slaveIp;
 //    private String masterIp;
 //    private int transPort;
-    protected InetAddress masterIp;
-    protected InetAddress slaveIp;
-    protected ResultReceiver masterResult;
-    protected int nrsPort;
 
     public MasterService() {
-        super("MasterService");
+        super();
     }
 
     @Override
@@ -52,7 +49,7 @@ public class MasterService extends IntentService {
         nrsPort = (Integer) intent.getExtras().get("port");
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
-        masterResult = (ResultReceiver) intent.getExtras().get("masterResult");
+        resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
 
         InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);
         InetSocketAddress slaveSockAddr = new InetSocketAddress(slaveIp, nrsPort);
@@ -76,9 +73,10 @@ public class MasterService extends IntentService {
         try {
             tempRecvFile = new RandomAccessFile(recvFile, "rwd");
         } catch (Exception e) {
-            signalActivity("Exception during creating RA file:" + e.toString());
+            signalActivity("Exception during creating RandomAccess file:" + e.toString());
             return;
         }
+
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
@@ -96,12 +94,12 @@ public class MasterService extends IntentService {
             /*schedule task*/
             DownloadTask mTask;
             DownloadTask sTask;
-            DownloadTask retTasks[];
+            DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024);
-                mTask = retTasks[0];
-                sTask = retTasks[1];
+                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                mTask = retTasks;
+                sTask = retTasks;
             } catch (Exception e) {
                 signalActivity("Exception during task scheduling:" + e.toString());
                 return;
@@ -111,7 +109,7 @@ public class MasterService extends IntentService {
                 if (sTask != null) {
                     tempRecvFile.seek(sTask.start);
                     /*download on slave*/
-                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, this);
+//                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, this);
                     slaveDone = true;
                     /*submit task*/
                 }
@@ -142,15 +140,15 @@ public class MasterService extends IntentService {
         }
     }
 
-    public void signalActivity(String msg) {
-        Bundle b = new Bundle();
-        b.putString("message", msg);
-        masterResult.send(nrsPort, b);
-    }
+//    public void signalActivity(String msg) {
+//        Bundle b = new Bundle();
+//        b.putString("message", msg);
+//        resultReceiver.send(nrsPort, b);
+//    }
 
-    public void signalActivityProgress(String msg) {
-        Bundle b = new Bundle();
-        b.putString("progress", msg);
-        masterResult.send(1, b);
-    }
+//    public void signalActivityProgress(String msg) {
+//        Bundle b = new Bundle();
+//        b.putString("progress", msg);
+//        resultReceiver.send(1, b);
+//    }
 }

@@ -7,24 +7,32 @@ import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/24/2015.
  */
-public class SlaveTaskThread extends Thread{
+public class SlaveTaskThread extends Thread {
     TaskScheduler taskScheduler;
     RandomAccessFile tempRecvFile;
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
     MultithreadMasterService masterService;
     ResultReceiver masterResult;
+    TcpConnectorLong conn;
 
-    public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms){
+    public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms) {
         taskScheduler = ts;
         tempRecvFile = raf;
         slaveSockAddr = ssa;
         masterSockAddr = msa;
         masterService = ms;
+
+        try {
+            conn = new TcpConnectorLong(ssa, msa, ms, 0);
+        } catch (Exception e) {
+            masterService.signalActivity("Exception during setting up data connection:" + e.toString());
+        }
     }
 
     public void run() {
@@ -42,11 +50,12 @@ public class SlaveTaskThread extends Thread{
 
             /*schedule task*/
             DownloadTask sTask;
-            DownloadTask retTasks[];
+            DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024);
-                sTask = retTasks[0];
+//                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
+                sTask = retTasks;
             } catch (Exception e) {
                 masterService.signalActivity("Exception during task scheduling:" + e.toString());
                 return;
@@ -57,7 +66,7 @@ public class SlaveTaskThread extends Thread{
                 if (sTask != null) {
                     tempRecvFile.seek(sTask.start);
                     /*execute downloading*/
-                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
+                    slaveBw = MasterOperation.remoteDownload(conn, sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
                     taskScheduler.updateMasterBw(slaveBw);
                 }
             } catch (Exception e) {
@@ -72,6 +81,7 @@ public class SlaveTaskThread extends Thread{
         /* when transmission is done, close file and stop slave*/
         try {
             tempRecvFile.close();
+            MasterOperation.remoteStop(conn, masterService);
             /* no need to stop slave */
         } catch (Exception e) {
             masterService.signalActivity("Exception during closing file:" + e.toString());

@@ -23,7 +23,11 @@ public class ProtocolHeader {
         ByteBuffer bb = ByteBuffer.allocate(4 * Integer.SIZE / Byte.SIZE);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(type);
-        bb.putInt(task.url.length());
+        if (type == 1111) {
+            bb.putInt(task.end - task.start + 1);
+        } else {
+            bb.putInt(task.url.length());
+        }
         bb.putInt(task.start);
         bb.putInt(task.end);
         header = bb.array();

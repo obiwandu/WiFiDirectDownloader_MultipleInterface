@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.ServerService;
 
@@ -70,7 +71,7 @@ public class TcpTrans {
             int bytesRead;
             bytesRead = is.read(recvBuf, 0, recvBuf.length);
             if (bytesRead == -1) {
-                throw new Exception();
+                throw new Exception("Fail to receive command");
             }
             is.close();
             socket.close();
@@ -80,7 +81,7 @@ public class TcpTrans {
         return retSockAddr;
     }
 
-    static public int recv(InetSocketAddress localAddr, File recvFile, MasterService masterService) throws Exception {
+    static public int recv(InetSocketAddress localAddr, File recvFile, BackendService masterService) throws Exception {
         ServerSocket serverSocket = new ServerSocket();
         BwMetric bwMetric = new BwMetric(masterService);
         try {
@@ -114,7 +115,7 @@ public class TcpTrans {
         return bwMetric.bw;
     }
 
-    static public int recv(InetSocketAddress localAddr, RandomAccessFile recvFile, MasterService masterService) throws Exception {
+    static public int recv(InetSocketAddress localAddr, RandomAccessFile recvFile, BackendService masterService) throws Exception {
         ServerSocket serverSocket = new ServerSocket();
         BwMetric bwMetric = new BwMetric(masterService);
         try {

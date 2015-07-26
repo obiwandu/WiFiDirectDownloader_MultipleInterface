@@ -5,8 +5,10 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/11/2015.
@@ -14,25 +16,33 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 public class MasterOperation  {
     static public int remoteDownload(DownloadTask task, File recvFile,
                                          InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                         MasterService masterService) throws Exception {
+                                         BackendService masterService) throws Exception {
         int bw;
         bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
 
         return bw;
     }
 
-    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+//    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+//                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+//                                     BackendService masterService) throws Exception {
+//        int bw;
+//        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+//
+//        return bw;
+//    }
+
+    static public int remoteDownload(TcpConnectorLong conn, DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     MasterService masterService) throws Exception {
+                                     BackendService masterService) throws Exception {
         int bw;
-        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+        bw = MasterProxy.remoteDownload(conn, task, recvFile, remoteAddr, localAddr, masterService);
 
         return bw;
     }
 
-    static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     MasterService masterService) throws Exception {
-        MasterInvoker.remoteStop(remoteAddr, localAddr, masterService);
+    static public void remoteStop(TcpConnectorLong conn, BackendService masterService) throws Exception {
+        MasterInvoker.remoteStop(conn, masterService);
     }
 
     static public int httpDownload(DownloadTask task, File recvFile) throws Exception {
@@ -45,7 +55,7 @@ public class MasterOperation  {
         return bw;
     }
 
-    static public int httpDownload(DownloadTask task, File recvFile, MasterService masterService) throws Exception {
+    static public int httpDownload(DownloadTask task, File recvFile, BackendService masterService) throws Exception {
         int bw;
         if (task.isPartial){
             bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
@@ -56,7 +66,7 @@ public class MasterOperation  {
         return bw;
     }
 
-    static public int httpDownload(DownloadTask task, RandomAccessFile recvFile, MasterService masterService) throws Exception {
+    static public int httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService) throws Exception {
         int bw;
         if (task.isPartial){
             bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);

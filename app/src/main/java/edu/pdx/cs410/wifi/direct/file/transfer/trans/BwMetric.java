@@ -1,5 +1,6 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.trans;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 import edu.pdx.cs410.wifi.direct.file.transfer.slave.SlaveService;
 
@@ -8,8 +9,9 @@ import edu.pdx.cs410.wifi.direct.file.transfer.slave.SlaveService;
  */
 public class BwMetric {
     /* used for bw calculation */
-    private MasterService masterService;
-    private SlaveService slaveService;
+    private BackendService masterService;
+    private BackendService slaveService;
+    private BackendService backendService;
     private int alreadyBytes = 0;
     private int alreadyTime = 0;
     private long lastTime = System.currentTimeMillis();
@@ -17,7 +19,7 @@ public class BwMetric {
     private int timeSpan;
     public int bw = 0;
 
-    public BwMetric (MasterService service) {
+    public BwMetric (BackendService service) {
         /* used for bw calculation */
         alreadyBytes = 0;
         alreadyTime = 0;
@@ -25,21 +27,22 @@ public class BwMetric {
         currenntTime = 0;
         timeSpan = 0;
         bw = 0;
-        masterService = service;
-        slaveService = null;
+        backendService = service;
+//        masterService = service;
+//        slaveService = null;
     }
 
-    public BwMetric (SlaveService service) {
-        /* used for bw calculation */
-        alreadyBytes = 0;
-        alreadyTime = 0;
-        lastTime = System.currentTimeMillis();
-        currenntTime = 0;
-        timeSpan = 0;
-        bw = 0;
-        masterService = null;
-        slaveService = service;
-    }
+//    public BwMetric (BackendService service) {
+//        /* used for bw calculation */
+//        alreadyBytes = 0;
+//        alreadyTime = 0;
+//        lastTime = System.currentTimeMillis();
+//        currenntTime = 0;
+//        timeSpan = 0;
+//        bw = 0;
+//        masterService = null;
+//        slaveService = service;
+//    }
 
     public int bwMetric(int bytesRead) {
         /* update bw */
@@ -54,12 +57,12 @@ public class BwMetric {
             bw = 0;
         }
 
-        if (masterService != null) {
-            masterService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
+        if (backendService != null) {
+            backendService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
         }
-        else if (slaveService != null) {
-            slaveService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
-        }
+//        else if (slaveService != null) {
+//            slaveService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
+//        }
 
         return bw;
     }

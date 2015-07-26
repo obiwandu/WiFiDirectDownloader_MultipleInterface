@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 import edu.pdx.cs410.wifi.direct.file.transfer.slave.SlaveService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -39,30 +40,30 @@ public class HttpDownload {
         output.close();
     }
 
-    static public int download(String strUrl, File recvFile, SlaveService slaveService) throws Exception {
-        BwMetric bwMetric = new BwMetric(slaveService);
-        OutputStream output = null;
-        InputStream input = null;
-        URL url = new URL(strUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//    static public int download(String strUrl, File recvFile, BackendService slaveService) throws Exception {
+//        BwMetric bwMetric = new BwMetric(slaveService);
+//        OutputStream output = null;
+//        InputStream input = null;
+//        URL url = new URL(strUrl);
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        input = conn.getInputStream();
+//        output = new FileOutputStream(recvFile);
+//
+//        byte[] buffer = new byte[4 * 1024];
+//        int bytesRead = 0;
+//        while ((bytesRead = input.read(buffer)) != -1) {
+//            bwMetric.bwMetric(bytesRead);
+//            output.write(buffer);
+//        }
+//        output.flush();
+//        input.close();
+//        output.close();
+//
+//        return bwMetric.bw;
+//    }
 
-        input = conn.getInputStream();
-        output = new FileOutputStream(recvFile);
-
-        byte[] buffer = new byte[4 * 1024];
-        int bytesRead = 0;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead);
-            output.write(buffer);
-        }
-        output.flush();
-        input.close();
-        output.close();
-
-        return bwMetric.bw;
-    }
-
-    static public int download(String strUrl, File recvFile, MasterService masterService) throws Exception {
+    static public int download(String strUrl, File recvFile, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService);
         OutputStream output = null;
         InputStream input = null;
@@ -85,7 +86,7 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public int download(String strUrl, RandomAccessFile recvFile, MasterService masterService) throws Exception {
+    static public int download(String strUrl, RandomAccessFile recvFile, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService);
 //        OutputStream output = null;
         InputStream input = null;
@@ -109,29 +110,29 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public int download(String strUrl, RandomAccessFile recvFile, SlaveService slaveService) throws Exception {
-        BwMetric bwMetric = new BwMetric(slaveService);
-//        OutputStream output = null;
-        InputStream input = null;
-        URL url = new URL(strUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        input = conn.getInputStream();
-//        output = new FileOutputStream(recvFile);
-
-        byte[] buffer = new byte[4 * 1024];
-        int bytesRead = 0;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead);
-            recvFile.write(buffer, 0, bytesRead);
-//            output.write(buffer);
-        }
-//        output.flush();
-        input.close();
-//        output.close();
-
-        return bwMetric.bw;
-    }
+//    static public int download(String strUrl, RandomAccessFile recvFile, BackendService slaveService) throws Exception {
+//        BwMetric bwMetric = new BwMetric(slaveService);
+////        OutputStream output = null;
+//        InputStream input = null;
+//        URL url = new URL(strUrl);
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        input = conn.getInputStream();
+////        output = new FileOutputStream(recvFile);
+//
+//        byte[] buffer = new byte[4 * 1024];
+//        int bytesRead = 0;
+//        while ((bytesRead = input.read(buffer)) != -1) {
+//            bwMetric.bwMetric(bytesRead);
+//            recvFile.write(buffer, 0, bytesRead);
+////            output.write(buffer);
+//        }
+////        output.flush();
+//        input.close();
+////        output.close();
+//
+//        return bwMetric.bw;
+//    }
 
     static public void partialDownload(String strUrl, File recvFile, DownloadTask task) throws Exception {
         OutputStream output = null;
@@ -152,7 +153,7 @@ public class HttpDownload {
         output.close();
     }
 
-    static public int partialDownload(String strUrl, File recvFile, DownloadTask task, MasterService masterService) throws Exception {
+    static public int partialDownload(String strUrl, File recvFile, DownloadTask task, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService);
         OutputStream output = null;
         InputStream input = null;
@@ -176,7 +177,7 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public int partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, MasterService masterService) throws Exception {
+    static public int partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService);
 //        OutputStream output = null;
         InputStream input = null;
@@ -201,52 +202,52 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public int partialDownload(String strUrl, File recvFile, DownloadTask task, SlaveService slaveService) throws Exception {
-        BwMetric bwMetric = new BwMetric(slaveService);
-        OutputStream output = null;
-        InputStream input = null;
-        URL url = new URL(strUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestProperty("Range", "bytes=" + Integer.toString(task.start) +
-                "-" + Integer.toString(task.end));
-        input = conn.getInputStream();
-        output = new FileOutputStream(recvFile);
-
-        int bytesRead = 0;
-        byte[] buffer = new byte[4 * 1024];
-        while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead);
-            output.write(buffer);
-        }
-        output.flush();
-        input.close();
-        output.close();
-
-        return bwMetric.bw;
-    }
-
-    static public int partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, SlaveService slaveService) throws Exception {
-        BwMetric bwMetric = new BwMetric(slaveService);
+//    static public int partialDownload(String strUrl, File recvFile, DownloadTask task, BackendService slaveService) throws Exception {
+//        BwMetric bwMetric = new BwMetric(slaveService);
 //        OutputStream output = null;
-        InputStream input = null;
-        URL url = new URL(strUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestProperty("Range", "bytes=" + Integer.toString(task.start) +
-                "-" + Integer.toString(task.end));
-        input = conn.getInputStream();
+//        InputStream input = null;
+//        URL url = new URL(strUrl);
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//        conn.setRequestProperty("Range", "bytes=" + Integer.toString(task.start) +
+//                "-" + Integer.toString(task.end));
+//        input = conn.getInputStream();
 //        output = new FileOutputStream(recvFile);
-
-        int bytesRead = 0;
-        byte[] buffer = new byte[4 * 1024];
-        while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead);
-            recvFile.write(buffer, 0, bytesRead);
+//
+//        int bytesRead = 0;
+//        byte[] buffer = new byte[4 * 1024];
+//        while ((bytesRead = input.read(buffer)) != -1) {
+//            bwMetric.bwMetric(bytesRead);
 //            output.write(buffer);
-        }
+//        }
 //        output.flush();
-        input.close();
+//        input.close();
 //        output.close();
+//
+//        return bwMetric.bw;
+//    }
 
-        return bwMetric.bw;
-    }
+//    static public int partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, BackendService slaveService) throws Exception {
+//        BwMetric bwMetric = new BwMetric(slaveService);
+////        OutputStream output = null;
+//        InputStream input = null;
+//        URL url = new URL(strUrl);
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//        conn.setRequestProperty("Range", "bytes=" + Integer.toString(task.start) +
+//                "-" + Integer.toString(task.end));
+//        input = conn.getInputStream();
+////        output = new FileOutputStream(recvFile);
+//
+//        int bytesRead = 0;
+//        byte[] buffer = new byte[4 * 1024];
+//        while ((bytesRead = input.read(buffer)) != -1) {
+//            bwMetric.bwMetric(bytesRead);
+//            recvFile.write(buffer, 0, bytesRead);
+////            output.write(buffer);
+//        }
+////        output.flush();
+//        input.close();
+////        output.close();
+//
+//        return bwMetric.bw;
+//    }
 }
