@@ -37,6 +37,7 @@ public class TaskScheduler {
     }
 
     public DownloadTask scheduleTask(int baseLen, boolean isMaster) throws Exception {
+        /* don't release the lock until finish writing file */
         semaphore.acquire();
         if (!leftTask.isDone) {
             DownloadTask retTask;
@@ -45,7 +46,6 @@ public class TaskScheduler {
             if (leftLen <= baseLen) {
                 /* last scheduling, only a small part of task left */
                 if (mBw >= sBw) {
-//                    retTask[0] = new DownloadTask(leftTask.start, leftTask.end, totalLen, url);
                     if (isMaster) {
                         retTask = leftTask.schedule(leftLen);
                     } else {
@@ -57,18 +57,14 @@ public class TaskScheduler {
                     } else {
                         retTask = leftTask.schedule(leftLen);
                     }
-//                    retTask[1] = new DownloadTask(leftTask.start, leftTask.end, totalLen, url);
                 }
 
-//                leftTask.schedule(leftLen);
-                semaphore.release();
+//                semaphore.release();
                 return retTask;
             } else {
                 /* general scheduling */
                 int mLen;
                 int sLen;
-//                int curStart;
-//                int curEnd;
                 int curTaskLen;
 
                 if (leftLen <= 2 * baseLen && leftLen > baseLen) {
@@ -104,14 +100,13 @@ public class TaskScheduler {
                 } else {
                     retTask = leftTask.schedule(sLen);
                 }
-//                retTask[0] = leftTask.schedule(mLen);
-//                retTask[1] = leftTask.schedule(sLen);
 
                 /*all tasks have been done*/
-                semaphore.release();
+//                semaphore.release();
                 return retTask;
             }
         } else {
+            /* All tasks have been done */
             semaphore.release();
             Exception e = new Exception("All tasks have been done");
             throw e;
@@ -186,19 +181,19 @@ public class TaskScheduler {
     public void submitTask(int m, int s) {
         mBw = m;
         sBw = s;
-
+//        semaphore.release();
         return;
     }
 
     public void updateMasterBw(int m) throws Exception {
-        semaphore.acquire();
+//        semaphore.acquire();
         mBw = m;
         semaphore.release();
         return;
     }
 
     public void updateSlaveBw(int s) throws Exception {
-        semaphore.acquire();
+//        semaphore.acquire();
         sBw = s;
         semaphore.release();
         return;

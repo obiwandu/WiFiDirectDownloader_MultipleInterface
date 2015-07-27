@@ -82,8 +82,8 @@ public class MultithreadMasterService extends BackendService {
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
         /*start master thread*/
-//        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
-//        masterThd.start();
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
+        masterThd.start();
 
         /*start slave thread*/
         Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));

@@ -53,8 +53,8 @@ public class SlaveTaskThread extends Thread {
             DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-//                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
-                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
+                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+//                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
             } catch (Exception e) {
                 masterService.signalActivity("Exception during task scheduling:" + e.toString());
@@ -68,6 +68,7 @@ public class SlaveTaskThread extends Thread {
                     /*execute downloading*/
 //                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
                     slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn);
+                    /*submit tasks*/
                     taskScheduler.updateMasterBw(slaveBw);
                 }
             } catch (Exception e) {
@@ -75,7 +76,6 @@ public class SlaveTaskThread extends Thread {
                 return;
             }
 
-            /*submit tasks*/
             masterService.signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 

@@ -68,24 +68,24 @@ public class MasterTaskThread extends Thread{
                     tempRecvFile.seek(mTask.start);
                     /*execute downloading*/
                     masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService);
+                    /*submit tasks*/
                     taskScheduler.updateMasterBw(masterBw);
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during remote downloading:" + e.toString());
+                masterService.signalActivity("Exception during local downloading:" + e.toString());
                 return;
             }
 
-            /*submit tasks*/
             masterService.signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 
         /* when transmission is done, close file and stop slave*/
-        try {
-            tempRecvFile.close();
-            /* no need to stop slave */
-//            MasterOperation.remoteStop(conn, masterService);
-        } catch (Exception e) {
-            masterService.signalActivity("Exception during closing file:" + e.toString());
-        }
+//        try {
+//            tempRecvFile.close();
+//            /* no need to stop slave */
+////            MasterOperation.remoteStop(conn, masterService);
+//        } catch (Exception e) {
+//            masterService.signalActivity("Exception during closing file:" + e.toString());
+//        }
     }
 }
