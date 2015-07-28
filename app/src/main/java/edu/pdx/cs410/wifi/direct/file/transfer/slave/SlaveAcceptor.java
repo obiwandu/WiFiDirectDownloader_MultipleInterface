@@ -29,7 +29,7 @@ public class SlaveAcceptor {
 
             String url;
 
-            conn.recv(recvHeader);
+            conn.recv(recvHeader, 16);
             header.decapPro(recvHeader);
             if (header.type == 2222) {
                 conn.close();

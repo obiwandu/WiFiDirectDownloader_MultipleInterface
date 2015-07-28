@@ -33,15 +33,15 @@ public class MasterConnector {
                                       BackendService masterService) throws Exception {
         int bw;
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, masterService, 0);
-        conn.send(header.header);
+        conn.send(header.header, 16);
         byte[] sendBuf = url.getBytes();
-        conn.send(sendBuf);
+        conn.send(sendBuf, url.length());
         conn.close();
         masterService.signalActivity("Task command is sent successfully, start waiting for data sent back");
 
         conn = new TcpConnector(remoteAddr, localAddr, masterService, 1);
         byte[] recvBuf = new byte[16];
-        conn.recv(recvBuf);
+        conn.recv(recvBuf, 16);
         ProtocolHeader recvHeader = new ProtocolHeader();
         recvHeader.decapPro(recvBuf);
         masterService.signalActivity("Data header received, start receiving data from slave");
@@ -59,11 +59,11 @@ public class MasterConnector {
         byte[] recvBuf = new byte[16];
         ProtocolHeader recvHeader = new ProtocolHeader();
 
-        conn.send(header.header);
-        conn.send(sendBuf);
+        conn.send(header.header, 16);
+        conn.send(sendBuf, url.length());
         conn.backendService.signalActivity("Task command is sent successfully, start waiting for data sent back");
 
-        conn.recv(recvBuf);
+        conn.recv(recvBuf, 16);
         recvHeader.decapPro(recvBuf);
         conn.backendService.signalActivity("Data header received, start receiving data from slave");
         bw = conn.recv(recvFile, recvHeader.dataLen);
@@ -74,13 +74,12 @@ public class MasterConnector {
 
     static public void remoteStop (InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, BackendService masterService) throws Exception {
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, masterService, 0);
-        conn.send(header.header);
+        conn.send(header.header, 16);
         conn.close();
         masterService.signalActivity("Stop command is sent successfully, slave will be shut down");
     }
 
     static public void remoteStop (ProtocolHeader header, TcpConnector conn) throws Exception {
-        conn.send(header.header);
-        conn.backendService.signalActivity("Stop command is sent successfully, slave will be shut down");
+        conn.send(header.header, 16);
     }
 }

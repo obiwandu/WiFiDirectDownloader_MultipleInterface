@@ -48,13 +48,6 @@ public class TcpConnector {
         os = socket.getOutputStream();
     }
 
-//    public TcpConnectorLong(InetSocketAddress localAddr, BackendService ms) throws Exception {
-//        backendService = ms;
-//        serverSocket.setReuseAddress(true);
-//        serverSocket.bind(localAddr);
-//        socket = serverSocket.accept();
-//    }
-
     public void close() throws Exception {
         is.close();
         os.close();
@@ -67,7 +60,6 @@ public class TcpConnector {
     public int recv(RandomAccessFile recvFile, int dataLen) throws Exception {
         BwMetric bwMetric = new BwMetric(backendService);
 
-//        InputStream is = socket.getInputStream();
         byte[] buffer = new byte[4096];
         int bytesRead;
         int alreadyLen = 0;
@@ -95,41 +87,33 @@ public class TcpConnector {
 
             recvFile.write(buffer, 0, bytesRead);
         }
-//        is.close();
 
         return bwMetric.bw;
     }
 
     public void recv(byte[] recvBuf, int dataLen) throws Exception {
-//        InputStream is = socket.getInputStream();
         int bytesRead;
 
         bytesRead = is.read(recvBuf, 0, dataLen);
         if (bytesRead == -1) {
             throw new Exception("No data received!");
         }
-//        is.close();
 
         return;
     }
 
-    public void recv(byte[] recvBuf) throws Exception {
-//        InputStream is = socket.getInputStream();
-        int bytesRead;
-
-        bytesRead = is.read(recvBuf, 0, recvBuf.length);
-        if (bytesRead == -1) {
-            throw new Exception("No data received!");
-        }
-//        is.close();
-
-        return;
-    }
+//    public void recv(byte[] recvBuf) throws Exception {
+//        int bytesRead;
+//
+//        bytesRead = is.read(recvBuf, 0, recvBuf.length);
+//        if (bytesRead == -1) {
+//            throw new Exception("No data received!");
+//        }
+//
+//        return;
+//    }
 
     public void send(File sendFile, int fileLen) throws Exception {
-        Socket socket = new Socket();
-
-//        OutputStream os = socket.getOutputStream();
         byte[] buffer = new byte[4096];
         int bytesRead;
         int alreadyLen = 0;
@@ -156,19 +140,17 @@ public class TcpConnector {
         fis.close();
         bis.close();
         int a = totalLen;
-//        os.close();
 
         return;
     }
 
-    public void send(byte[] sendBuf) throws Exception {
-//        OutputStream os = socket.getOutputStream();
+    public void send(byte[] sendBuf, int bufLen) throws Exception {
         int bytesRead;
 
-        bytesRead = sendBuf.length;
+//        bytesRead = sendBuf.length;
+        bytesRead = bufLen;
         os.write(sendBuf, 0, bytesRead);
         os.flush();
-//        os.close();
 
         return;
     }

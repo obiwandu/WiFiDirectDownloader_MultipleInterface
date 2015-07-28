@@ -72,5 +72,6 @@ public class MasterInvoker {
         header.encapPro(new DownloadTask(0, 0, 0, ""), 2222);
         conn.backendService.signalActivity("Ready to send command to slave");
         MasterConnector.remoteStop(header, conn);
+        conn.backendService.signalActivity("Stop command is sent successfully, slave will be shut down");
     }
 }

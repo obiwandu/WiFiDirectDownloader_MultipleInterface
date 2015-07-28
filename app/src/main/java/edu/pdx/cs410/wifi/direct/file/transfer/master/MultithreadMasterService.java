@@ -14,6 +14,7 @@ import java.util.concurrent.Semaphore;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
+import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 
 /**
  * Created by User on 7/9/2015.
@@ -44,6 +45,7 @@ public class MultithreadMasterService extends BackendService {
         int masterBw = 0;
         int slaveBw = 0;
         String originalFileName = "unnamed";
+        TimeMetric tm = new TimeMetric();
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
@@ -81,12 +83,13 @@ public class MultithreadMasterService extends BackendService {
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
+        tm.startTimer();
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm));
         masterThd.start();
 
         /*start slave thread*/
-        Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this));
+        Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm));
         slaveThd.start();
         /* when transmission is done, close file and stop slave*/
 //        try {

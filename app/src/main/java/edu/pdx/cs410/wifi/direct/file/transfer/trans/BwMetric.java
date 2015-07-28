@@ -52,13 +52,13 @@ public class BwMetric {
         lastTime = currenntTime;
         alreadyTime += timeSpan;
         if (alreadyTime > 0) {
-            bw = alreadyBytes / alreadyTime;
+            bw = 1000 * alreadyBytes / (alreadyTime * 1024);
         } else {
             bw = 0;
         }
 
         if (backendService != null) {
-            backendService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
+            backendService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " KB/s");
         }
 //        else if (slaveService != null) {
 //            slaveService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");

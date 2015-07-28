@@ -56,7 +56,7 @@ public class SlaveInvoker {
         header.encapPro(task, 1111);
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, slaveService, 0);
         slaveService.signalActivity("Sending data back to master");
-        conn.send(header.header);
+        conn.send(header.header, 16);
         conn.send(tempFile, task.end - task.start + 1);
         conn.close();
     }
@@ -80,7 +80,7 @@ public class SlaveInvoker {
         header.encapPro(task, 1111);
 
         conn.backendService.signalActivity("Sending data back to master");
-        conn.send(header.header);
+        conn.send(header.header, 16);
         conn.send(tempFile, task.end - task.start + 1);
     }
 }
