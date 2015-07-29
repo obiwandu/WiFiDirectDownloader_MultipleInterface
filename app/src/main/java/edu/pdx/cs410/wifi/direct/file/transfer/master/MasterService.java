@@ -97,7 +97,7 @@ public class MasterService extends BackendService {
             DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                retTasks = taskScheduler.scheduleTask(100 * 1024, 10 * 1024,true);
                 mTask = retTasks;
                 sTask = retTasks;
             } catch (Exception e) {

@@ -41,7 +41,7 @@ public class TaskScheduler {
         return isDone;
     }
 
-    public DownloadTask scheduleTask(long baseLen, boolean isMaster) throws Exception {
+    public DownloadTask scheduleTask(long baseLen, long minBaseLen, boolean isMaster) throws Exception {
         /* don't release the lock until finish writing file */
 //        semaphore.acquire();
         if (!leftTask.isDone) {
@@ -94,11 +94,15 @@ public class TaskScheduler {
                         sLen = curTaskLen - mLen;
                     } else {
                         if (mBw == 0) {
-                            mLen = 0;
-                            sLen = curTaskLen;
+//                            mLen = 0;
+//                            sLen = curTaskLen;
+                            mLen = minBaseLen;
+                            sLen = curTaskLen - minBaseLen;
                         } else {
-                            mLen = curTaskLen;
-                            sLen = 0;
+//                            mLen = curTaskLen;
+//                            sLen = 0;
+                            mLen = curTaskLen - minBaseLen;
+                            sLen = minBaseLen;
                         }
                     }
                 }

@@ -21,17 +21,21 @@ public class MasterTaskThread extends Thread{
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
     MultithreadMasterService masterService;
+    long chunkSize;
+    long minChunkSize;
     ResultReceiver masterResult;
     TimeMetric time;
 //    TcpConnectorLong conn;
 
-    public MasterTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms, TimeMetric tm){
+    public MasterTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms, TimeMetric tm, long ckSize, long minCkSize){
         taskScheduler = ts;
         tempRecvFile = raf;
         slaveSockAddr = ssa;
         masterSockAddr = msa;
         masterService = ms;
         time = tm;
+        chunkSize = ckSize;
+        minChunkSize = minCkSize;
     }
 
     public void run() {
@@ -60,7 +64,7 @@ public class MasterTaskThread extends Thread{
             DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, true);
                 mTask = retTasks;
             } catch (Exception e) {
                 masterService.signalActivity("Exception during task scheduling:" + e.toString());
@@ -89,11 +93,17 @@ public class MasterTaskThread extends Thread{
             masterService.signalActivityProgress("Master Data Per:" + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:" + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 
-        /* when transmission is done, close file and stop slave*/
+        /* When transmission is done, close file and stop slave*/
 //        try {
+////            taskScheduler.semaphoreMasterDone.acquire();
+////            taskScheduler.semaphoreSlaveDone.acquire();
+//            long totalTime = time.getTimeLapse();
+//            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
 //            tempRecvFile.close();
-//            /* no need to stop slave */
-////            MasterOperation.remoteStop(conn, masterService);
+////            MasterOperation.remoteStop(conn);
+////            taskScheduler.semaphoreMasterDone.release();
+////            taskScheduler.semaphoreSlaveDone.release();
+//            masterService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime/(long)1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
 //        } catch (Exception e) {
 //            masterService.signalActivity("Exception during closing file:" + e.toString());
 //        }

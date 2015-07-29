@@ -22,14 +22,18 @@ public class SlaveTaskThread extends Thread {
     ResultReceiver masterResult;
     TcpConnector conn;
     TimeMetric time;
+    long chunkSize;
+    long minChunkSize;
 
-    public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms, TimeMetric tm) {
+    public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms, TimeMetric tm, long ckSize, long minCkSize) {
         taskScheduler = ts;
         tempRecvFile = raf;
         slaveSockAddr = ssa;
         masterSockAddr = msa;
         masterService = ms;
         time = tm;
+        chunkSize = ckSize;
+        minChunkSize = minCkSize;
 
         try {
             conn = new TcpConnector(ssa, msa, ms, 0);
@@ -65,7 +69,7 @@ public class SlaveTaskThread extends Thread {
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
 //                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
-                retTasks = taskScheduler.scheduleTask(100 * 1024, false);
+                retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, false);
 //                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
             } catch (Exception e) {

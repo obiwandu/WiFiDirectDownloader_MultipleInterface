@@ -44,6 +44,8 @@ public class MultithreadMasterService extends BackendService {
         boolean masterDone = false;
         int masterBw = 0;
         int slaveBw = 0;
+        long chunkSize = 500 * 1024;
+        long minChunkSize = 10 * 1024;
         String originalFileName = "unnamed";
         TimeMetric tm = new TimeMetric();
 
@@ -85,12 +87,13 @@ public class MultithreadMasterService extends BackendService {
 
         tm.startTimer();
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm));
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm, chunkSize, minChunkSize));
         masterThd.start();
 
         /*start slave thread*/
-        Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm));
+        Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm, chunkSize, minChunkSize));
         slaveThd.start();
+
         /* when transmission is done, close file and stop slave*/
 //        try {
 //            tempRecvFile.close();
