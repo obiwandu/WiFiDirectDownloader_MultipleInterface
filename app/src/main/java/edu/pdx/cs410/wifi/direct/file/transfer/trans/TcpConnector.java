@@ -23,10 +23,12 @@ public class TcpConnector {
     private MasterService masterService;
     private InputStream is;
     private OutputStream os;
+    private boolean isMaster;
 
     public TcpConnector(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService ms, int type) throws Exception {
         backendService = ms;
         if (type == 0) {
+            isMaster = true;
             serverSocket = null;
             socket = new Socket();
             socket.setReuseAddress(true);
@@ -36,6 +38,7 @@ public class TcpConnector {
             is = socket.getInputStream();
             os = socket.getOutputStream();
         } else if (type == 1) {
+            isMaster = false;
             backendService = ms;
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -57,17 +60,17 @@ public class TcpConnector {
         }
     }
 
-    public int recv(RandomAccessFile recvFile, int dataLen) throws Exception {
-        BwMetric bwMetric = new BwMetric(backendService);
+    public long recv(RandomAccessFile recvFile, long dataLen) throws Exception {
+        BwMetric bwMetric = new BwMetric(backendService, dataLen);
 
         byte[] buffer = new byte[4096];
         int bytesRead;
-        int alreadyLen = 0;
+        long alreadyLen = 0;
         int currentLen = 0;
 
         while (true) {
             if (dataLen - alreadyLen < buffer.length) {
-                currentLen = dataLen - alreadyLen;
+                currentLen = (int)(dataLen - alreadyLen);
             } else {
                 currentLen = buffer.length;
             }
@@ -83,7 +86,7 @@ public class TcpConnector {
             }
 
             /* update bw */
-            bwMetric.bwMetric(bytesRead);
+            bwMetric.bwMetric(bytesRead, isMaster);
 
             recvFile.write(buffer, 0, bytesRead);
         }
@@ -113,10 +116,10 @@ public class TcpConnector {
 //        return;
 //    }
 
-    public void send(File sendFile, int fileLen) throws Exception {
+    public void send(File sendFile, long fileLen) throws Exception {
         byte[] buffer = new byte[4096];
         int bytesRead;
-        int alreadyLen = 0;
+        long alreadyLen = 0;
         int currentLen = 0;
         int totalLen = 0;
 
@@ -124,7 +127,7 @@ public class TcpConnector {
         BufferedInputStream bis = new BufferedInputStream(fis);
         while (true) {
             if (fileLen - alreadyLen < buffer.length) {
-                currentLen = fileLen - alreadyLen;
+                currentLen = (int)(fileLen - alreadyLen);
             } else {
                 currentLen = buffer.length;
             }

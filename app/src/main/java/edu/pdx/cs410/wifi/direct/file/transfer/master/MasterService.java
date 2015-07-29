@@ -41,8 +41,8 @@ public class MasterService extends BackendService {
         boolean isDone = false;
         boolean slaveDone = false;
         boolean masterDone = false;
-        int masterBw = 0;
-        int slaveBw = 0;
+        long masterBw = 0;
+        long slaveBw = 0;
         String originalFileName = "unnamed";
 
         url = (String) intent.getExtras().get("url");
@@ -129,7 +129,7 @@ public class MasterService extends BackendService {
             }
             /*submit tasks*/
             taskScheduler.submitTask(masterBw, slaveBw);
-            signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            signalActivityProgress("Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
         /* when transmission is done, close file and stop slave*/
         try {

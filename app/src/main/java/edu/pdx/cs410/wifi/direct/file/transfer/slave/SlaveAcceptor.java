@@ -18,9 +18,9 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
  */
 public class SlaveAcceptor {
     static public void listen(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService slaveService) throws Exception {
-        byte[] recvHeader = new byte[16];
+        byte[] recvHeader = new byte[ProtocolHeader.HEADER_LEN];
         byte[] urlBuf = new byte[1024];
-        ProtocolHeader header = new ProtocolHeader();
+//        ProtocolHeader header = new ProtocolHeader();
 
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, slaveService, 1);
         while (true) {
@@ -29,14 +29,15 @@ public class SlaveAcceptor {
 
             String url;
 
-            conn.recv(recvHeader, 16);
-            header.decapPro(recvHeader);
-            if (header.type == 2222) {
+            conn.recv(recvHeader, ProtocolHeader.HEADER_LEN);
+//            header.decapPro(recvHeader);
+            ProtocolHeader header = new ProtocolHeader(recvHeader);
+            if (header.stop == true) {
                 conn.close();
                 slaveService.signalActivity("All tasks are complete, slave stops");
                 break;
             }
-            conn.recv(urlBuf, header.urlLen);
+            conn.recv(urlBuf, (int)header.urlLen);
             url = new String(urlBuf);
             slaveService.signalActivity("Command got, start downloading");
 //            SlaveProcessor.processRequest(recvBuf, sockAddr, slaveService);

@@ -39,12 +39,20 @@ public class SlaveTaskThread extends Thread {
     }
 
     public void run() {
-        int slaveBw;
+        long dataCount = 0;
+        long slaveBw = 0;
         boolean isDone;
+
+        try {
+            taskScheduler.semaphoreSlaveDone.acquire();
+        } catch (Exception e) {
+            masterService.signalActivity("Exception during accquring slave lock:" + e.toString());
+        }
         while (true) {
             try {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
+                    taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
             } catch (Exception e) {
@@ -56,7 +64,8 @@ public class SlaveTaskThread extends Thread {
             DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+//                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
+                retTasks = taskScheduler.scheduleTask(100 * 1024, false);
 //                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
             } catch (Exception e) {
@@ -71,8 +80,9 @@ public class SlaveTaskThread extends Thread {
                     /*execute downloading*/
 //                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
                     slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn);
+                    dataCount += sTask.end - sTask.start + 1;
                     /*submit tasks*/
-                    taskScheduler.updateMasterBw(slaveBw);
+                    taskScheduler.updateSlaveBw(slaveBw);
                 }
             } catch (Exception e) {
                 masterService.signalActivity("Exception during remote downloading:" + e.toString());
@@ -83,17 +93,21 @@ public class SlaveTaskThread extends Thread {
             float totalLen = (float)taskScheduler.leftTask.totalLen;
             float alreadyLen = (float)taskScheduler.leftTask.start;
             float progress = (alreadyLen * (float)100)/totalLen;
-            masterService.signalActivityProgress("Progress:" + progress + "% | Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            float slavePer = (float)(100*dataCount)/(float)taskScheduler.leftTask.totalLen;
+            masterService.signalActivityProgress("Slave Data Per:" + slavePer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:" + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 
-        /* when transmission is done, close file and stop slave*/
+        /* When transmission is done, close file and stop slave*/
         try {
+            taskScheduler.semaphoreMasterDone.acquire();
+            taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = time.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
             tempRecvFile.close();
             MasterOperation.remoteStop(conn);
+            taskScheduler.semaphoreMasterDone.release();
+            taskScheduler.semaphoreSlaveDone.release();
             masterService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime/(long)1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
-            /* no need to stop slave */
         } catch (Exception e) {
             masterService.signalActivity("Exception during closing file:" + e.toString());
         }

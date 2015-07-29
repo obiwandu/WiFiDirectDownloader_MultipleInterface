@@ -35,12 +35,20 @@ public class MasterTaskThread extends Thread{
     }
 
     public void run() {
-        int masterBw;
+        int dataCount = 0;
+        long masterBw = 0;
         boolean isDone;
+
+        try {
+            taskScheduler.semaphoreMasterDone.acquire();
+        } catch (Exception e) {
+            masterService.signalActivity("Exception during accquring master lock:" + e.toString());
+        }
         while (true) {
             try {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
+                    taskScheduler.semaphoreMasterDone.release();
                     break;
                 }
             } catch (Exception e) {
@@ -65,6 +73,7 @@ public class MasterTaskThread extends Thread{
                     tempRecvFile.seek(mTask.start);
                     /*execute downloading*/
                     masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService);
+                    dataCount += mTask.end - mTask.start + 1;
                     /*submit tasks*/
                     taskScheduler.updateMasterBw(masterBw);
                 }
@@ -76,7 +85,8 @@ public class MasterTaskThread extends Thread{
             float totalLen = (float)taskScheduler.leftTask.totalLen;
             float alreadyLen = (float)taskScheduler.leftTask.start;
             float progress = (alreadyLen * (float)100)/totalLen;
-            masterService.signalActivityProgress("Progress:" + progress + "% | Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            float masterPer = (float)(100*dataCount)/(float)taskScheduler.leftTask.totalLen;
+            masterService.signalActivityProgress("Master Data Per:" + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:" + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 
         /* when transmission is done, close file and stop slave*/

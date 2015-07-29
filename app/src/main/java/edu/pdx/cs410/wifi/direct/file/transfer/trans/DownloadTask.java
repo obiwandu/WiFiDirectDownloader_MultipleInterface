@@ -4,14 +4,14 @@ package edu.pdx.cs410.wifi.direct.file.transfer.trans;
  * Created by User on 7/5/2015.
  */
 public class DownloadTask {
-    public int start;
-    public int end;
-    public int totalLen;
+    public long start;
+    public long end;
+    public long totalLen;
     public boolean isPartial;
     public boolean isDone;
     public String url;
 
-    public DownloadTask(int s, int e, int tl, String l) {
+    public DownloadTask(long s, long e, long tl, String l) {
         start = s;
         end = e;
         totalLen = tl;
@@ -30,9 +30,9 @@ public class DownloadTask {
         }
     }
 
-    public DownloadTask schedule(int taskLen) {
-        int actTaskLen;
-        int newStart, newEnd;
+    public DownloadTask schedule(long taskLen) {
+        long actTaskLen;
+        long newStart, newEnd;
 
         if (taskLen == 0) {
             return null;

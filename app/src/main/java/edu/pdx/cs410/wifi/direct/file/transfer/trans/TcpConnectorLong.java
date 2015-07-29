@@ -24,10 +24,12 @@ public class TcpConnectorLong {
     private MasterService masterService;
     private InputStream is;
     private OutputStream os;
+    private boolean isMaster;
 
     public TcpConnectorLong(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService ms, int type) throws Exception {
         backendService = ms;
         if (type == 0) {
+            isMaster = true;
             serverSocket = null;
             socket = new Socket();
             socket.setReuseAddress(true);
@@ -37,6 +39,7 @@ public class TcpConnectorLong {
             is = socket.getInputStream();
             os = socket.getOutputStream();
         } else if (type == 1) {
+            isMaster = false;
             backendService = ms;
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -65,8 +68,8 @@ public class TcpConnectorLong {
         }
     }
 
-    public int recv(RandomAccessFile recvFile, int dataLen) throws Exception {
-        BwMetric bwMetric = new BwMetric(masterService);
+    public long recv(RandomAccessFile recvFile, int dataLen) throws Exception {
+        BwMetric bwMetric = new BwMetric(masterService, dataLen);
 
 //        InputStream is = socket.getInputStream();
         byte[] buffer = new byte[4096];
@@ -92,7 +95,7 @@ public class TcpConnectorLong {
             }
 
             /* update bw */
-            bwMetric.bwMetric(bytesRead);
+            bwMetric.bwMetric(bytesRead, isMaster);
 
             recvFile.write(buffer, 0, bytesRead);
         }

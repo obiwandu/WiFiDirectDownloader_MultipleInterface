@@ -14,13 +14,12 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
  * Created by User on 7/11/2015.
  */
 public class MasterProxy {
-    static public int remoteDownload(DownloadTask task, File recvFile,
-                                         InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                     BackendService masterService) throws Exception {
-        int bw;
-        bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
-        return bw;
-    }
+//    static public long remoteDownload(DownloadTask task, File recvFile,
+//                                         InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+//                                     BackendService masterService) throws Exception {
+//        long bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
+//        return bw;
+//    }
 
 //    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
 //                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
@@ -30,17 +29,18 @@ public class MasterProxy {
 //        return bw;
 //    }
 
-    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+    static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                      BackendService masterService) throws Exception {
-        int bw;
+        long bw;
         bw = MasterInvoker.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
         return bw;
     }
 
-    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
+    /* Long connection version */
+    static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      TcpConnector conn) throws Exception {
-        int bw;
+        long bw;
         bw = MasterInvoker.remoteDownload(task, recvFile, conn);
         return bw;
     }

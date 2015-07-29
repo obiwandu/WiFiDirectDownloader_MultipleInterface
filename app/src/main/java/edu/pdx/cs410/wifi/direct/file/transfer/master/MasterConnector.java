@@ -15,58 +15,64 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
  * Created by User on 7/11/2015.
  */
 public class MasterConnector {
-    static public int remoteDownload (String command, File recvFile,
-                                         InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-                                      BackendService masterService) throws Exception {
-        int bw;
-        byte[] sendBuf = command.getBytes();
-        TcpTrans.send(remoteAddr, localAddr, sendBuf);
-        masterService.signalActivity("Command is sent successfully, start waiting for data sent back");
-        bw = TcpTrans.recv(localAddr, recvFile, masterService);
-        masterService.signalActivity("Final data got successfully, task complete");
+//    static public long remoteDownload (String command, File recvFile,
+//                                         InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+//                                      BackendService masterService) throws Exception {
+//        long bw;
+//        byte[] sendBuf = command.getBytes();
+//        TcpTrans.send(remoteAddr, localAddr, sendBuf);
+//        masterService.signalActivity("Command is sent successfully, start waiting for data sent back");
+//        bw = TcpTrans.recv(localAddr, recvFile, masterService);
+//        masterService.signalActivity("Final data got successfully, task complete");
+//
+//        return bw;
+//    }
 
-        return bw;
-    }
-
-    static public int remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
+    static public long remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
                                       InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                       BackendService masterService) throws Exception {
-        int bw;
+        long bw;
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, masterService, 0);
-        conn.send(header.header, 16);
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
         byte[] sendBuf = url.getBytes();
         conn.send(sendBuf, url.length());
         conn.close();
         masterService.signalActivity("Task command is sent successfully, start waiting for data sent back");
 
         conn = new TcpConnector(remoteAddr, localAddr, masterService, 1);
-        byte[] recvBuf = new byte[16];
-        conn.recv(recvBuf, 16);
-        ProtocolHeader recvHeader = new ProtocolHeader();
-        recvHeader.decapPro(recvBuf);
+        byte[] recvBuf = new byte[ProtocolHeader.HEADER_LEN];
+        conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
+//        ProtocolHeader recvHeader = new ProtocolHeader();
+//        recvHeader.decapPro(recvBuf);
+        ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         masterService.signalActivity("Data header received, start receiving data from slave");
-        bw = conn.recv(recvFile, recvHeader.dataLen);
+        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
+        bw = recvHeader.bw;
         conn.close();
         masterService.signalActivity("Data got successfully");
 
         return bw;
     }
 
-    static public int remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
+    /* Long connection version */
+    static public long remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
                                       TcpConnector conn) throws Exception {
-        int bw;
         byte[] sendBuf = url.getBytes();
-        byte[] recvBuf = new byte[16];
-        ProtocolHeader recvHeader = new ProtocolHeader();
+        byte[] recvBuf = new byte[ProtocolHeader.HEADER_LEN];
 
-        conn.send(header.header, 16);
+        /* Send task to slave */
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
         conn.send(sendBuf, url.length());
         conn.backendService.signalActivity("Task command is sent successfully, start waiting for data sent back");
 
-        conn.recv(recvBuf, 16);
-        recvHeader.decapPro(recvBuf);
+        /* Wait for data back */
+        conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
+//        ProtocolHeader recvHeader = new ProtocolHeader();
+//        recvHeader.decapPro(recvBuf);
+        ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         conn.backendService.signalActivity("Data header received, start receiving data from slave");
-        bw = conn.recv(recvFile, recvHeader.dataLen);
+        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
+        long bw = recvHeader.bw;
         conn.backendService.signalActivity("Data got successfully");
 
         return bw;
@@ -74,12 +80,12 @@ public class MasterConnector {
 
     static public void remoteStop (InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, BackendService masterService) throws Exception {
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, masterService, 0);
-        conn.send(header.header, 16);
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
         conn.close();
         masterService.signalActivity("Stop command is sent successfully, slave will be shut down");
     }
 
     static public void remoteStop (ProtocolHeader header, TcpConnector conn) throws Exception {
-        conn.send(header.header, 16);
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
     }
 }

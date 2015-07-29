@@ -34,7 +34,7 @@ public class MultithreadMasterService extends BackendService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int totalLen = 0;
+        long totalLen = 0;
         int masterLen;
         int slaveLen;
         int alreadyMasterLen;

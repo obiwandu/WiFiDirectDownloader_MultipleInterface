@@ -11,8 +11,10 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 public class ProtocolHeaderTest extends InstrumentationTestCase{
     public void testTC1() {
         DownloadTask task = new DownloadTask(100, 1000, 10000, "sfsdfds");
-        ProtocolHeader header = new ProtocolHeader();
-        header.encapPro(task, 10);
-        header.decapPro(header.header);
+        ProtocolHeader header = new ProtocolHeader(task);
+        ProtocolHeader result = new ProtocolHeader(header.header);
+//        ProtocolHeader header = new ProtocolHeader();
+//        header.encapPro(task, 10);
+//        header.decapPro(header.header);
     }
 }

@@ -13,46 +13,91 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
  */
 public class ProtocolHeader {
     public int type;
-    public int dataLen;
-    public int urlLen;
-    public int start;
-    public int end;
+    public long dataLen;
+    public long bw;
+    public long urlLen;
+    public long start;
+    public long end;
     public byte[] header;
+    public boolean stop;
+    public static final int HEADER_LEN = (Integer.SIZE + 3 * Long.SIZE) / Byte.SIZE;
 
-    public ProtocolHeader encapPro(DownloadTask task, int type) {
-        ByteBuffer bb = ByteBuffer.allocate(4 * Integer.SIZE / Byte.SIZE);
+    public ProtocolHeader (int t) {
+        stop = false;
+        type = t;    /* specified type, now only support 3333 which means stop slave */
+        ByteBuffer bb = ByteBuffer.allocate(HEADER_LEN);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(type);
-        if (type == 1111) {
-            bb.putInt(task.end - task.start + 1);
-        } else {
-            bb.putInt(task.url.length());
-        }
-        bb.putInt(task.start);
-        bb.putInt(task.end);
+        bb.putLong(0);
+        bb.putLong(0);
+        bb.putLong(0);
         header = bb.array();
-
-        return this;
     }
 
-    public ProtocolHeader decapPro(byte[] head) {
+    public ProtocolHeader (DownloadTask task) {
+        stop = false;
+        type = 2222;    /* 2222 means task package, including type, url len, start & end */
+        ByteBuffer bb = ByteBuffer.allocate(HEADER_LEN);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(type);
+        bb.putLong(task.url.length());
+//        if (type == 1111) {
+//            /* 1111 means data package */
+//            bb.putInt(task.end - task.start + 1);
+//        } else {
+//            bb.putInt(task.url.length());
+//        }
+        bb.putLong(task.start);
+        bb.putLong(task.end);
+        header = bb.array();
+
+//        return this;
+    }
+
+    public ProtocolHeader (DownloadTask task, long bw) {
+        stop = false;
+        type = 1111;    /* 1111 means data package, including type, bw, start & end */
+        ByteBuffer bb = ByteBuffer.allocate(HEADER_LEN);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(type);
+        bb.putLong(bw);
+//        if (type == 1111) {
+//            bb.putInt(task.end - task.start + 1);
+//        } else {
+//            bb.putInt(task.url.length());
+//        }
+        bb.putLong(task.start);
+        bb.putLong(task.end);
+        header = bb.array();
+
+//        return this;
+    }
+
+    public ProtocolHeader (byte[] head) {
+        stop = false;
         ByteBuffer bb = ByteBuffer.wrap(head, 0, 4);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         type = bb.getInt();
-        bb = ByteBuffer.wrap(head, 4, 4);
+        bb = ByteBuffer.wrap(head, 4, 8);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         if (type == 1111) {
-            dataLen = bb.getInt();
+            /* data package */
+//            dataLen = bb.getInt();
+            bw = bb.getLong();
+        } else if (type == 2222){
+            /* task package */
+            urlLen = bb.getLong();
         } else {
-            urlLen = bb.getInt();
+            stop = true;
         }
-        bb = ByteBuffer.wrap(head, 8, 4);
+        bb = ByteBuffer.wrap(head, 12, 8);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        start = bb.getInt();
-        bb = ByteBuffer.wrap(head, 12, 4);
+        start = bb.getLong();
+        bb = ByteBuffer.wrap(head, 20, 8);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        end = bb.getInt();
+        end = bb.getLong();
+        dataLen = end - start + 1;
 
-        return this;
+//        return this;
     }
 }

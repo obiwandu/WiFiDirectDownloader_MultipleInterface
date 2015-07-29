@@ -81,75 +81,75 @@ public class TcpTrans {
         return retSockAddr;
     }
 
-    static public int recv(InetSocketAddress localAddr, File recvFile, BackendService masterService) throws Exception {
-        ServerSocket serverSocket = new ServerSocket();
-        BwMetric bwMetric = new BwMetric(masterService);
-        try {
-            serverSocket.setReuseAddress(true);
-            serverSocket.bind(localAddr);
-            Socket socket = serverSocket.accept();
-            InputStream is = socket.getInputStream();
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            FileOutputStream fos = new FileOutputStream(recvFile);
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            while (true) {
-                bytesRead = is.read(buffer, 0, buffer.length);
-                if (bytesRead == -1) {
-                    break;
-                }
+//    static public long recv(InetSocketAddress localAddr, File recvFile, BackendService masterService) throws Exception {
+//        ServerSocket serverSocket = new ServerSocket();
+//        BwMetric bwMetric = new BwMetric(masterService);
+//        try {
+//            serverSocket.setReuseAddress(true);
+//            serverSocket.bind(localAddr);
+//            Socket socket = serverSocket.accept();
+//            InputStream is = socket.getInputStream();
+//            byte[] buffer = new byte[4096];
+//            int bytesRead;
+//            FileOutputStream fos = new FileOutputStream(recvFile);
+//            BufferedOutputStream bos = new BufferedOutputStream(fos);
+//            while (true) {
+//                bytesRead = is.read(buffer, 0, buffer.length);
+//                if (bytesRead == -1) {
+//                    break;
+//                }
+//
+//                /* update bw */
+//                bwMetric.bwMetric(bytesRead);
+//
+//                bos.write(buffer, 0, bytesRead);
+//                bos.flush();
+//            }
+//            fos.close();
+//            bos.close();
+//            is.close();
+//            socket.close();
+//        } finally {
+//            serverSocket.close();
+//        }
+//        return bwMetric.bw;
+//    }
 
-                /* update bw */
-                bwMetric.bwMetric(bytesRead);
-
-                bos.write(buffer, 0, bytesRead);
-                bos.flush();
-            }
-            fos.close();
-            bos.close();
-            is.close();
-            socket.close();
-        } finally {
-            serverSocket.close();
-        }
-        return bwMetric.bw;
-    }
-
-    static public int recv(InetSocketAddress localAddr, RandomAccessFile recvFile, BackendService masterService) throws Exception {
-        ServerSocket serverSocket = new ServerSocket();
-        BwMetric bwMetric = new BwMetric(masterService);
-        try {
-            serverSocket.setReuseAddress(true);
-            serverSocket.bind(localAddr);
-            Socket socket = serverSocket.accept();
-            InputStream is = socket.getInputStream();
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-//        while ((bytesRead = is.read(buffer, 0, buffer.length)) != -1)
-//        FileOutputStream fos = new FileOutputStream(recvFile);
-//        BufferedOutputStream bos = new BufferedOutputStream(fos);
-            while (true) {
-                bytesRead = is.read(buffer, 0, buffer.length);
-                if (bytesRead == -1) {
-                    break;
-                }
-
-            /* update bw */
-                bwMetric.bwMetric(bytesRead);
-
-                recvFile.write(buffer, 0, bytesRead);
-//            bos.write(buffer, 0, bytesRead);
-//            bos.flush();
-            }
-//        fos.close();
-//        bos.close();
-            is.close();
-            socket.close();
-        } finally {
-            serverSocket.close();
-        }
-        return bwMetric.bw;
-    }
+//    static public long recv(InetSocketAddress localAddr, RandomAccessFile recvFile, BackendService masterService) throws Exception {
+//        ServerSocket serverSocket = new ServerSocket();
+//        BwMetric bwMetric = new BwMetric(masterService);
+//        try {
+//            serverSocket.setReuseAddress(true);
+//            serverSocket.bind(localAddr);
+//            Socket socket = serverSocket.accept();
+//            InputStream is = socket.getInputStream();
+//            byte[] buffer = new byte[4096];
+//            int bytesRead;
+////        while ((bytesRead = is.read(buffer, 0, buffer.length)) != -1)
+////        FileOutputStream fos = new FileOutputStream(recvFile);
+////        BufferedOutputStream bos = new BufferedOutputStream(fos);
+//            while (true) {
+//                bytesRead = is.read(buffer, 0, buffer.length);
+//                if (bytesRead == -1) {
+//                    break;
+//                }
+//
+//            /* update bw */
+//                bwMetric.bwMetric(bytesRead);
+//
+//                recvFile.write(buffer, 0, bytesRead);
+////            bos.write(buffer, 0, bytesRead);
+////            bos.flush();
+//            }
+////        fos.close();
+////        bos.close();
+//            is.close();
+//            socket.close();
+//        } finally {
+//            serverSocket.close();
+//        }
+//        return bwMetric.bw;
+//    }
 
     static public InetSocketAddress[] recv(InetSocketAddress localAddr, File recvFile) throws Exception {
         InetSocketAddress[] retSockAddr = new InetSocketAddress[2];

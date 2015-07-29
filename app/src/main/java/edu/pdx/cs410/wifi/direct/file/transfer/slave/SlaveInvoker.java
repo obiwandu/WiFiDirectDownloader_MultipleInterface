@@ -31,7 +31,7 @@ public class SlaveInvoker {
         /*write something to the file*/
         tempFile = new File(recvPath, recvFileName);
 
-        tempFile = SlaveOperation.httpDownload(task, tempFile, slaveService);
+        long bw = SlaveOperation.httpDownload(task, tempFile, slaveService);
         slaveService.signalActivity("Download complete, ready to send back");
         SlaveOperation.transBack(tempFile, sockAddr);
         slaveService.signalActivity("Send back succefully, task complete");
@@ -50,21 +50,21 @@ public class SlaveInvoker {
         dir.mkdirs();
         /*write something to the file*/
         tempFile = new File(recvPath, recvFileName);
-        tempFile = SlaveOperation.httpDownload(task, tempFile, slaveService);
+        long bw = SlaveOperation.httpDownload(task, tempFile, slaveService);
         slaveService.signalActivity("Download complete, ready to send back");
-        ProtocolHeader header = new ProtocolHeader();
-        header.encapPro(task, 1111);
+//        ProtocolHeader header = new ProtocolHeader();
+//        header.encapPro(task, 1111);
+        ProtocolHeader header = new ProtocolHeader(task, bw);
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, slaveService, 0);
         slaveService.signalActivity("Sending data back to master");
-        conn.send(header.header, 16);
-        conn.send(tempFile, task.end - task.start + 1);
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
+        conn.send(tempFile, (int)(task.end - task.start + 1));
         conn.close();
     }
 
+    /* Long connection version */
     static public void downLoad(DownloadTask task, TcpConnector conn) throws Exception {
-        File tempFile = null;
-
-        /*initialize storage directory*/
+        /* Initialize storage directory */
         String recvPath;
         String recvFileName;
         recvPath = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -72,15 +72,16 @@ public class SlaveInvoker {
         recvFileName = "Recved";
         File dir = new File(recvPath);
         dir.mkdirs();
-        /*write something to the file*/
-        tempFile = new File(recvPath, recvFileName);
-        tempFile = SlaveOperation.httpDownload(task, tempFile, conn.backendService);
+        File tempFile = new File(recvPath, recvFileName);
+        long bw = SlaveOperation.httpDownload(task, tempFile, conn.backendService);
         conn.backendService.signalActivity("Download complete, ready to send back");
-        ProtocolHeader header = new ProtocolHeader();
-        header.encapPro(task, 1111);
 
+        /* Capsulate header and send data back to master */
+        ProtocolHeader header = new ProtocolHeader(task, bw);
+//        header.encapPro(task, 1111);
+//        ProtocolHeader header = new ProtocolHeader(task)
         conn.backendService.signalActivity("Sending data back to master");
-        conn.send(header.header, 16);
-        conn.send(tempFile, task.end - task.start + 1);
+        conn.send(header.header, ProtocolHeader.HEADER_LEN);
+        conn.send(tempFile, (int)(task.end - task.start + 1));
     }
 }

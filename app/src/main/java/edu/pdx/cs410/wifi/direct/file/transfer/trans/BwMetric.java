@@ -14,13 +14,15 @@ public class BwMetric {
     private BackendService backendService;
     private int alreadyBytes = 0;
     private int alreadyTime = 0;
+    private long totalLen = 0;
     private long lastTime = System.currentTimeMillis();
     private long currenntTime;
     private int timeSpan;
-    public int bw = 0;
+    public long bw = 0;
 
-    public BwMetric (BackendService service) {
+    public BwMetric (BackendService service, long tl) {
         /* used for bw calculation */
+        totalLen = tl;
         alreadyBytes = 0;
         alreadyTime = 0;
         lastTime = System.currentTimeMillis();
@@ -44,7 +46,7 @@ public class BwMetric {
 //        slaveService = service;
 //    }
 
-    public int bwMetric(int bytesRead) {
+    public long bwMetric(int bytesRead, boolean isMaster) {
         /* update bw */
         alreadyBytes += bytesRead;
         currenntTime = System.currentTimeMillis();
@@ -57,8 +59,14 @@ public class BwMetric {
             bw = 0;
         }
 
+        float dataPer = (float)(100*alreadyBytes)/(float)totalLen;
+
         if (backendService != null) {
-            backendService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " KB/s");
+            if (isMaster) {
+                backendService.signalActivity("Master transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+            } else {
+                backendService.signalActivity("Slave transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+            }
         }
 //        else if (slaveService != null) {
 //            slaveService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
