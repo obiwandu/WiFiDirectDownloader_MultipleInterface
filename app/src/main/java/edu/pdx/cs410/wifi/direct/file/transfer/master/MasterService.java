@@ -68,31 +68,35 @@ public class MasterService extends BackendService {
 //        String recvFileName = "recvFile";
         String recvFileName = originalFileName;
         File recvFile = new File(recvFilePath, recvFileName);
-        RandomAccessFile tempRecvFile;
-        try {
-            tempRecvFile = new RandomAccessFile(recvFile, "rwd");
-        } catch (Exception e) {
-            signalActivity("Exception during creating RandomAccess file:" + e.toString());
-            return;
-        }
+//        RandomAccessFile tempRecvFile;
+//        try {
+//            tempRecvFile = new RandomAccessFile(recvFile, "rwd");
+//        } catch (Exception e) {
+//            signalActivity("Exception during creating RandomAccess file:" + e.toString());
+//            return;
+//        }
 
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
         tm.startTimer();
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, this, tm, chunkSize, minChunkSize));
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
         masterThd.start();
+        Thread masterThd2 = new Thread(new MasterTaskThread2(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        masterThd2.start();
         /* When transmission is done, close file and stop slave*/
         try {
             Thread.sleep(1000);
             taskScheduler.semaphoreMasterDone.acquire();
+            taskScheduler.semaphoreMasterDone2.acquire();
             //taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
-            tempRecvFile.close();
+//            tempRecvFile.close();
 //            MasterOperation.remoteStop(conn);
             taskScheduler.semaphoreMasterDone.release();
+            taskScheduler.semaphoreMasterDone2.release();
             //taskScheduler.semaphoreSlaveDone.release();
             this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
         } catch (Exception e) {

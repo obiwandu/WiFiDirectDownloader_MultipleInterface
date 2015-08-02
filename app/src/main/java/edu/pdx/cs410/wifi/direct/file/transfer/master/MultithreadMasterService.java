@@ -75,13 +75,13 @@ public class MultithreadMasterService extends BackendService {
 //        String recvFileName = "recvFile";
         String recvFileName = originalFileName;
         File recvFile = new File(recvFilePath, recvFileName);
-        RandomAccessFile tempRecvFile;
-        try {
-            tempRecvFile = new RandomAccessFile(recvFile, "rwd");
-        } catch (Exception e) {
-            signalActivity("Exception during creating RA file:" + e.toString());
-            return;
-        }
+//        RandomAccessFile tempRecvFile;
+//        try {
+//            tempRecvFile = new RandomAccessFile(recvFile, "rwd");
+//        } catch (Exception e) {
+//            signalActivity("Exception during creating RA file:" + e.toString());
+//            return;
+//        }
 
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
@@ -95,7 +95,7 @@ public class MultithreadMasterService extends BackendService {
         TcpConnector conn = null;
         try {
             conn = new TcpConnector(slaveSockAddr, masterSockAddr, this, 0);
-            Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, conn, chunkSize, minChunkSize));
+            Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, conn, chunkSize, minChunkSize));
             slaveThd.start();
         } catch (Exception e) {
             this.signalActivity("Exception during slave transmission:" + e.toString());
@@ -108,7 +108,7 @@ public class MultithreadMasterService extends BackendService {
             taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
-            tempRecvFile.close();
+//            tempRecvFile.close();
             MasterOperation.remoteStop(conn);
             conn.close();
             taskScheduler.semaphoreMasterDone.release();

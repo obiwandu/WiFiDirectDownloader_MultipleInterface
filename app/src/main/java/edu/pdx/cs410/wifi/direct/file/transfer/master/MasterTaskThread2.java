@@ -15,9 +15,9 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 /**
  * Created by User on 7/24/2015.
  */
-public class MasterTaskThread extends Thread {
+public class MasterTaskThread2 extends Thread{
     TaskScheduler taskScheduler;
-    //    RandomAccessFile tempRecvFile;
+//    RandomAccessFile tempRecvFile;
     File recvFile;
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
@@ -29,7 +29,7 @@ public class MasterTaskThread extends Thread {
     TimeMetric time;
 //    TcpConnectorLong conn;
 
-    public MasterTaskThread(TaskScheduler ts, File f, BackendService ms, TimeMetric tm, long ckSize, long minCkSize) {
+    public MasterTaskThread2(TaskScheduler ts, File f, BackendService ms, TimeMetric tm, long ckSize, long minCkSize){
         taskScheduler = ts;
         recvFile = f;
 //        slaveSockAddr = ssa;
@@ -45,10 +45,10 @@ public class MasterTaskThread extends Thread {
         long masterBw = 0;
         boolean isDone;
         RandomAccessFile tempRecvFile;
-        Log log = new Log("master1_log");
+        Log log = new Log("master2_log");
 
         try {
-            taskScheduler.semaphoreMasterDone.acquire();
+            taskScheduler.semaphoreMasterDone2.acquire();
         } catch (Exception e) {
             masterService.signalActivity("Exception during accquring master lock:" + e.toString());
         }
@@ -56,8 +56,8 @@ public class MasterTaskThread extends Thread {
             try {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
-                    log.record("master task 1 done");
-                    taskScheduler.semaphoreMasterDone.release();
+                    log.record("master task 2 done");
+                    taskScheduler.semaphoreMasterDone2.release();
                     break;
                 }
             } catch (Exception e) {
@@ -82,6 +82,7 @@ public class MasterTaskThread extends Thread {
             /*execute downloading*/
             try {
                 if (mTask != null) {
+
                     /*execute downloading*/
 //                    taskScheduler.semaphore.acquire();
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
@@ -98,10 +99,10 @@ public class MasterTaskThread extends Thread {
                 return;
             }
 
-            float totalLen = (float) taskScheduler.leftTask.totalLen;
-            float alreadyLen = (float) taskScheduler.leftTask.start;
-            float progress = (alreadyLen * (float) 100) / totalLen;
-            float masterPer = (float) (100 * dataCount) / (float) taskScheduler.leftTask.totalLen;
+            float totalLen = (float)taskScheduler.leftTask.totalLen;
+            float alreadyLen = (float)taskScheduler.leftTask.start;
+            float progress = (alreadyLen * (float)100)/totalLen;
+            float masterPer = (float)(100*dataCount)/(float)taskScheduler.leftTask.totalLen;
             masterService.signalActivityProgress("Master Data Per:" + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:" + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
 

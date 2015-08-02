@@ -18,12 +18,14 @@ public class TaskScheduler {
     private String url;
     public static Semaphore semaphore;
     public static Semaphore semaphoreMasterDone;
+    public static Semaphore semaphoreMasterDone2;
     public static Semaphore semaphoreSlaveDone;
     public ArrayList<DownloadTask> alreadyTaskList;
 
     public TaskScheduler(long tl, String l) {
         semaphore = new Semaphore(1);
         semaphoreMasterDone = new Semaphore(1);
+        semaphoreMasterDone2 = new Semaphore(1);
         semaphoreSlaveDone = new Semaphore(1);
 
         totalLen = tl;

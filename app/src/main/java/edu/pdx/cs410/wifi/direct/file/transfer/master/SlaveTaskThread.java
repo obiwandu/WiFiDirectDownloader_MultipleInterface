@@ -2,9 +2,11 @@ package edu.pdx.cs410.wifi.direct.file.transfer.master;
 
 import android.os.ResultReceiver;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -15,7 +17,8 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
  */
 public class SlaveTaskThread extends Thread {
     TaskScheduler taskScheduler;
-    RandomAccessFile tempRecvFile;
+//    RandomAccessFile tempRecvFile;
+    File recvFile;
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
 //    MultithreadMasterService masterService;
@@ -25,9 +28,9 @@ public class SlaveTaskThread extends Thread {
     long chunkSize;
     long minChunkSize;
 
-    public SlaveTaskThread(TaskScheduler ts, RandomAccessFile raf, TcpConnector c, long ckSize, long minCkSize) {
+    public SlaveTaskThread(TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
         taskScheduler = ts;
-        tempRecvFile = raf;
+        recvFile = f;
 //        slaveSockAddr = ssa;
 //        masterSockAddr = msa;
 //        masterService = ms;
@@ -46,7 +49,9 @@ public class SlaveTaskThread extends Thread {
     public void run() {
         long dataCount = 0;
         long slaveBw = 0;
+        RandomAccessFile tempRecvFile;
         boolean isDone;
+        Log log = new Log("slave_log");
 
         try {
             taskScheduler.semaphoreSlaveDone.acquire();
@@ -57,6 +62,7 @@ public class SlaveTaskThread extends Thread {
             try {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
+                    log.record("slave task done");
                     taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
@@ -68,11 +74,12 @@ public class SlaveTaskThread extends Thread {
             DownloadTask sTask;
             DownloadTask retTasks;
             try {
-//                retTasks = taskScheduler.scheduleTask(4 * 1024);
-//                retTasks = taskScheduler.scheduleTask(100 * 1024, true);
                 retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, false);
 //                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
+                log.record("cur start:" + Long.toString(sTask.start) + "|cur end:" + Long.toString(sTask.end)
+                        + "|cur left start:" + Long.toString(taskScheduler.leftTask.start)
+                        + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
             } catch (Exception e) {
                 conn.backendService.signalActivity("Exception during task scheduling:" + e.toString());
                 return;
@@ -81,12 +88,14 @@ public class SlaveTaskThread extends Thread {
             /*execute downloading*/
             try {
                 if (sTask != null) {
-                    tempRecvFile.seek(sTask.start);
+
                     /*execute downloading*/
-//                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, masterService);
-                    taskScheduler.semaphore.acquire();
+//                    taskScheduler.semaphore.acquire();
+                    tempRecvFile = new RandomAccessFile(recvFile, "rwd");
+                    tempRecvFile.seek(sTask.start);
                     slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn);
-                    taskScheduler.semaphore.release();
+                    tempRecvFile.close();
+//                    taskScheduler.semaphore.release();
                     dataCount += sTask.end - sTask.start + 1;
                     /*submit tasks*/
                     taskScheduler.updateSlaveBw(slaveBw);
