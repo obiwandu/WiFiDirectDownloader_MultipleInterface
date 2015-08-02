@@ -15,6 +15,7 @@ import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
+import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 
@@ -44,15 +45,13 @@ public class MasterService extends BackendService {
         long masterBw = 0;
         long slaveBw = 0;
         String originalFileName = "unnamed";
+        TimeMetric tm = new TimeMetric();
+        long chunkSize = 5120 * 1024;
+        long minChunkSize = 500 * 1024;
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
-        masterIp = (InetAddress) intent.getExtras().get("masterIp");
-        slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
         resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
-
-        InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);
-        InetSocketAddress slaveSockAddr = new InetSocketAddress(slaveIp, nrsPort);
 
         /*get data length*/
         try {
@@ -80,63 +79,24 @@ public class MasterService extends BackendService {
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
 
+        tm.startTimer();
         /*start master thread*/
-        while (true) {
-            try {
-                isDone = taskScheduler.isTaskDone();
-                if (isDone) {
-                    break;
-                }
-            } catch (Exception e) {
-                signalActivity("Exception during terminal condition fetching:" + e.toString());
-            }
-//        while (!isDone || !slaveDone || !masterDone) {
-            /*schedule task*/
-            DownloadTask mTask;
-            DownloadTask sTask;
-            DownloadTask retTasks;
-            try {
-//                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(100 * 1024, 10 * 1024,true);
-                mTask = retTasks;
-                sTask = retTasks;
-            } catch (Exception e) {
-                signalActivity("Exception during task scheduling:" + e.toString());
-                return;
-            }
-
-            try {
-                if (sTask != null) {
-                    tempRecvFile.seek(sTask.start);
-                    /*download on slave*/
-//                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, slaveSockAddr, masterSockAddr, this);
-                    slaveDone = true;
-                    /*submit task*/
-                }
-            } catch (Exception e) {
-                signalActivity("Exception during remote downloading:" + e.toString());
-            }
-            /*execute downloading*/
-            try {
-                if (mTask != null) {
-                    tempRecvFile.seek(mTask.start);
-                /*execute downloading*/
-                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, this);
-                    masterDone = true;
-                }
-            } catch (Exception e) {
-                signalActivity("Exception during remote downloading:" + e.toString());
-            }
-            /*submit tasks*/
-            taskScheduler.submitTask(masterBw, slaveBw);
-            signalActivityProgress("Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
-        }
-        /* when transmission is done, close file and stop slave*/
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, this, tm, chunkSize, minChunkSize));
+        masterThd.start();
+        /* When transmission is done, close file and stop slave*/
         try {
+            Thread.sleep(1000);
+            taskScheduler.semaphoreMasterDone.acquire();
+            //taskScheduler.semaphoreSlaveDone.acquire();
+            long totalTime = tm.getTimeLapse();
+            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
             tempRecvFile.close();
-            /* no need to stop slave */
+//            MasterOperation.remoteStop(conn);
+            taskScheduler.semaphoreMasterDone.release();
+            //taskScheduler.semaphoreSlaveDone.release();
+            this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
         } catch (Exception e) {
-            signalActivity("Exception during closing file:" + e.toString());
+            this.signalActivity("Exception during closing file:" + e.toString());
         }
     }
 

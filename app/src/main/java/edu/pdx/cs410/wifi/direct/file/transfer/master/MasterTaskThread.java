@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Semaphore;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -20,18 +21,19 @@ public class MasterTaskThread extends Thread{
     RandomAccessFile tempRecvFile;
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
-    MultithreadMasterService masterService;
+    //MultithreadMasterService masterService;
+    BackendService masterService;
     long chunkSize;
     long minChunkSize;
     ResultReceiver masterResult;
     TimeMetric time;
 //    TcpConnectorLong conn;
 
-    public MasterTaskThread(TaskScheduler ts, RandomAccessFile raf, InetSocketAddress ssa, InetSocketAddress msa, MultithreadMasterService ms, TimeMetric tm, long ckSize, long minCkSize){
+    public MasterTaskThread(TaskScheduler ts, RandomAccessFile raf, BackendService ms, TimeMetric tm, long ckSize, long minCkSize){
         taskScheduler = ts;
         tempRecvFile = raf;
-        slaveSockAddr = ssa;
-        masterSockAddr = msa;
+//        slaveSockAddr = ssa;
+//        masterSockAddr = msa;
         masterService = ms;
         time = tm;
         chunkSize = ckSize;

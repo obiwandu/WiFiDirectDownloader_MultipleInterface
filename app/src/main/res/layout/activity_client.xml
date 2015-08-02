@@ -23,13 +23,21 @@
         android:orientation="horizontal" >
         
         
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--android:onClick="browseForFile"-->
+            <!--android:text="@string/browse_path_button"-->
+            <!--android:id="@+id/browse" />-->
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:onClick="browseForFile"
-            android:text="@string/browse_path_button"
-            android:id="@+id/browse" />
+            android:onClick="onLocalDownload"
+            android:text="Download"
+            android:id="@+id/localDownload" />
 
         <Button
             android:layout_width="wrap_content"
