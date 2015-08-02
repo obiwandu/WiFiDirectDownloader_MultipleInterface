@@ -15,6 +15,7 @@ import java.util.concurrent.Semaphore;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
+import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 
 /**
  * Created by User on 7/9/2015.
@@ -87,20 +88,35 @@ public class MultithreadMasterService extends BackendService {
 
         tm.startTimer();
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, this, tm, chunkSize, minChunkSize));
-        masterThd.start();
+//        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, this, tm, chunkSize, minChunkSize));
+//        masterThd.start();
 
         /*start slave thread*/
-        Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, slaveSockAddr, masterSockAddr, this, tm, chunkSize, minChunkSize));
-        slaveThd.start();
+        TcpConnector conn = null;
+        try {
+            conn = new TcpConnector(slaveSockAddr, masterSockAddr, this, 0);
+            Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, tempRecvFile, conn, chunkSize, minChunkSize));
+            slaveThd.start();
+        } catch (Exception e) {
+            this.signalActivity("Exception during slave transmission:" + e.toString());
+        }
 
-        /* when transmission is done, close file and stop slave*/
-//        try {
-//            tempRecvFile.close();
-//            /* no need to stop slave */
-//        } catch (Exception e) {
-//            signalActivity("Exception during closing file:" + e.toString());
-//        }
+        /* When transmission is done, close file and stop slave*/
+        try {
+            Thread.sleep(1000);
+            taskScheduler.semaphoreMasterDone.acquire();
+            taskScheduler.semaphoreSlaveDone.acquire();
+            long totalTime = tm.getTimeLapse();
+            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
+            tempRecvFile.close();
+            MasterOperation.remoteStop(conn);
+            conn.close();
+            taskScheduler.semaphoreMasterDone.release();
+            taskScheduler.semaphoreSlaveDone.release();
+            conn.backendService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
+        } catch (Exception e) {
+            conn.backendService.signalActivity("Exception during closing file:" + e.toString());
+        }
     }
 
 }

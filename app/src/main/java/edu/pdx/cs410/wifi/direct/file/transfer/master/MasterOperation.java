@@ -23,15 +23,7 @@ public class MasterOperation  {
 //        return bw;
 //    }
 
-//    static public int remoteDownload(DownloadTask task, RandomAccessFile recvFile,
-//                                     InetSocketAddress remoteAddr, InetSocketAddress localAddr,
-//                                     BackendService masterService) throws Exception {
-//        int bw;
-//        bw = MasterProxy.remoteDownload(task, recvFile, remoteAddr, localAddr, masterService);
-//
-//        return bw;
-//    }
-
+    /* Short connection */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                      BackendService masterService) throws Exception {
@@ -50,30 +42,22 @@ public class MasterOperation  {
         return bw;
     }
 
+    /* Short connection */
     static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService masterService) throws Exception {
         MasterInvoker.remoteStop(remoteAddr, localAddr, masterService);
     }
 
+    /* Long connection */
     static public void remoteStop(TcpConnector conn) throws Exception {
         MasterInvoker.remoteStop(conn);
-    }
-
-    static public int httpDownload(DownloadTask task, File recvFile) throws Exception {
-        if (task.isPartial){
-            HttpDownload.partialDownload(task.url, recvFile, task);
-        } else {
-            HttpDownload.download(task.url, recvFile);
-        }
-        int bw = 0;
-        return bw;
     }
 
     static public long httpDownload(DownloadTask task, File recvFile, BackendService masterService) throws Exception {
         long bw;
         if (task.isPartial){
-            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService, true);
+            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
         } else {
-            bw = HttpDownload.download(task.url, recvFile, masterService, true);
+            bw = HttpDownload.download(task.url, recvFile, masterService);
         }
 
         return bw;
@@ -82,9 +66,9 @@ public class MasterOperation  {
     static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService) throws Exception {
         long bw;
         if (task.isPartial){
-            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService, true);
+            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
         } else {
-            bw = HttpDownload.download(task.url, recvFile, masterService, true);
+            bw = HttpDownload.download(task.url, recvFile, masterService);
         }
 
         return bw;

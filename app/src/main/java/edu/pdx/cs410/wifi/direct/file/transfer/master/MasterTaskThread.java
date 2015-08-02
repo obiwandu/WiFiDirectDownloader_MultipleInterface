@@ -78,7 +78,9 @@ public class MasterTaskThread extends Thread{
                 if (mTask != null) {
                     tempRecvFile.seek(mTask.start);
                     /*execute downloading*/
+                    taskScheduler.semaphore.acquire();
                     masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService);
+                    taskScheduler.semaphore.release();
                     dataCount += mTask.end - mTask.start + 1;
                     /*submit tasks*/
                     taskScheduler.updateMasterBw(masterBw);

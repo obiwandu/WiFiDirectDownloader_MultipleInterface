@@ -37,41 +37,34 @@ public class MasterInvoker {
 //        return bw;
 //    }
 
+    /* Short connection */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                      BackendService masterService) throws Exception {
-        long bw;
-
-//        ProtocolHeader header = new ProtocolHeader();
-//        header.encapPro(task, 0);
         ProtocolHeader header = new ProtocolHeader(task);
         masterService.signalActivity("Ready to send command to slave");
-        bw = MasterConnector.remoteDownload(header, task.url, recvFile, remoteAddr, localAddr, masterService);
+        long bw = MasterConnector.remoteDownload(header, task.url, recvFile, remoteAddr, localAddr, masterService);
         return bw;
     }
 
     /* Long connection version */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      TcpConnector conn) throws Exception {
-//        ProtocolHeader header = new ProtocolHeader();
-//        header.encapPro(task, 0);
         ProtocolHeader header = new ProtocolHeader(task);
         conn.backendService.signalActivity("Ready to send command to slave");
         long bw = MasterConnector.remoteDownload(header, task.url, recvFile, conn);
         return bw;
     }
 
+    /* Short connection */
     static public void remoteStop(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService masterService) throws Exception{
-//        ProtocolHeader header = new ProtocolHeader();
-//        header.encapPro(new DownloadTask(0, 0, 0, ""), 2222);
         ProtocolHeader header = new ProtocolHeader(3333);
         masterService.signalActivity("Ready to send command to slave");
         MasterConnector.remoteStop(remoteAddr, localAddr, header, masterService);
     }
 
+    /* Long connection */
     static public void remoteStop(TcpConnector conn) throws Exception{
-//        ProtocolHeader header = new ProtocolHeader();
-//        header.encapPro(new DownloadTask(0, 0, 0, ""), 2222);
         ProtocolHeader header = new ProtocolHeader(3333);
         conn.backendService.signalActivity("Ready to send command to slave");
         MasterConnector.remoteStop(header, conn);

@@ -81,7 +81,8 @@ public class SlaveInvoker {
 //        header.encapPro(task, 1111);
 //        ProtocolHeader header = new ProtocolHeader(task)
         conn.backendService.signalActivity("Sending data back to master");
-        conn.send(header.header, ProtocolHeader.HEADER_LEN);
-        conn.send(tempFile, (int)(task.end - task.start + 1));
+        SlaveOperation.transBack(conn, header, tempFile, (int)(task.end - task.start + 1));
+//        conn.send(header.header, ProtocolHeader.HEADER_LEN);
+//        conn.send(tempFile, (int)(task.end - task.start + 1));
     }
 }

@@ -29,6 +29,7 @@ public class MasterProxy {
 //        return bw;
 //    }
 
+    /* Short connection */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
                                      InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                      BackendService masterService) throws Exception {

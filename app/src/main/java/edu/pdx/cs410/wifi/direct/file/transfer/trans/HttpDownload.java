@@ -63,7 +63,7 @@ public class HttpDownload {
 //        return bwMetric.bw;
 //    }
 
-    static public long download(String strUrl, File recvFile, BackendService masterService, boolean isMaster) throws Exception {
+    static public long download(String strUrl, File recvFile, BackendService masterService) throws Exception {
         OutputStream output = null;
         InputStream input = null;
         URL url = new URL(strUrl);
@@ -77,7 +77,7 @@ public class HttpDownload {
         byte[] buffer = new byte[4 * 1024];
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead, isMaster);
+            bwMetric.bwMetric(bytesRead, false);
             output.write(buffer);
         }
         output.flush();
@@ -87,7 +87,7 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public long download(String strUrl, RandomAccessFile recvFile, BackendService masterService, boolean isMaster) throws Exception {
+    static public long download(String strUrl, RandomAccessFile recvFile, BackendService masterService) throws Exception {
 
 //        OutputStream output = null;
         InputStream input = null;
@@ -102,7 +102,7 @@ public class HttpDownload {
         byte[] buffer = new byte[4 * 1024];
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead, isMaster);
+            bwMetric.bwMetric(bytesRead, false);
             recvFile.write(buffer, 0, bytesRead);
 //            output.write(buffer);
         }
@@ -156,7 +156,7 @@ public class HttpDownload {
         output.close();
     }
 
-    static public long partialDownload(String strUrl, File recvFile, DownloadTask task, BackendService masterService, boolean isMaster) throws Exception {
+    static public long partialDownload(String strUrl, File recvFile, DownloadTask task, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService, task.end - task.start + 1);
         OutputStream output = null;
         InputStream input = null;
@@ -172,7 +172,7 @@ public class HttpDownload {
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
             totalLen += bytesRead;
-            bwMetric.bwMetric(bytesRead, isMaster);
+            bwMetric.bwMetric(bytesRead, false);
             output.write(buffer);
         }
         output.flush();
@@ -184,7 +184,7 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, BackendService masterService, boolean isMaster) throws Exception {
+    static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, BackendService masterService) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService, task.end - task.start + 1);
 //        OutputStream output = null;
         InputStream input = null;
@@ -198,7 +198,7 @@ public class HttpDownload {
         int bytesRead = 0;
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
-            bwMetric.bwMetric(bytesRead, isMaster);
+            bwMetric.bwMetric(bytesRead, false);
             recvFile.write(buffer, 0, bytesRead);
 //            output.write(buffer);
         }

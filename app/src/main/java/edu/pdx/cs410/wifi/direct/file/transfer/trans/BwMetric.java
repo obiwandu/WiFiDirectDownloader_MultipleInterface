@@ -46,7 +46,7 @@ public class BwMetric {
 //        slaveService = service;
 //    }
 
-    public long bwMetric(int bytesRead, boolean isMaster) {
+    public long bwMetric(int bytesRead, boolean isLAN) {
         /* update bw */
         alreadyBytes += bytesRead;
         currenntTime = System.currentTimeMillis();
@@ -62,10 +62,10 @@ public class BwMetric {
         float dataPer = (float)(100*alreadyBytes)/(float)totalLen;
 
         if (backendService != null) {
-            if (isMaster) {
-                backendService.signalActivity("Master transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+            if (isLAN) {
+                backendService.signalActivity("LAN transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
             } else {
-                backendService.signalActivity("Slave transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+                backendService.signalActivity("HTTP transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
             }
         }
 //        else if (slaveService != null) {

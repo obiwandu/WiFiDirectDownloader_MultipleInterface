@@ -16,7 +16,7 @@ public class TaskScheduler {
     public long mBw;
     public long sBw;
     private String url;
-    static Semaphore semaphore;
+    public static Semaphore semaphore;
     public static Semaphore semaphoreMasterDone;
     public static Semaphore semaphoreSlaveDone;
     public ArrayList<DownloadTask> alreadyTaskList;

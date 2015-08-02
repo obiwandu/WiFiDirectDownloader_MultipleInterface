@@ -23,12 +23,12 @@ public class TcpConnector {
     private MasterService masterService;
     private InputStream is;
     private OutputStream os;
-    private boolean isMaster;
+    private boolean isLAN;
 
     public TcpConnector(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService ms, int type) throws Exception {
         backendService = ms;
+        isLAN = true;
         if (type == 0) {
-            isMaster = true;
             serverSocket = null;
             socket = new Socket();
             socket.setReuseAddress(true);
@@ -38,7 +38,6 @@ public class TcpConnector {
             is = socket.getInputStream();
             os = socket.getOutputStream();
         } else if (type == 1) {
-            isMaster = false;
             backendService = ms;
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -86,7 +85,7 @@ public class TcpConnector {
             }
 
             /* update bw */
-            bwMetric.bwMetric(bytesRead, isMaster);
+            bwMetric.bwMetric(bytesRead, isLAN);
 
             recvFile.write(buffer, 0, bytesRead);
         }

@@ -28,6 +28,7 @@ public class MasterConnector {
 //        return bw;
 //    }
 
+    /* Short connection */
     static public long remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
                                       InetSocketAddress remoteAddr, InetSocketAddress localAddr,
                                       BackendService masterService) throws Exception {
@@ -42,8 +43,6 @@ public class MasterConnector {
         conn = new TcpConnector(remoteAddr, localAddr, masterService, 1);
         byte[] recvBuf = new byte[ProtocolHeader.HEADER_LEN];
         conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
-//        ProtocolHeader recvHeader = new ProtocolHeader();
-//        recvHeader.decapPro(recvBuf);
         ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         masterService.signalActivity("Data header received, start receiving data from slave");
         conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
@@ -67,8 +66,6 @@ public class MasterConnector {
 
         /* Wait for data back */
         conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
-//        ProtocolHeader recvHeader = new ProtocolHeader();
-//        recvHeader.decapPro(recvBuf);
         ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         conn.backendService.signalActivity("Data header received, start receiving data from slave");
         conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
@@ -78,13 +75,16 @@ public class MasterConnector {
         return bw;
     }
 
-    static public void remoteStop (InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, BackendService masterService) throws Exception {
+    /* Short connection */
+    static public void remoteStop (InetSocketAddress remoteAddr, InetSocketAddress localAddr,
+                                      ProtocolHeader header, BackendService masterService) throws Exception {
         TcpConnector conn = new TcpConnector(remoteAddr, localAddr, masterService, 0);
         conn.send(header.header, ProtocolHeader.HEADER_LEN);
         conn.close();
         masterService.signalActivity("Stop command is sent successfully, slave will be shut down");
     }
 
+    /* Long connection */
     static public void remoteStop (ProtocolHeader header, TcpConnector conn) throws Exception {
         conn.send(header.header, ProtocolHeader.HEADER_LEN);
     }
