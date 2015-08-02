@@ -32,16 +32,22 @@ public class DownloadTask {
 
     public DownloadTask schedule(long taskLen) {
         long actTaskLen;
+        long leftLen = end - start + 1;
         long newStart, newEnd;
 
         if (taskLen == 0) {
             return null;
         } else {
-            if (start + taskLen <= end) {
-                actTaskLen = taskLen;
+//            if (start + taskLen <= end) {
+            if (taskLen >= leftLen) {
+                /* task len is greater than or equal to left len, actual task len is only left len */
+                actTaskLen = leftLen;
             } else {
-                actTaskLen = end - start + 1;
+                /* task len is less than left len, actual task len is task len */
+//                actTaskLen = end - start + 1;
+                actTaskLen = taskLen;
             }
+
             newStart = start;
             newEnd = start + actTaskLen - 1;
             DownloadTask newTask = new DownloadTask(newStart, newEnd, totalLen, url);

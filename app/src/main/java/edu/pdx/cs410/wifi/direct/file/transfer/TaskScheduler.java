@@ -19,6 +19,7 @@ public class TaskScheduler {
     static Semaphore semaphore;
     public static Semaphore semaphoreMasterDone;
     public static Semaphore semaphoreSlaveDone;
+    public ArrayList<DownloadTask> alreadyTaskList;
 
     public TaskScheduler(long tl, String l) {
         semaphore = new Semaphore(1);
@@ -42,14 +43,12 @@ public class TaskScheduler {
     }
 
     public DownloadTask scheduleTask(long baseLen, long minBaseLen, boolean isMaster) throws Exception {
-        /* don't release the lock until finish writing file */
-//        semaphore.acquire();
         if (!leftTask.isDone) {
             DownloadTask retTask;
             long leftLen = leftTask.end - leftTask.start + 1;
 
             if (leftLen <= baseLen) {
-                /* last scheduling, only a small part of task left */
+                /* last chunk scheduling, only choose one end to handle the last chunk */
                 if (mBw >= sBw) {
                     if (isMaster) {
                         semaphore.acquire();
@@ -68,7 +67,6 @@ public class TaskScheduler {
                     }
                 }
 
-//                semaphore.release();
                 return retTask;
             } else {
                 /* general scheduling */
@@ -77,7 +75,7 @@ public class TaskScheduler {
                 long curTaskLen;
 
                 if (leftLen <= 2 * baseLen && leftLen > baseLen) {
-                    /* last scheduling */
+                    /* tasks are going to be finished */
                     curTaskLen = leftLen;
                 } else {
                     /* general scheduling */
@@ -86,7 +84,7 @@ public class TaskScheduler {
 
                 /* calculate tasks according to bandwidth */
                 if (mBw != 0 && sBw != 0) {
-                    mLen = curTaskLen * mBw / (mBw + sBw);
+                    mLen = (long) ((float)curTaskLen * ((float)mBw / (float)(mBw + sBw)));
                     sLen = curTaskLen - mLen;
                 } else {
                     if (mBw == 0 && sBw == 0) {
@@ -94,13 +92,9 @@ public class TaskScheduler {
                         sLen = curTaskLen - mLen;
                     } else {
                         if (mBw == 0) {
-//                            mLen = 0;
-//                            sLen = curTaskLen;
                             mLen = minBaseLen;
                             sLen = curTaskLen - minBaseLen;
                         } else {
-//                            mLen = curTaskLen;
-//                            sLen = 0;
                             mLen = curTaskLen - minBaseLen;
                             sLen = minBaseLen;
                         }
@@ -118,13 +112,10 @@ public class TaskScheduler {
                     semaphore.release();
                 }
 
-                /*all tasks have been done*/
-//                semaphore.release();
                 return retTask;
             }
         } else {
             /* All tasks have been done */
-//            semaphore.release();
             Exception e = new Exception("All tasks have been done");
             throw e;
         }

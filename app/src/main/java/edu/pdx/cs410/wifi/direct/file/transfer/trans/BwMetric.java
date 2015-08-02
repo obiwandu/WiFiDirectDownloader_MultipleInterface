@@ -54,7 +54,7 @@ public class BwMetric {
         lastTime = currenntTime;
         alreadyTime += timeSpan;
         if (alreadyTime > 0) {
-            bw = 1000 * alreadyBytes / (alreadyTime * 1024);
+            bw = (long)((float)1000 * ((float)alreadyBytes / (float)(alreadyTime * 1024)));
         } else {
             bw = 0;
         }
