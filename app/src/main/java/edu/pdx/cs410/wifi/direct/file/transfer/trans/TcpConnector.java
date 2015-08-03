@@ -1,6 +1,7 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.trans;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 
 /**
@@ -23,21 +25,24 @@ public class TcpConnector {
     private MasterService masterService;
     private InputStream is;
     private OutputStream os;
+//    private BufferedInputStream bis;
+//    private BufferedOutputStream bos;
     private boolean isLAN;
+    private Log log;
 
     public TcpConnector(InetSocketAddress remoteAddr, InetSocketAddress localAddr, BackendService ms, int type) throws Exception {
         backendService = ms;
         isLAN = true;
         if (type == 0) {
+            log = new Log("master_connector_log");
             serverSocket = null;
             socket = new Socket();
             socket.setReuseAddress(true);
             socket.bind(localAddr);
             socket.connect(remoteAddr, 0);
             ms.signalActivity("Slave connected");
-            is = socket.getInputStream();
-            os = socket.getOutputStream();
         } else if (type == 1) {
+            log = new Log("slave_connector_log");
             backendService = ms;
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -47,48 +52,107 @@ public class TcpConnector {
             ms.signalActivity("Master connected");
         }
         is = socket.getInputStream();
+//        bis = new BufferedInputStream(is);
         os = socket.getOutputStream();
+//        bos = new BufferedOutputStream(os);
     }
 
     public void close() throws Exception {
         is.close();
         os.close();
+//        bis.close();
+//        bos.close();
         socket.close();
         if (serverSocket != null) {
             serverSocket.close();
         }
     }
 
-    public long recv(RandomAccessFile recvFile, long dataLen) throws Exception {
+    /* Limit the data len */
+//    public long recv(RandomAccessFile recvFile, long dataLen) throws Exception {
+//        BwMetric bwMetric = new BwMetric(backendService, dataLen);
+//
+//        byte[] buffer = new byte[4096];
+//        int bytesRead;
+//        long alreadyLen = 0;
+//        int currentLen = 0;
+//
+//        while (true) {
+//            if (dataLen - alreadyLen < buffer.length) {
+//                currentLen = (int)(dataLen - alreadyLen);
+//            } else {
+//                currentLen = buffer.length;
+//            }
+//
+//            bytesRead = is.read(buffer, 0, currentLen);
+//            /* update alreadyLen */
+//            alreadyLen += bytesRead;
+//            if (alreadyLen == dataLen) {
+//                break;
+//            }
+//            if (bytesRead == -1) {
+//                throw new Exception("Data receiving is not complete!");
+//            }
+//
+//            /* update bw */
+//            bwMetric.bwMetric(bytesRead, isLAN);
+//
+//            recvFile.write(buffer, 0, bytesRead);
+//        }
+//
+//        return bwMetric.bw;
+//    }
+
+    /* Data len is not limited */
+    public long recv(RandomAccessFile recvFile, int dataLen) throws Exception {
         BwMetric bwMetric = new BwMetric(backendService, dataLen);
 
         byte[] buffer = new byte[4096];
         int bytesRead;
-        long alreadyLen = 0;
+        int alreadyLen = 0;
         int currentLen = 0;
+        int leftLen;
+//        int realLen = 0;
+//        int absStart = 0;
+//        int absEnd = 0;
 
         while (true) {
-            if (dataLen - alreadyLen < buffer.length) {
-                currentLen = (int)(dataLen - alreadyLen);
-            } else {
-                currentLen = buffer.length;
-            }
+            leftLen = dataLen - alreadyLen;
+            currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
 
             bytesRead = is.read(buffer, 0, currentLen);
+//            absStart = alreadyLen;
+//            absEnd = absStart + bytesRead - 1;
             /* update alreadyLen */
             alreadyLen += bytesRead;
-            if (alreadyLen == dataLen) {
+            if (bytesRead <= 0) {
                 break;
             }
-            if (bytesRead == -1) {
-                throw new Exception("Data receiving is not complete!");
+            if (leftLen == 0) {
+                break;
             }
 
+//            /* Skip first 2KB data */
+//            int offset = 0;
+//            if (absStart < 2048) {
+//                if (absEnd < 2048) {
+//                    /* Useless data, skip */
+//                } else {
+//                    /* Fist useful data block */
+////                    offset = absEnd - 2048 + 1;
+//                    offset = 2048 - absStart;
+//                    recvFile.write(buffer, offset, bytesRead - offset);
+//                    realLen += bytesRead - offset;
+//                }
+//            } else {
+//                recvFile.write(buffer, 0, bytesRead);
+//                realLen += bytesRead;
+//            }
+            recvFile.write(buffer, 0, bytesRead);
             /* update bw */
             bwMetric.bwMetric(bytesRead, isLAN);
-
-            recvFile.write(buffer, 0, bytesRead);
         }
+        log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
 
         return bwMetric.bw;
     }
@@ -104,44 +168,63 @@ public class TcpConnector {
         return;
     }
 
-//    public void recv(byte[] recvBuf) throws Exception {
+    /* Limit the data len */
+//    public void send(File sendFile, long fileLen) throws Exception {
+//        byte[] buffer = new byte[4096];
 //        int bytesRead;
+//        long alreadyLen = 0;
+//        int currentLen = 0;
+//        int totalLen = 0;
 //
-//        bytesRead = is.read(recvBuf, 0, recvBuf.length);
-//        if (bytesRead == -1) {
-//            throw new Exception("No data received!");
+//        FileInputStream fis = new FileInputStream(sendFile);
+//        BufferedInputStream bis = new BufferedInputStream(fis);
+//        while (true) {
+//            if (fileLen - alreadyLen < buffer.length) {
+//                currentLen = (int)(fileLen - alreadyLen);
+//            } else {
+//                currentLen = buffer.length;
+//            }
+//            bytesRead = bis.read(buffer, 0, currentLen);
+//            if (bytesRead == -1 || bytesRead == 0) {
+//                break;
+//            }
+//            alreadyLen += bytesRead;
+//            totalLen += bytesRead;
+//            os.write(buffer, 0, bytesRead);
+//            os.flush();
 //        }
+//        fis.close();
+//        bis.close();
+//        int a = totalLen;
 //
 //        return;
 //    }
 
-    public void send(File sendFile, long fileLen) throws Exception {
+    /* Data len is not limited */
+    public void send(File sendFile, int fileLen) throws Exception {
         byte[] buffer = new byte[4096];
         int bytesRead;
-        long alreadyLen = 0;
+        int alreadyLen = 0;
+        int leftLen = 0;
         int currentLen = 0;
-        int totalLen = 0;
 
         FileInputStream fis = new FileInputStream(sendFile);
-        BufferedInputStream bis = new BufferedInputStream(fis);
+        BufferedInputStream bfis = new BufferedInputStream(fis);
+
         while (true) {
-            if (fileLen - alreadyLen < buffer.length) {
-                currentLen = (int)(fileLen - alreadyLen);
-            } else {
-                currentLen = buffer.length;
-            }
-            bytesRead = bis.read(buffer, 0, currentLen);
-            if (bytesRead == -1 || bytesRead == 0) {
+            leftLen = fileLen - alreadyLen;
+            currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
+            bytesRead = bfis.read(buffer);
+            if (bytesRead <= 0) {
                 break;
             }
             alreadyLen += bytesRead;
-            totalLen += bytesRead;
             os.write(buffer, 0, bytesRead);
             os.flush();
         }
+        log.record("SEND:expect data len:" + Integer.toString(fileLen) + "|actual data len:" + Integer.toString(alreadyLen));
         fis.close();
-        bis.close();
-        int a = totalLen;
+        //bis.close();
 
         return;
     }
@@ -149,7 +232,6 @@ public class TcpConnector {
     public void send(byte[] sendBuf, int bufLen) throws Exception {
         int bytesRead;
 
-//        bytesRead = sendBuf.length;
         bytesRead = bufLen;
         os.write(sendBuf, 0, bytesRead);
         os.flush();

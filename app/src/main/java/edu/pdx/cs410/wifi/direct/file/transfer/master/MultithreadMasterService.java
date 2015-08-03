@@ -45,8 +45,8 @@ public class MultithreadMasterService extends BackendService {
         boolean masterDone = false;
         int masterBw = 0;
         int slaveBw = 0;
-        long chunkSize = 5120 * 1024;
-        long minChunkSize = 500 * 1024;
+        long chunkSize = 50 * 1024;
+        long minChunkSize = 10 * 1024;
         String originalFileName = "unnamed";
         TimeMetric tm = new TimeMetric();
 
@@ -88,8 +88,8 @@ public class MultithreadMasterService extends BackendService {
 
         tm.startTimer();
         /*start master thread*/
-//        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, tempRecvFile, this, tm, chunkSize, minChunkSize));
-//        masterThd.start();
+        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        masterThd.start();
 
         /*start slave thread*/
         TcpConnector conn = null;

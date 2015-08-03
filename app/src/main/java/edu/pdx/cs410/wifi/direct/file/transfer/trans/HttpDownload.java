@@ -32,8 +32,9 @@ public class HttpDownload {
         output = new FileOutputStream(recvFile);
 
         byte[] buffer = new byte[4 * 1024];
-        while (input.read(buffer) != -1) {
-            output.write(buffer);
+        int bytesRead = 0;
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0 , bytesRead);
         }
         output.flush();
         input.close();
@@ -78,7 +79,7 @@ public class HttpDownload {
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
-            output.write(buffer);
+            output.write(buffer, 0 , bytesRead);
         }
         output.flush();
         input.close();
@@ -148,8 +149,9 @@ public class HttpDownload {
         output = new FileOutputStream(recvFile);
 
         byte[] buffer = new byte[4 * 1024];
-        while (input.read(buffer) != -1) {
-            output.write(buffer);
+        int bytesRead = 0;
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
         }
         output.flush();
         input.close();
@@ -173,7 +175,7 @@ public class HttpDownload {
         while ((bytesRead = input.read(buffer)) != -1) {
             totalLen += bytesRead;
             bwMetric.bwMetric(bytesRead, false);
-            output.write(buffer);
+            output.write(buffer, 0, bytesRead);
         }
         output.flush();
         input.close();

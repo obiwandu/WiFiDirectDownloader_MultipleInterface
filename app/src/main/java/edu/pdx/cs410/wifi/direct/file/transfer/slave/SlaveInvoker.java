@@ -73,6 +73,9 @@ public class SlaveInvoker {
         File dir = new File(recvPath);
         dir.mkdirs();
         File tempFile = new File(recvPath, recvFileName);
+        if (tempFile.exists()) {
+            tempFile.delete();
+        }
         long bw = SlaveOperation.httpDownload(task, tempFile, conn.backendService);
         conn.backendService.signalActivity("Download complete, ready to send back");
 
