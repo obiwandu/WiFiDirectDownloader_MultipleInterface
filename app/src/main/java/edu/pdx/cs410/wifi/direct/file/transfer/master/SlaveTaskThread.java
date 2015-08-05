@@ -53,11 +53,11 @@ public class SlaveTaskThread extends Thread {
         boolean isDone;
         Log log = new Log("slave_log");
 
-        try {
-            taskScheduler.semaphoreSlaveDone.acquire();
-        } catch (Exception e) {
-            conn.backendService.signalActivity("Exception during accquring slave lock:" + e.toString());
-        }
+//        try {
+//            taskScheduler.semaphoreSlaveDone.acquire();
+//        } catch (Exception e) {
+//            conn.backendService.signalActivity("Exception during accquring slave lock:" + e.toString());
+//        }
         while (true) {
             try {
                 isDone = taskScheduler.isTaskDone();

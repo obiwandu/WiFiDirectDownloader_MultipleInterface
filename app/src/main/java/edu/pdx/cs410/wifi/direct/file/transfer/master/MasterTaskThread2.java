@@ -47,11 +47,11 @@ public class MasterTaskThread2 extends Thread{
         RandomAccessFile tempRecvFile;
         Log log = new Log("master2_log");
 
-        try {
-            taskScheduler.semaphoreMasterDone2.acquire();
-        } catch (Exception e) {
-            masterService.signalActivity("Exception during accquring master lock:" + e.toString());
-        }
+//        try {
+//            taskScheduler.semaphoreMasterDone2.acquire();
+//        } catch (Exception e) {
+//            masterService.signalActivity("Exception during accquring master lock:" + e.toString());
+//        }
         while (true) {
             try {
                 isDone = taskScheduler.isTaskDone();

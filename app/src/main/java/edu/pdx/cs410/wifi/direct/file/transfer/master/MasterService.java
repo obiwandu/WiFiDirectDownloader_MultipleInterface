@@ -82,22 +82,31 @@ public class MasterService extends BackendService {
         tm.startTimer();
         /*start master thread*/
         Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        try {
+            taskScheduler.semaphoreMasterDone.acquire();
+        } catch (Exception e) {
+            signalActivity("Exception during accquring master lock:" + e.toString());
+        }
         masterThd.start();
+
         Thread masterThd2 = new Thread(new MasterTaskThread2(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        try {
+            taskScheduler.semaphoreMasterDone2.acquire();
+        } catch (Exception e) {
+            signalActivity("Exception during accquring master lock:" + e.toString());
+        }
         masterThd2.start();
+
         /* When transmission is done, close file and stop slave*/
         try {
-            Thread.sleep(1000);
+//            Thread.sleep(1000);
             taskScheduler.semaphoreMasterDone.acquire();
             taskScheduler.semaphoreMasterDone2.acquire();
-            //taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
-//            tempRecvFile.close();
-//            MasterOperation.remoteStop(conn);
             taskScheduler.semaphoreMasterDone.release();
             taskScheduler.semaphoreMasterDone2.release();
-            //taskScheduler.semaphoreSlaveDone.release();
+            this.signalActivityComplete();
             this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
         } catch (Exception e) {
             this.signalActivity("Exception during closing file:" + e.toString());

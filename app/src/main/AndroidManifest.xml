@@ -25,20 +25,11 @@
             android:name=".slave.MainActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
-
-        <service
-            android:name=".master.MultithreadMasterService"
-            android:exported="false" />
-        <service
-            android:name=".oldClass.ClientService"
-            android:exported="false" />
-
         <activity
             android:name=".FileBrowser"
             android:label="@string/title_activity_file_browser"
@@ -55,7 +46,38 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".slave.MainActivity" />
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".master.MasterActivity"
+            android:label="Master"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".slave.SlaveActivity"
+            android:label="Slave"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
 
+        <service
+            android:name=".master.MultithreadMasterService"
+            android:exported="false" />
+        <service
+            android:name=".oldClass.ClientService"
+            android:exported="false" />
         <service
             android:name=".master.MasterService"
             android:enabled="true"

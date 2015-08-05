@@ -89,6 +89,11 @@ public class MultithreadMasterService extends BackendService {
         tm.startTimer();
         /*start master thread*/
         Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        try {
+            taskScheduler.semaphoreMasterDone.acquire();
+        } catch (Exception e) {
+            signalActivity("Exception during accquring master lock:" + e.toString());
+        }
         masterThd.start();
 
         /*start slave thread*/
@@ -96,6 +101,7 @@ public class MultithreadMasterService extends BackendService {
         try {
             conn = new TcpConnector(slaveSockAddr, masterSockAddr, this, 0);
             Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, conn, chunkSize, minChunkSize));
+            taskScheduler.semaphoreSlaveDone.acquire();
             slaveThd.start();
         } catch (Exception e) {
             this.signalActivity("Exception during slave transmission:" + e.toString());
@@ -103,7 +109,7 @@ public class MultithreadMasterService extends BackendService {
 
         /* When transmission is done, close file and stop slave*/
         try {
-            Thread.sleep(1000);
+//            Thread.sleep(1000);
             taskScheduler.semaphoreMasterDone.acquire();
             taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = tm.getTimeLapse();
@@ -113,6 +119,7 @@ public class MultithreadMasterService extends BackendService {
             conn.close();
             taskScheduler.semaphoreMasterDone.release();
             taskScheduler.semaphoreSlaveDone.release();
+            conn.backendService.signalActivityComplete();
             conn.backendService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
         } catch (Exception e) {
             conn.backendService.signalActivity("Exception during closing file:" + e.toString());

@@ -22,12 +22,16 @@ public abstract class BackendService extends IntentService {
     public void signalActivity(String msg) {
         Bundle b = new Bundle();
         b.putString("message", msg);
-        resultReceiver.send(nrsPort, b);
+        resultReceiver.send(1, b);
+    }
+
+    public void signalActivityComplete() {
+        resultReceiver.send(0, null);
     }
 
     public void signalActivityProgress(String msg) {
         Bundle b = new Bundle();
         b.putString("progress", msg);
-        resultReceiver.send(1, b);
+        resultReceiver.send(2, b);
     }
 }

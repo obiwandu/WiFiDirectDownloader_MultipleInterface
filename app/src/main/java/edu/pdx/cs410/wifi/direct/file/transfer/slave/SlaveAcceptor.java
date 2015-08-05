@@ -34,6 +34,7 @@ public class SlaveAcceptor {
             ProtocolHeader header = new ProtocolHeader(recvHeader);
             if (header.stop == true) {
                 conn.close();
+                slaveService.signalActivityComplete();
                 slaveService.signalActivity("All tasks are complete, slave stops");
                 break;
             }
