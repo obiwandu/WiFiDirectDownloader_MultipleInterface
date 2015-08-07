@@ -24,7 +24,7 @@
  */
 
 
-package edu.pdx.cs410.wifi.direct.file.transfer.master;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import android.content.BroadcastReceiver;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -43,10 +43,8 @@ import android.os.Message;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-import edu.pdx.cs410.wifi.direct.file.transfer.master.ClientActivity;
-import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.RecvThread;
+import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.ClientActivity;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
 
 /*

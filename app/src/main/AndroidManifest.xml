@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".slave.MainActivity"
+            android:name=".oldClass.MainActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
             <!--<intent-filter>-->
@@ -36,15 +36,15 @@
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".slave.MainActivity" />
+                android:value=".oldClass.MainActivity" />
         </activity>
         <activity
-            android:name=".master.ClientActivity"
+            android:name=".oldClass.ClientActivity"
             android:label="@string/title_activity_client"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".slave.MainActivity" />
+                android:value=".oldClass.MainActivity" />
         </activity>
         <activity
             android:name=".MainActivity"

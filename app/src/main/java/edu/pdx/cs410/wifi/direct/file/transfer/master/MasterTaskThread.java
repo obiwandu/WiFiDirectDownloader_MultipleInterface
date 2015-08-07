@@ -58,6 +58,7 @@ public class MasterTaskThread extends Thread {
                 if (isDone) {
                     log.record("master task 1 done");
                     taskScheduler.semaphoreMasterDone.release();
+//                    taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
             } catch (Exception e) {
@@ -71,9 +72,14 @@ public class MasterTaskThread extends Thread {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
                 retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, true);
                 mTask = retTasks;
-                log.record("cur start:" + Long.toString(mTask.start) + "|cur end:" + Long.toString(mTask.end)
-                        + "|cur left start:" + Long.toString(taskScheduler.leftTask.start)
-                        + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                if (mTask != null) {
+                    log.record("cur start:" + Long.toString(mTask.start) + "|cur end:" + Long.toString(mTask.end)
+                            + "|cur left start:" + Long.toString(taskScheduler.leftTask.start)
+                            + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                } else {
+                    log.record("cur task is null|cur left start:" + Long.toString(taskScheduler.leftTask.start)
+                            + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                }
             } catch (Exception e) {
                 masterService.signalActivity("Exception during task scheduling:" + e.toString());
                 return;

@@ -23,7 +23,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package edu.pdx.cs410.wifi.direct.file.transfer.slave;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,8 +39,7 @@ import android.os.Message;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.SendThread;
-import edu.pdx.cs410.wifi.direct.file.transfer.slave.MainActivity;
+import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.MainActivity;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
 
 /*

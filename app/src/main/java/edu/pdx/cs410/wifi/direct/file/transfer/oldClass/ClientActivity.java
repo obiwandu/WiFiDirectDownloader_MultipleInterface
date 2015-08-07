@@ -23,13 +23,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package edu.pdx.cs410.wifi.direct.file.transfer.master;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -59,6 +57,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.FileBrowser;
 import edu.pdx.cs410.wifi.direct.file.transfer.R;
+import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
+import edu.pdx.cs410.wifi.direct.file.transfer.master.MultithreadMasterService;
 
 //import edu.pdx.cs410.wifi.direct.file.transfer.HttpDl;
 

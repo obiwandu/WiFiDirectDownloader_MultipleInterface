@@ -77,9 +77,14 @@ public class SlaveTaskThread extends Thread {
                 retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, false);
 //                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
-                log.record("cur start:" + Long.toString(sTask.start) + "|cur end:" + Long.toString(sTask.end)
-                        + "|cur left start:" + Long.toString(taskScheduler.leftTask.start)
-                        + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                if (sTask != null) {
+                    log.record("cur start:" + Long.toString(sTask.start) + "|cur end:" + Long.toString(sTask.end)
+                            + "|cur left start:" + Long.toString(taskScheduler.leftTask.start)
+                            + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                } else {
+                    log.record("cur task is null|cur left start:" + Long.toString(taskScheduler.leftTask.start)
+                            + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
+                }
             } catch (Exception e) {
                 conn.backendService.signalActivity("Exception during task scheduling:" + e.toString());
                 return;

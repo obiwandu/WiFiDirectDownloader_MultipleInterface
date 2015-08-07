@@ -45,8 +45,10 @@ public class MultithreadMasterService extends BackendService {
         boolean masterDone = false;
         int masterBw = 0;
         int slaveBw = 0;
-        long chunkSize = 50 * 1024;
-        long minChunkSize = 10 * 1024;
+//        long chunkSize = 50 * 1024;
+        long chunkSize = 5120 * 1024;
+//        long minChunkSize = 10 * 1024;
+        long minChunkSize = 500 * 1024;
         String originalFileName = "unnamed";
         TimeMetric tm = new TimeMetric();
 
@@ -91,6 +93,7 @@ public class MultithreadMasterService extends BackendService {
         Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
         try {
             taskScheduler.semaphoreMasterDone.acquire();
+//            taskScheduler.semaphoreSlaveDone.acquire();
         } catch (Exception e) {
             signalActivity("Exception during accquring master lock:" + e.toString());
         }
@@ -111,6 +114,7 @@ public class MultithreadMasterService extends BackendService {
         try {
 //            Thread.sleep(1000);
             taskScheduler.semaphoreMasterDone.acquire();
+//            taskScheduler.semaphoreSlaveDone.acquire();
             taskScheduler.semaphoreSlaveDone.acquire();
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
@@ -118,6 +122,7 @@ public class MultithreadMasterService extends BackendService {
             MasterOperation.remoteStop(conn);
             conn.close();
             taskScheduler.semaphoreMasterDone.release();
+//            taskScheduler.semaphoreSlaveDone.release();
             taskScheduler.semaphoreSlaveDone.release();
             conn.backendService.signalActivityComplete();
             conn.backendService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
