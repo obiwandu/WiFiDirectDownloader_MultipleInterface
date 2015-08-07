@@ -12,6 +12,7 @@ import android.os.ResultReceiver;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -114,12 +115,20 @@ public class MasterActivity extends Activity {
 //            } else if (wifiInfo == null) {
 //                setMasterExceptionStatus("Missing Wifi P2P information");
             } else {
+                /* Load settings */
+                final EditText masterChunkSize = (EditText) findViewById(R.id.etChunkSize);
+                final long chunkSize = Long.parseLong(masterChunkSize.getText().toString());
+                final EditText masterMinChunkSize = (EditText) findViewById(R.id.etMinChunkSize);
+                final long minChunkSize = Long.parseLong(masterMinChunkSize.getText().toString());
+
 //                clientServiceIntent = new Intent(this, MasterService.class);
                 masterServiceIntent = new Intent(this, MultithreadMasterService.class);
                 masterServiceIntent.putExtra("url", url);
                 masterServiceIntent.putExtra("port", nrsPort);
                 masterServiceIntent.putExtra("masterIp", masterIp);
                 masterServiceIntent.putExtra("slaveIp", slaveIp);
+                masterServiceIntent.putExtra("chunkSize", chunkSize * 1024);
+                masterServiceIntent.putExtra("minChunkSize", minChunkSize * 1024);
                 masterServiceIntent.putExtra("masterResult", new ResultReceiver(null) {
                     @Override
                     protected void onReceiveResult(int resultCode, final Bundle resultData) {
@@ -159,9 +168,17 @@ public class MasterActivity extends Activity {
     }
 
     public void onLocalDownload(View view) {
+        final EditText masterChunkSize = (EditText) findViewById(R.id.etChunkSize);
+        String temp = masterChunkSize.getText().toString();
+        final long chunkSize = Long.parseLong(masterChunkSize.getText().toString());
+        final EditText masterMinChunkSize = (EditText) findViewById(R.id.etMinChunkSize);
+        final long minChunkSize = Long.parseLong(masterMinChunkSize.getText().toString());
+
         masterServiceIntent = new Intent(this, MasterService.class);
         masterServiceIntent.putExtra("url", url);
         masterServiceIntent.putExtra("port", nrsPort);
+        masterServiceIntent.putExtra("chunkSize", chunkSize * 1024);
+        masterServiceIntent.putExtra("minChunkSize", minChunkSize * 1024);
         masterServiceIntent.putExtra("masterResult", new ResultReceiver(null) {
             @Override
             protected void onReceiveResult(int resultCode, final Bundle resultData) {

@@ -56,6 +56,8 @@ public class MultithreadMasterService extends BackendService {
         nrsPort = (Integer) intent.getExtras().get("port");
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
+        chunkSize = (Long) intent.getExtras().get("chunkSize");
+        minChunkSize = (Long) intent.getExtras().get("minChunkSize");
         resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
 
         InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);

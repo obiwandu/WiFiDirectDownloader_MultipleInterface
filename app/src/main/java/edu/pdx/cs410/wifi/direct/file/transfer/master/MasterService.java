@@ -52,6 +52,8 @@ public class MasterService extends BackendService {
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
         resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
+        chunkSize = (Long) intent.getExtras().get("chunkSize");
+        minChunkSize = (Long) intent.getExtras().get("minChunkSize");
 
         /*get data length*/
         try {

@@ -42,6 +42,56 @@
         android:layout_height="wrap_content"
         android:paddingTop="3dp" />
 
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tvChunkSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/etChunkSize"
+            android:text="Chunk Size:"/>
+        <EditText
+            android:id="@+id/etChunkSize"
+            android:inputType="number"
+            android:text="100"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="120dp"/>
+        <TextView
+            android:id="@+id/tvChunkSizeUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/etChunkSize"
+            android:layout_marginLeft="220dp"
+            android:text="KB"/>
+
+        <TextView
+            android:id="@+id/tvMinChunkSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/tvChunkSize"
+            android:layout_alignBottom="@+id/etMinChunkSize"
+            android:text="Min Chunk Size:"/>
+        <EditText
+            android:id="@+id/etMinChunkSize"
+            android:inputType="number"
+            android:text="10"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/etChunkSize"
+            android:layout_alignTop="@+id/etChunkSize"
+            android:layout_marginTop="40dp"/>
+        <TextView
+            android:id="@+id/tvMinChunkSizeUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/etMinChunkSize"
+            android:layout_marginLeft="220dp"
+            android:text="KB"/>
+    </RelativeLayout>
+
     <ListView
         android:id="@+id/peers_listview"
         android:layout_width="wrap_content"
