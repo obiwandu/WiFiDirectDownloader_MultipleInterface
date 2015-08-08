@@ -14,6 +14,9 @@ import java.io.RandomAccessFile;
  */
 public class Log {
     private File logFile;
+    private long lastTIme;
+    private long lastSecond;
+
     public Log(String logName){
         /* set recv file path */
         String logFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/A-NRS-Log";
@@ -24,6 +27,8 @@ public class Log {
         if (logFile.exists()){
             logFile.delete();
         }
+        lastTIme = System.currentTimeMillis();
+        lastSecond = 0;
     }
 
     public void record(String info) throws Exception {
@@ -36,19 +41,21 @@ public class Log {
 //        FileOutputStream fos = new FileOutputStream(logFile);
 //        fos.write(record.getBytes());
 //        fos.close();
-        System.out.print(("Time:" + Long.toString(currentTime) + "|" + info + "\n").getBytes());
+//        System.out.print(("Time:" + Long.toString(currentTime) + "|" + info + "\n").getBytes());
     }
 
     public void stat(String info) throws Exception {
-        long currentTime = System.currentTimeMillis();
-        String record = Long.toString(currentTime) + "," + info + "\n";
-        FileWriter fw = new FileWriter(logFile, true);
-        fw.write(record);
-        fw.close();
-
+        long currentTime = (System.currentTimeMillis() - lastTIme)/1000;
+        if (currentTime > lastSecond) {
+            String record = Long.toString(currentTime) + "," + info + "\n";
+            FileWriter fw = new FileWriter(logFile, true);
+            fw.write(record);
+            fw.close();
+            lastSecond = currentTime;
 //        FileOutputStream fos = new FileOutputStream(logFile);
 //        fos.write(record.getBytes());
 //        fos.close();
-        System.out.print((Long.toString(currentTime) + "," + info + "\n").getBytes());
+//            System.out.print((Long.toString(currentTime) + "," + info + "\n").getBytes());
+        }
     }
 }

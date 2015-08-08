@@ -70,7 +70,7 @@
         <EditText
             android:id="@+id/etChunkSize"
             android:inputType="number"
-            android:text="100"
+            android:text="500"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -93,7 +93,7 @@
         <EditText
             android:id="@+id/etMinChunkSize"
             android:inputType="number"
-            android:text="10"
+            android:text="50"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/etChunkSize"
