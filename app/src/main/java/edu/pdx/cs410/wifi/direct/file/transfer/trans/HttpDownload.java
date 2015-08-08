@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 import edu.pdx.cs410.wifi.direct.file.transfer.slave.SlaveService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -88,7 +89,8 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public long download(String strUrl, RandomAccessFile recvFile, BackendService masterService) throws Exception {
+    static public long download(String strUrl, RandomAccessFile recvFile,
+                                BackendService masterService, Statistic stat) throws Exception {
 
 //        OutputStream output = null;
         InputStream input = null;
@@ -104,6 +106,8 @@ public class HttpDownload {
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
+            int i = 0;
+            stat.stat(bytesRead);
             recvFile.write(buffer, 0, bytesRead);
 //            output.write(buffer);
         }
@@ -186,7 +190,8 @@ public class HttpDownload {
         return bwMetric.bw;
     }
 
-    static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task, BackendService masterService) throws Exception {
+    static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task,
+                                       BackendService masterService, Statistic stat) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService, task.end - task.start + 1);
 //        OutputStream output = null;
         InputStream input = null;
@@ -201,6 +206,7 @@ public class HttpDownload {
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
+            stat.stat(bytesRead);
             recvFile.write(buffer, 0, bytesRead);
 //            output.write(buffer);
         }

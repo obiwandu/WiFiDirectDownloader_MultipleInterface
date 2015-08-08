@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
@@ -49,10 +50,10 @@ public class MasterInvoker {
 
     /* Long connection version */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
-                                     TcpConnector conn) throws Exception {
+                                     TcpConnector conn, Statistic stat) throws Exception {
         ProtocolHeader header = new ProtocolHeader(task);
         conn.backendService.signalActivity("Ready to send command to slave");
-        long bw = MasterConnector.remoteDownload(header, task.url, recvFile, conn);
+        long bw = MasterConnector.remoteDownload(header, task.url, recvFile, conn, stat);
         return bw;
     }
 

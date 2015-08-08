@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
@@ -40,9 +41,9 @@ public class MasterProxy {
 
     /* Long connection version */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
-                                     TcpConnector conn) throws Exception {
+                                     TcpConnector conn, Statistic stat) throws Exception {
         long bw;
-        bw = MasterInvoker.remoteDownload(task, recvFile, conn);
+        bw = MasterInvoker.remoteDownload(task, recvFile, conn, stat);
         return bw;
     }
 }

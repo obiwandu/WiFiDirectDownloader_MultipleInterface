@@ -38,4 +38,17 @@ public class Log {
 //        fos.close();
         System.out.print(("Time:" + Long.toString(currentTime) + "|" + info + "\n").getBytes());
     }
+
+    public void stat(String info) throws Exception {
+        long currentTime = System.currentTimeMillis();
+        String record = Long.toString(currentTime) + "," + info + "\n";
+        FileWriter fw = new FileWriter(logFile, true);
+        fw.write(record);
+        fw.close();
+
+//        FileOutputStream fos = new FileOutputStream(logFile);
+//        fos.write(record.getBytes());
+//        fos.close();
+        System.out.print((Long.toString(currentTime) + "," + info + "\n").getBytes());
+    }
 }

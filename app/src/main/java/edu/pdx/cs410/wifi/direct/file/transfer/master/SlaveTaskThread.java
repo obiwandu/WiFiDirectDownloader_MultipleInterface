@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -27,6 +28,7 @@ public class SlaveTaskThread extends Thread {
 //    TimeMetric time;
     long chunkSize;
     long minChunkSize;
+    Statistic stat;
 
     public SlaveTaskThread(TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
         taskScheduler = ts;
@@ -52,6 +54,7 @@ public class SlaveTaskThread extends Thread {
         RandomAccessFile tempRecvFile;
         boolean isDone;
         Log log = new Log("slave_log");
+        stat = new Statistic("slave_stat");
 
 //        try {
 //            taskScheduler.semaphoreSlaveDone.acquire();
@@ -98,7 +101,7 @@ public class SlaveTaskThread extends Thread {
 //                    taskScheduler.semaphore.acquire();
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(sTask.start);
-                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn);
+                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn, stat);
                     tempRecvFile.close();
 //                    taskScheduler.semaphore.release();
                     dataCount += sTask.end - sTask.start + 1;

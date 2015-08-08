@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
@@ -55,7 +56,7 @@ public class MasterConnector {
 
     /* Long connection version */
     static public long remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
-                                      TcpConnector conn) throws Exception {
+                                      TcpConnector conn, Statistic stat) throws Exception {
         byte[] sendBuf = url.getBytes();
         byte[] recvBuf = new byte[ProtocolHeader.HEADER_LEN];
 
@@ -68,7 +69,7 @@ public class MasterConnector {
         conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
         ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         conn.backendService.signalActivity("Data header received, start receiving data from slave");
-        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
+        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1), stat);
         long bw = recvHeader.bw;
         conn.backendService.signalActivity("Data got successfully");
 

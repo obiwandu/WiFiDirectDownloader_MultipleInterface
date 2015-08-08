@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -27,6 +28,7 @@ public class MasterTaskThread2 extends Thread{
     long minChunkSize;
     ResultReceiver masterResult;
     TimeMetric time;
+    Statistic stat;
 //    TcpConnectorLong conn;
 
     public MasterTaskThread2(TaskScheduler ts, File f, BackendService ms, TimeMetric tm, long ckSize, long minCkSize){
@@ -46,6 +48,7 @@ public class MasterTaskThread2 extends Thread{
         boolean isDone;
         RandomAccessFile tempRecvFile;
         Log log = new Log("master2_log");
+        stat = new Statistic("master2_stat");
 
 //        try {
 //            taskScheduler.semaphoreMasterDone2.acquire();
@@ -87,12 +90,11 @@ public class MasterTaskThread2 extends Thread{
             /*execute downloading*/
             try {
                 if (mTask != null) {
-
                     /*execute downloading*/
 //                    taskScheduler.semaphore.acquire();
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(mTask.start);
-                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService);
+                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService, stat);
                     tempRecvFile.close();
 //                    taskScheduler.semaphore.release();
                     dataCount += mTask.end - mTask.start + 1;

@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
@@ -35,9 +36,9 @@ public class MasterOperation  {
 
     /* Long connection version */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
-                                     TcpConnector conn) throws Exception {
+                                     TcpConnector conn, Statistic stat) throws Exception {
         long bw;
-        bw = MasterProxy.remoteDownload(task, recvFile, conn);
+        bw = MasterProxy.remoteDownload(task, recvFile, conn, stat);
 
         return bw;
     }
@@ -63,12 +64,12 @@ public class MasterOperation  {
         return bw;
     }
 
-    static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService) throws Exception {
+    static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService, Statistic stat) throws Exception {
         long bw;
         if (task.isPartial){
-            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
+            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService, stat);
         } else {
-            bw = HttpDownload.download(task.url, recvFile, masterService);
+            bw = HttpDownload.download(task.url, recvFile, masterService, stat);
         }
 
         return bw;

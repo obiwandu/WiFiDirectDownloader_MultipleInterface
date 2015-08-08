@@ -44,6 +44,9 @@ public class MasterActivity extends Activity {
         setContentView(R.layout.activity_master);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        EditText etURL = (EditText) findViewById(R.id.etURL);
+        etURL.setText(url);
+
         wifiDirect = new WiFiDirect(this);
         wifiDirect.search();
     }
@@ -120,6 +123,8 @@ public class MasterActivity extends Activity {
                 final long chunkSize = Long.parseLong(masterChunkSize.getText().toString());
                 final EditText masterMinChunkSize = (EditText) findViewById(R.id.etMinChunkSize);
                 final long minChunkSize = Long.parseLong(masterMinChunkSize.getText().toString());
+                EditText etURL = (EditText) findViewById(R.id.etURL);
+                url = etURL.getText().toString();
 
 //                clientServiceIntent = new Intent(this, MasterService.class);
                 masterServiceIntent = new Intent(this, MultithreadMasterService.class);
@@ -173,6 +178,8 @@ public class MasterActivity extends Activity {
         final long chunkSize = Long.parseLong(masterChunkSize.getText().toString());
         final EditText masterMinChunkSize = (EditText) findViewById(R.id.etMinChunkSize);
         final long minChunkSize = Long.parseLong(masterMinChunkSize.getText().toString());
+        EditText etURL = (EditText) findViewById(R.id.etURL);
+        url = etURL.getText().toString();
 
         masterServiceIntent = new Intent(this, MasterService.class);
         masterServiceIntent.putExtra("url", url);

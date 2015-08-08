@@ -15,6 +15,10 @@ public class TaskScheduler {
     private DownloadTask[] taskList;
     public long mBw;
     public long sBw;
+    public long mAlreadyBytes;
+    public long sAlreadyBytes;
+    public TimeMetric mTm;
+    public TimeMetric sTm;
     private String url;
     public static Semaphore semaphore;
     public static Semaphore semaphoreMasterDone;
@@ -23,6 +27,10 @@ public class TaskScheduler {
     public ArrayList<DownloadTask> alreadyTaskList;
 
     public TaskScheduler(long tl, String l) {
+        mAlreadyBytes = 0;
+        sAlreadyBytes = 0;
+        mTm = new TimeMetric();
+        sTm = new TimeMetric();
         semaphore = new Semaphore(1);
         semaphoreMasterDone = new Semaphore(1);
         semaphoreMasterDone2 = new Semaphore(1);
