@@ -134,7 +134,7 @@ public class WiFiMasterBroadcastReceiver extends BroadcastReceiver {
                     activity.setMasterWifiStatus("master IP: " + activity.masterIp.getHostAddress()
                             + " | slave IP:" + activity.slaveIp.getHostAddress());
                     int slaveNumber = activity.slaveList.size();
-                    activity.setMasterStatus("Connected: slave number " + Integer.toString(slaveNumber));
+                    activity.setMasterStatus("WiFi Direct Connection Status:Connected, slave number = " + Integer.toString(slaveNumber));
                     break;
                 case 2:
                     String str_msg = (String)msg.obj;

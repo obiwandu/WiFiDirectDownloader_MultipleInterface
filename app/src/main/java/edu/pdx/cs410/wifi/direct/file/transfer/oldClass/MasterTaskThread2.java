@@ -1,4 +1,4 @@
-package edu.pdx.cs410.wifi.direct.file.transfer.master;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import android.os.ResultReceiver;
 
@@ -11,6 +11,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
+import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterOperation;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 
 /**

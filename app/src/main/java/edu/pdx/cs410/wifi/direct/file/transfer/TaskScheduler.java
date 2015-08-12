@@ -32,8 +32,7 @@ public class TaskScheduler {
         mTm = new TimeMetric();
         sTm = new TimeMetric();
         semaphore = new Semaphore(1);
-        semaphoreMasterDone = new Semaphore(1);
-        semaphoreMasterDone2 = new Semaphore(1);
+        semaphoreMasterDone = new Semaphore(n);
         semaphoreSlaveDone = new Semaphore(n);
 
         totalLen = tl;

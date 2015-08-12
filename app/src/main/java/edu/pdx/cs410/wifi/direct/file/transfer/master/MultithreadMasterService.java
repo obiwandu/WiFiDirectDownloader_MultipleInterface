@@ -25,16 +25,10 @@ public class MultithreadMasterService extends BackendService {
     private String url;
     private ArrayList<InetAddress> slaveList;
     private int slaveNum;
-//
-//    private InetAddress masterIp;
-//    private InetAddress slaveIp;
-//    private ResultReceiver masterResult;
-//    private int nrsPort;
 
     public MultithreadMasterService() {
         super();
     }
-    static Semaphore semaphore = new Semaphore(1);
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -101,7 +95,7 @@ public class MultithreadMasterService extends BackendService {
 
         tm.startTimer();
         /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+        Thread masterThd = new Thread(new MasterTaskThread(0, taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
         try {
             taskScheduler.semaphoreMasterDone.acquire();
 //            taskScheduler.semaphoreSlaveDone.acquire();
@@ -127,7 +121,7 @@ public class MultithreadMasterService extends BackendService {
             try {
                 TcpConnector tempConn = new TcpConnector(slaveSockAddrdList.get(i), masterSockAddr, this, 0);
                 connList.add(tempConn);
-                Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, tempConn, chunkSize, minChunkSize));
+                Thread slaveThd = new Thread(new SlaveTaskThread(i, taskScheduler, recvFile, tempConn, chunkSize, minChunkSize));
                 taskScheduler.semaphoreSlaveDone.acquire();
                 slaveThd.start();
             } catch (Exception e) {

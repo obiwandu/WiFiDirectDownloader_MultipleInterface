@@ -18,34 +18,23 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
  */
 public class SlaveTaskThread extends Thread {
     TaskScheduler taskScheduler;
-//    RandomAccessFile tempRecvFile;
     File recvFile;
     InetSocketAddress slaveSockAddr;
     InetSocketAddress masterSockAddr;
-//    MultithreadMasterService masterService;
     ResultReceiver masterResult;
     TcpConnector conn;
-//    TimeMetric time;
     long chunkSize;
     long minChunkSize;
     Statistic stat;
+    int slaveIndex;
 
-    public SlaveTaskThread(TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
+    public SlaveTaskThread(int si, TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
+        slaveIndex = si;
         taskScheduler = ts;
         recvFile = f;
-//        slaveSockAddr = ssa;
-//        masterSockAddr = msa;
-//        masterService = ms;
         conn = c;
-//        time = tm;
         chunkSize = ckSize;
         minChunkSize = minCkSize;
-
-//        try {
-//            conn = new TcpConnector(ssa, msa, ms, 0);
-//        } catch (Exception e) {
-//            masterService.signalActivity("Exception during setting up data connection:" + e.toString());
-//        }
     }
 
     public void run() {
@@ -53,19 +42,15 @@ public class SlaveTaskThread extends Thread {
         long slaveBw = 0;
         RandomAccessFile tempRecvFile;
         boolean isDone;
-        Log log = new Log("slave_log");
-        stat = new Statistic("slave_stat");
+        Log log = new Log("slave_" + Integer.valueOf(slaveIndex) + "_log");
+        stat = new Statistic("slave_" + Integer.valueOf(slaveIndex) +"_stat");
 
-//        try {
-//            taskScheduler.semaphoreSlaveDone.acquire();
-//        } catch (Exception e) {
-//            conn.backendService.signalActivity("Exception during accquring slave lock:" + e.toString());
-//        }
         while (true) {
             try {
+                /* Judge whether all tasks have been done */
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
-                    log.record("slave task done");
+                    log.record("slave " + Integer.valueOf(slaveIndex) + " task done");
                     taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
@@ -78,7 +63,6 @@ public class SlaveTaskThread extends Thread {
             DownloadTask retTasks;
             try {
                 retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, false);
-//                retTasks = taskScheduler.scheduleTask(taskScheduler.leftTask.end - taskScheduler.leftTask.start + 1, true);
                 sTask = retTasks;
                 if (sTask != null) {
                     log.record("cur start:" + Long.toString(sTask.start) + "|cur end:" + Long.toString(sTask.end)
@@ -98,12 +82,10 @@ public class SlaveTaskThread extends Thread {
                 if (sTask != null) {
 
                     /*execute downloading*/
-//                    taskScheduler.semaphore.acquire();
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(sTask.start);
                     slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn, stat);
                     tempRecvFile.close();
-//                    taskScheduler.semaphore.release();
                     dataCount += sTask.end - sTask.start + 1;
                     /*submit tasks*/
                     taskScheduler.updateSlaveBw(slaveBw);
@@ -113,27 +95,14 @@ public class SlaveTaskThread extends Thread {
                 return;
             }
 
-//            masterService.signalActivityProgress("Task left:" + Integer.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
             float totalLen = (float)taskScheduler.leftTask.totalLen;
             float alreadyLen = (float)taskScheduler.leftTask.start;
             float progress = (alreadyLen * (float)100)/totalLen;
             float slavePer = (float)(100*dataCount)/(float)taskScheduler.leftTask.totalLen;
-            conn.backendService.signalActivityProgress("Slave Data Per:" + slavePer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:" + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:" + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            conn.backendService.signalActivityProgress("Slave " + Integer.valueOf(slaveIndex) + " Data Per:"
+                                                        + slavePer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:"
+                                                        + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:"
+                                                        + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
-
-        /* When transmission is done, close file and stop slave*/
-//        try {
-//            taskScheduler.semaphoreMasterDone.acquire();
-//            taskScheduler.semaphoreSlaveDone.acquire();
-//            long totalTime = time.getTimeLapse();
-//            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
-//            tempRecvFile.close();
-//            MasterOperation.remoteStop(conn);
-//            taskScheduler.semaphoreMasterDone.release();
-//            taskScheduler.semaphoreSlaveDone.release();
-//            conn.backendService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime/(long)1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
-//        } catch (Exception e) {
-//            conn.backendService.signalActivity("Exception during closing file:" + e.toString());
-//        }
     }
 }

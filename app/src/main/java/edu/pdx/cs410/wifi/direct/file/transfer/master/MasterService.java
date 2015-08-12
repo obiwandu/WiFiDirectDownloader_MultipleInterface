@@ -48,6 +48,7 @@ public class MasterService extends BackendService {
         TimeMetric tm = new TimeMetric();
         long chunkSize = 5120 * 1024;
         long minChunkSize = 500 * 1024;
+        int threadNum = 2;
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
@@ -67,63 +68,40 @@ public class MasterService extends BackendService {
 
         /* set recv file path */
         String recvFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/A-NRS-Recv";
-//        String recvFileName = "recvFile";
         String recvFileName = originalFileName;
         File recvFile = new File(recvFilePath, recvFileName);
-//        RandomAccessFile tempRecvFile;
-//        try {
-//            tempRecvFile = new RandomAccessFile(recvFile, "rwd");
-//        } catch (Exception e) {
-//            signalActivity("Exception during creating RandomAccess file:" + e.toString());
-//            return;
-//        }
 
         /*initialize TaskScheduler*/
-        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, 0);
+        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, threadNum);
 
         tm.startTimer();
-        /*start master thread*/
-        Thread masterThd = new Thread(new MasterTaskThread(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
-        try {
-            taskScheduler.semaphoreMasterDone.acquire();
-        } catch (Exception e) {
-            signalActivity("Exception during accquring master lock:" + e.toString());
-        }
-        masterThd.start();
 
-//        Thread masterThd2 = new Thread(new MasterTaskThread2(taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
-//        try {
-//            taskScheduler.semaphoreMasterDone2.acquire();
-//        } catch (Exception e) {
-//            signalActivity("Exception during accquring master lock:" + e.toString());
-//        }
-//        masterThd2.start();
+        for (int i = 0; i < threadNum; i ++) {
+            /*start master thread*/
+            Thread masterThd = new Thread(new MasterTaskThread(i, taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+            try {
+                taskScheduler.semaphoreMasterDone.acquire();
+            } catch (Exception e) {
+                signalActivity("Exception during accquring master lock:" + e.toString());
+            }
+            masterThd.start();
+        }
 
         /* When transmission is done, close file and stop slave*/
         try {
-//            Thread.sleep(1000);
-            taskScheduler.semaphoreMasterDone.acquire();
-//            taskScheduler.semaphoreMasterDone2.acquire();
+            for (int i = 0; i < threadNum; i ++) {
+                taskScheduler.semaphoreMasterDone.acquire();
+            }
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
-            taskScheduler.semaphoreMasterDone.release();
-//            taskScheduler.semaphoreMasterDone2.release();
+
+            for (int i = 0; i < threadNum; i ++) {
+                taskScheduler.semaphoreMasterDone.release();
+            }
             this.signalActivityComplete();
             this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
         } catch (Exception e) {
             this.signalActivity("Exception during closing file:" + e.toString());
         }
     }
-
-//    public void signalActivity(String msg) {
-//        Bundle b = new Bundle();
-//        b.putString("message", msg);
-//        resultReceiver.send(nrsPort, b);
-//    }
-
-//    public void signalActivityProgress(String msg) {
-//        Bundle b = new Bundle();
-//        b.putString("progress", msg);
-//        resultReceiver.send(1, b);
-//    }
 }
