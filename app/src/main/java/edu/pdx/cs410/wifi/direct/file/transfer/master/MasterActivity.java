@@ -31,6 +31,7 @@ public class MasterActivity extends Activity {
     private BroadcastReceiver wifiMasterReceiver;
     public InetAddress masterIp;
     public InetAddress slaveIp;
+    public ArrayList<InetAddress> slaveList = new ArrayList<InetAddress>();
     public final int nrsPort = 8010;
     private WiFiDirect wifiDirect;
     private Intent masterServiceIntent;
@@ -132,6 +133,7 @@ public class MasterActivity extends Activity {
                 masterServiceIntent.putExtra("port", nrsPort);
                 masterServiceIntent.putExtra("masterIp", masterIp);
                 masterServiceIntent.putExtra("slaveIp", slaveIp);
+                masterServiceIntent.putExtra("slaveList", slaveList);
                 masterServiceIntent.putExtra("chunkSize", chunkSize * 1024);
                 masterServiceIntent.putExtra("minChunkSize", minChunkSize * 1024);
                 masterServiceIntent.putExtra("masterResult", new ResultReceiver(null) {

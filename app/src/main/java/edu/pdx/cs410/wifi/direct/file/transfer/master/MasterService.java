@@ -79,7 +79,7 @@ public class MasterService extends BackendService {
 //        }
 
         /*initialize TaskScheduler*/
-        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
+        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, 0);
 
         tm.startTimer();
         /*start master thread*/

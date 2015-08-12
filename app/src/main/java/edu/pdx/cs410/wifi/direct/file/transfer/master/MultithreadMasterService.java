@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
@@ -22,6 +23,8 @@ import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
  */
 public class MultithreadMasterService extends BackendService {
     private String url;
+    private ArrayList<InetAddress> slaveList;
+    private int slaveNum;
 //
 //    private InetAddress masterIp;
 //    private InetAddress slaveIp;
@@ -56,12 +59,18 @@ public class MultithreadMasterService extends BackendService {
         nrsPort = (Integer) intent.getExtras().get("port");
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
+        slaveList = (ArrayList<InetAddress>) intent.getExtras().get("slaveList");
         chunkSize = (Long) intent.getExtras().get("chunkSize");
         minChunkSize = (Long) intent.getExtras().get("minChunkSize");
         resultReceiver = (ResultReceiver) intent.getExtras().get("masterResult");
 
         InetSocketAddress masterSockAddr = new InetSocketAddress(masterIp, nrsPort);
         InetSocketAddress slaveSockAddr = new InetSocketAddress(slaveIp, nrsPort);
+        ArrayList<InetSocketAddress> slaveSockAddrdList = new ArrayList<InetSocketAddress>();
+        slaveNum = slaveList.size();
+        for(InetAddress temp : slaveList) {
+            slaveSockAddrdList.add(new InetSocketAddress(temp, nrsPort));
+        }
 
         /*get data length*/
         try {
@@ -88,7 +97,7 @@ public class MultithreadMasterService extends BackendService {
 //        }
 
         /*initialize TaskScheduler*/
-        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url);
+        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, slaveNum);
 
         tm.startTimer();
         /*start master thread*/
@@ -102,14 +111,28 @@ public class MultithreadMasterService extends BackendService {
         masterThd.start();
 
         /*start slave thread*/
-        TcpConnector conn = null;
-        try {
-            conn = new TcpConnector(slaveSockAddr, masterSockAddr, this, 0);
-            Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, conn, chunkSize, minChunkSize));
-            taskScheduler.semaphoreSlaveDone.acquire();
-            slaveThd.start();
-        } catch (Exception e) {
-            this.signalActivity("Exception during slave transmission:" + e.toString());
+//        TcpConnector conn = null;
+//        try {
+//            conn = new TcpConnector(slaveSockAddr, masterSockAddr, this, 0);
+//            Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, conn, chunkSize, minChunkSize));
+//            taskScheduler.semaphoreSlaveDone.acquire();
+//            slaveThd.start();
+//        } catch (Exception e) {
+//            this.signalActivity("Exception during slave transmission:" + e.toString());
+//        }
+
+        /*start slave thread for all slaves*/
+        ArrayList<TcpConnector> connList = new ArrayList<TcpConnector>();
+        for (int i = 0; i < slaveNum; i ++) {
+            try {
+                TcpConnector tempConn = new TcpConnector(slaveSockAddrdList.get(i), masterSockAddr, this, 0);
+                connList.add(tempConn);
+                Thread slaveThd = new Thread(new SlaveTaskThread(taskScheduler, recvFile, tempConn, chunkSize, minChunkSize));
+                taskScheduler.semaphoreSlaveDone.acquire();
+                slaveThd.start();
+            } catch (Exception e) {
+                this.signalActivity("Exception during slave transmission:" + e.toString());
+            }
         }
 
         /* When transmission is done, close file and stop slave*/
@@ -117,19 +140,27 @@ public class MultithreadMasterService extends BackendService {
 //            Thread.sleep(1000);
             taskScheduler.semaphoreMasterDone.acquire();
 //            taskScheduler.semaphoreSlaveDone.acquire();
-            taskScheduler.semaphoreSlaveDone.acquire();
+            for (int i = 0; i < slaveNum; i ++) {
+                taskScheduler.semaphoreSlaveDone.acquire();
+            }
+
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
+            for (int i = 0; i < slaveNum; i ++) {
+                MasterOperation.remoteStop(connList.get(i));
+                connList.get(i).close();
+            }
+
 //            tempRecvFile.close();
-            MasterOperation.remoteStop(conn);
-            conn.close();
             taskScheduler.semaphoreMasterDone.release();
 //            taskScheduler.semaphoreSlaveDone.release();
-            taskScheduler.semaphoreSlaveDone.release();
-            conn.backendService.signalActivityComplete();
-            conn.backendService.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
-        } catch (Exception e) {
-            conn.backendService.signalActivity("Exception during closing file:" + e.toString());
+            for (int i = 0; i < slaveNum; i ++) {
+                taskScheduler.semaphoreSlaveDone.release();
+            }
+            this.signalActivityComplete();
+            this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
+        } catch (Exception e){
+            this.signalActivity("Exception during closing file:" + e.toString());
         }
     }
 

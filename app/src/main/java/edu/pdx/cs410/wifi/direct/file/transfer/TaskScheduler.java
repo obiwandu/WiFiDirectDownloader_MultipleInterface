@@ -26,7 +26,7 @@ public class TaskScheduler {
     public static Semaphore semaphoreSlaveDone;
     public ArrayList<DownloadTask> alreadyTaskList;
 
-    public TaskScheduler(long tl, String l) {
+    public TaskScheduler(long tl, String l, int n) {
         mAlreadyBytes = 0;
         sAlreadyBytes = 0;
         mTm = new TimeMetric();
@@ -34,7 +34,7 @@ public class TaskScheduler {
         semaphore = new Semaphore(1);
         semaphoreMasterDone = new Semaphore(1);
         semaphoreMasterDone2 = new Semaphore(1);
-        semaphoreSlaveDone = new Semaphore(1);
+        semaphoreSlaveDone = new Semaphore(n);
 
         totalLen = tl;
 //        leftTaskList.add(new DownloadTask(0, totalLen - 1, true, url));
