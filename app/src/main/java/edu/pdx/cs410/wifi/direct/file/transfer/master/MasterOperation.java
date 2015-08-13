@@ -10,6 +10,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
@@ -36,7 +37,7 @@ public class MasterOperation  {
 
     /* Long connection version */
     static public long remoteDownload(DownloadTask task, RandomAccessFile recvFile,
-                                     TcpConnector conn, Statistic stat) throws Exception {
+                                     TcpConnector conn, ThreadStatistics stat) throws Exception {
         long bw;
         bw = MasterProxy.remoteDownload(task, recvFile, conn, stat);
 
@@ -64,7 +65,7 @@ public class MasterOperation  {
         return bw;
     }
 
-    static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService, Statistic stat) throws Exception {
+    static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService, ThreadStatistics stat) throws Exception {
         long bw;
         if (task.isPartial){
             bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService, stat);

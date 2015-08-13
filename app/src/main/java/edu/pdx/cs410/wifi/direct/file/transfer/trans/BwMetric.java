@@ -61,13 +61,13 @@ public class BwMetric {
 
         float dataPer = (float)(100*alreadyBytes)/(float)totalLen;
 
-        if (backendService != null) {
-            if (isLAN) {
-                backendService.signalActivity("LAN transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
-            } else {
-                backendService.signalActivity("HTTP transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
-            }
-        }
+//        if (backendService != null) {
+//            if (isLAN) {
+//                backendService.signalActivity("LAN transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+//            } else {
+//                backendService.signalActivity("HTTP transmission is on going: Percentage:" + dataPer + "% | Bw:" + Long.toString(bw) + " KB/s");
+//            }
+//        }
 //        else if (slaveService != null) {
 //            slaveService.signalActivity("Transmission is on going: " + Integer.toString(bw) + " B/s");
 //        }

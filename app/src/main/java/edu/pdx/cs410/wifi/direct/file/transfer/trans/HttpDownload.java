@@ -12,6 +12,7 @@ import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 import edu.pdx.cs410.wifi.direct.file.transfer.slave.SlaveService;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -90,16 +91,16 @@ public class HttpDownload {
     }
 
     static public long download(String strUrl, RandomAccessFile recvFile,
-                                BackendService masterService, Statistic stat) throws Exception {
+                                BackendService masterService, ThreadStatistics stat) throws Exception {
         InputStream input = null;
         URL url = new URL(strUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         long totalLen = conn.getContentLength();
         BwMetric bwMetric = new BwMetric(masterService,totalLen);
-        long threadId = Thread.currentThread().getId();
 
         input = conn.getInputStream();
 
+        stat.startMetric(totalLen);
         byte[] buffer = new byte[4 * 1024];
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
@@ -107,12 +108,13 @@ public class HttpDownload {
             int i = 0;
             /* Statistics */
 //            stat.stat(bytesRead);
-            stat.update(threadId, (long) bytesRead);
+            stat.updateMetric((long) bytesRead, masterService, false);
             recvFile.write(buffer, 0, bytesRead);
         }
         input.close();
 
-        return bwMetric.bw;
+//        return bwMetric.bw;
+        return stat.bw;
     }
 
 //    static public int download(String strUrl, RandomAccessFile recvFile, BackendService slaveService) throws Exception {
@@ -188,7 +190,7 @@ public class HttpDownload {
     }
 
     static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task,
-                                       BackendService masterService, Statistic stat) throws Exception {
+                                       BackendService masterService, ThreadStatistics stat) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService, task.end - task.start + 1);
         InputStream input = null;
         URL url = new URL(strUrl);
@@ -197,19 +199,20 @@ public class HttpDownload {
                 "-" + Long.toString(task.end));
         input = conn.getInputStream();
 
-        long threadId = Thread.currentThread().getId();
+        stat.startMetric(task.end - task.start + 1);
         int bytesRead = 0;
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
             /* Statistics */
 //            stat.stat(bytesRead);
-            stat.update(threadId, (long)bytesRead);
+            stat.updateMetric((long) bytesRead, masterService, false);
             recvFile.write(buffer, 0, bytesRead);
         }
         input.close();
 
-        return bwMetric.bw;
+//        return bwMetric.bw;
+        return stat.bw;
     }
 
 //    static public int partialDownload(String strUrl, File recvFile, DownloadTask task, BackendService slaveService) throws Exception {

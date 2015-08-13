@@ -10,6 +10,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 
@@ -43,8 +44,10 @@ public class MasterTaskThread extends Thread {
         long masterBw = 0;
         boolean isDone;
         RandomAccessFile tempRecvFile;
+        long threadId = Thread.currentThread().getId();
         Log log = new Log("master_" + Integer.valueOf(threadIndex) + "_log");
         stat.addThread("master_" + Integer.valueOf(threadIndex) + "_stat");
+        ThreadStatistics thdStat = stat.getThreadStat(threadId);
 //        stat = new Statistic("master_" + Integer.valueOf(threadIndex) + "_stat");
         /* Start statistics timer */
 //        try {
@@ -97,7 +100,7 @@ public class MasterTaskThread extends Thread {
                     /*execute downloading*/
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(mTask.start);
-                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService, stat);
+                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService, thdStat);
                     tempRecvFile.close();
 
                     dataCount += mTask.end - mTask.start + 1;
@@ -114,8 +117,9 @@ public class MasterTaskThread extends Thread {
             float progress = (alreadyLen * (float) 100) / totalLen;
             float masterPer = (float) (100 * dataCount) / (float) taskScheduler.leftTask.totalLen;
             masterService.signalActivityProgress("Master " + Integer.valueOf(threadIndex) + " Data Per:"
-                                                + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:"
-                                                + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:"
+                                                + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, avg mBw:"
+                                                + stat.statMap.get(threadId).avgBw + "KB/s, sBw:"
+                                                + taskScheduler.sBw + "KB/s| Progress:" + progress + "% | Task left:"
                                                 + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
         }
     }

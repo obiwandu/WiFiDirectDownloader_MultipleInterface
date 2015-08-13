@@ -8,6 +8,7 @@ import java.net.SocketAddress;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpTrans;
@@ -56,7 +57,7 @@ public class MasterConnector {
 
     /* Long connection version */
     static public long remoteDownload (ProtocolHeader header, String url, RandomAccessFile recvFile,
-                                      TcpConnector conn, Statistic stat) throws Exception {
+                                      TcpConnector conn, ThreadStatistics stat) throws Exception {
         byte[] sendBuf = url.getBytes();
         byte[] recvBuf = new byte[ProtocolHeader.HEADER_LEN];
 

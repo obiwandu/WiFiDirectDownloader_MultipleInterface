@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
@@ -45,6 +46,8 @@ public class SlaveTaskThread extends Thread {
         boolean isDone;
         Log log = new Log("slave_" + Integer.valueOf(slaveIndex) + "_log");
         stat.addThread("slave_" + Integer.valueOf(slaveIndex) + "_stat");
+        long threadId = Thread.currentThread().getId();
+        ThreadStatistics thdStat = stat.getThreadStat(threadId);
 //        stat = new Statistic("slave_" + Integer.valueOf(slaveIndex) +"_stat");
 
 
@@ -89,11 +92,10 @@ public class SlaveTaskThread extends Thread {
             /*execute downloading*/
             try {
                 if (sTask != null) {
-
                     /*execute downloading*/
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(sTask.start);
-                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn, stat);
+                    slaveBw = MasterOperation.remoteDownload(sTask, tempRecvFile, conn, thdStat);
                     tempRecvFile.close();
                     dataCount += sTask.end - sTask.start + 1;
                     /*submit tasks*/

@@ -14,6 +14,7 @@ import java.net.Socket;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
 
 /**
@@ -159,7 +160,7 @@ public class TcpConnector {
     }
 
     /* Data len is not limited, with statistic */
-    public long recv(RandomAccessFile recvFile, int dataLen, Statistic stat) throws Exception {
+    public long recv(RandomAccessFile recvFile, int dataLen, ThreadStatistics stat) throws Exception {
         BwMetric bwMetric = new BwMetric(backendService, dataLen);
 
         byte[] buffer = new byte[4096];
@@ -167,8 +168,8 @@ public class TcpConnector {
         int alreadyLen = 0;
         int currentLen = 0;
         int leftLen;
-        long threadId = Thread.currentThread().getId();
 
+        stat.startMetric( dataLen);
         while (true) {
             leftLen = dataLen - alreadyLen;
             currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
@@ -187,12 +188,13 @@ public class TcpConnector {
             /* update bw */
             bwMetric.bwMetric(bytesRead, isLAN);
             /* Statistic */
-            stat.update(threadId, (long)bytesRead);
+            stat.updateMetric((long) bytesRead, backendService, isLAN);
 //            stat.stat(bytesRead);
         }
         log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
 
-        return bwMetric.bw;
+//        return bwMetric.bw;
+        return stat.bw;
     }
 
     public void recv(byte[] recvBuf, int dataLen) throws Exception {

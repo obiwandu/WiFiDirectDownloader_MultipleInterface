@@ -10,6 +10,7 @@ import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterOperation;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -49,6 +50,8 @@ public class MasterTaskThread2 extends Thread{
         boolean isDone;
         RandomAccessFile tempRecvFile;
         Log log = new Log("master2_log");
+        stat.addThread("master2_stat");
+        ThreadStatistics thdStat = stat.getThreadStat(Thread.currentThread().getId());
 //        stat = new Statistic("master2_stat");
 
 //        try {
@@ -95,7 +98,7 @@ public class MasterTaskThread2 extends Thread{
 //                    taskScheduler.semaphore.acquire();
                     tempRecvFile = new RandomAccessFile(recvFile, "rwd");
                     tempRecvFile.seek(mTask.start);
-                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService, stat);
+                    masterBw = MasterOperation.httpDownload(mTask, tempRecvFile, masterService, thdStat);
                     tempRecvFile.close();
 //                    taskScheduler.semaphore.release();
                     dataCount += mTask.end - mTask.start + 1;
