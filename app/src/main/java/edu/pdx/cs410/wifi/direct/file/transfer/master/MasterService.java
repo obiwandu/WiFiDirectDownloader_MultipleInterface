@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
@@ -46,6 +47,7 @@ public class MasterService extends BackendService {
         long slaveBw = 0;
         String originalFileName = "unnamed";
         TimeMetric tm = new TimeMetric();
+        Statistic stat = new Statistic();
         long chunkSize = 5120 * 1024;
         long minChunkSize = 500 * 1024;
         int threadNum = 2;
@@ -75,10 +77,16 @@ public class MasterService extends BackendService {
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, threadNum);
 
         tm.startTimer();
+        /* Start statistics timer */
+        try {
+            stat.startTimer();
+        } catch (Exception e) {
+            signalActivity("Exception in starting timer:" + e.toString());
+        }
 
         for (int i = 0; i < threadNum; i ++) {
             /*start master thread*/
-            Thread masterThd = new Thread(new MasterTaskThread(i, taskScheduler, recvFile, this, tm, chunkSize, minChunkSize));
+            Thread masterThd = new Thread(new MasterTaskThread(stat, i, taskScheduler, recvFile, this, chunkSize, minChunkSize));
             try {
                 taskScheduler.semaphoreMasterDone.acquire();
             } catch (Exception e) {
@@ -91,6 +99,13 @@ public class MasterService extends BackendService {
         try {
             for (int i = 0; i < threadNum; i ++) {
                 taskScheduler.semaphoreMasterDone.acquire();
+            }
+
+            /* Stop statistics timer */
+            try {
+                stat.stopTimer();
+            } catch (Exception e) {
+                signalActivity("Exception in stopping timer:" + e.toString());
             }
             long totalTime = tm.getTimeLapse();
             int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));

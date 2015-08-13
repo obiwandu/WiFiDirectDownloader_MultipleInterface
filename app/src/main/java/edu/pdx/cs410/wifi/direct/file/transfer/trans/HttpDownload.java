@@ -91,29 +91,26 @@ public class HttpDownload {
 
     static public long download(String strUrl, RandomAccessFile recvFile,
                                 BackendService masterService, Statistic stat) throws Exception {
-
-//        OutputStream output = null;
         InputStream input = null;
         URL url = new URL(strUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         long totalLen = conn.getContentLength();
         BwMetric bwMetric = new BwMetric(masterService,totalLen);
+        long threadId = Thread.currentThread().getId();
 
         input = conn.getInputStream();
-//        output = new FileOutputStream(recvFile);
 
         byte[] buffer = new byte[4 * 1024];
         int bytesRead = 0;
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
             int i = 0;
-            stat.stat(bytesRead);
+            /* Statistics */
+//            stat.stat(bytesRead);
+            stat.update(threadId, (long) bytesRead);
             recvFile.write(buffer, 0, bytesRead);
-//            output.write(buffer);
         }
-//        output.flush();
         input.close();
-//        output.close();
 
         return bwMetric.bw;
     }
@@ -193,26 +190,24 @@ public class HttpDownload {
     static public long partialDownload(String strUrl, RandomAccessFile recvFile, DownloadTask task,
                                        BackendService masterService, Statistic stat) throws Exception {
         BwMetric bwMetric = new BwMetric(masterService, task.end - task.start + 1);
-//        OutputStream output = null;
         InputStream input = null;
         URL url = new URL(strUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Range", "bytes=" + Long.toString(task.start) +
                 "-" + Long.toString(task.end));
         input = conn.getInputStream();
-//        output = new FileOutputStream(recvFile);
 
+        long threadId = Thread.currentThread().getId();
         int bytesRead = 0;
         byte[] buffer = new byte[4 * 1024];
         while ((bytesRead = input.read(buffer)) != -1) {
             bwMetric.bwMetric(bytesRead, false);
-            stat.stat(bytesRead);
+            /* Statistics */
+//            stat.stat(bytesRead);
+            stat.update(threadId, (long)bytesRead);
             recvFile.write(buffer, 0, bytesRead);
-//            output.write(buffer);
         }
-//        output.flush();
         input.close();
-//        output.close();
 
         return bwMetric.bw;
     }

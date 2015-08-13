@@ -25,16 +25,15 @@ public class MasterTaskThread extends Thread {
     long chunkSize;
     long minChunkSize;
     ResultReceiver masterResult;
-    TimeMetric time;
     Statistic stat;
     int threadIndex;
 
-    public MasterTaskThread(int ti, TaskScheduler ts, File f, BackendService ms, TimeMetric tm, long ckSize, long minCkSize) {
+    public MasterTaskThread(Statistic s, int ti, TaskScheduler ts, File f, BackendService ms, long ckSize, long minCkSize) {
+        stat = s;
         threadIndex = ti;
         taskScheduler = ts;
         recvFile = f;
         masterService = ms;
-        time = tm;
         chunkSize = ckSize;
         minChunkSize = minCkSize;
     }
@@ -45,15 +44,27 @@ public class MasterTaskThread extends Thread {
         boolean isDone;
         RandomAccessFile tempRecvFile;
         Log log = new Log("master_" + Integer.valueOf(threadIndex) + "_log");
-        stat = new Statistic("master_" + Integer.valueOf(threadIndex) + "_stat");
+        stat.addThread("master_" + Integer.valueOf(threadIndex) + "_stat");
+//        stat = new Statistic("master_" + Integer.valueOf(threadIndex) + "_stat");
+        /* Start statistics timer */
+//        try {
+//            stat.startTimer();
+//        } catch (Exception e) {
+//            masterService.signalActivity("Exception in starting timer:" + e.toString());
+//        }
 
         while (true) {
             try {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
                     log.record("master task " + Integer.valueOf(threadIndex) + " done");
+                    /* Stop statistics timer */
+//                    try {
+//                        stat.stopTimer();
+//                    } catch (Exception e) {
+//                        masterService.signalActivity("Exception in stopping timer:" + e.toString());
+//                    }
                     taskScheduler.semaphoreMasterDone.release();
-//                    taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
             } catch (Exception e) {

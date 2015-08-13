@@ -49,7 +49,7 @@ public class MasterTaskThread2 extends Thread{
         boolean isDone;
         RandomAccessFile tempRecvFile;
         Log log = new Log("master2_log");
-        stat = new Statistic("master2_stat");
+//        stat = new Statistic("master2_stat");
 
 //        try {
 //            taskScheduler.semaphoreMasterDone2.acquire();

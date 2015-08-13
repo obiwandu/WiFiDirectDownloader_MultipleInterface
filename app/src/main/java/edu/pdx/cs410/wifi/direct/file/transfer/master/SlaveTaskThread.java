@@ -28,7 +28,8 @@ public class SlaveTaskThread extends Thread {
     Statistic stat;
     int slaveIndex;
 
-    public SlaveTaskThread(int si, TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
+    public SlaveTaskThread(Statistic s, int si, TaskScheduler ts, File f, TcpConnector c, long ckSize, long minCkSize) {
+        stat = s;
         slaveIndex = si;
         taskScheduler = ts;
         recvFile = f;
@@ -43,7 +44,9 @@ public class SlaveTaskThread extends Thread {
         RandomAccessFile tempRecvFile;
         boolean isDone;
         Log log = new Log("slave_" + Integer.valueOf(slaveIndex) + "_log");
-        stat = new Statistic("slave_" + Integer.valueOf(slaveIndex) +"_stat");
+        stat.addThread("slave_" + Integer.valueOf(slaveIndex) + "_stat");
+//        stat = new Statistic("slave_" + Integer.valueOf(slaveIndex) +"_stat");
+
 
         while (true) {
             try {
@@ -51,6 +54,12 @@ public class SlaveTaskThread extends Thread {
                 isDone = taskScheduler.isTaskDone();
                 if (isDone) {
                     log.record("slave " + Integer.valueOf(slaveIndex) + " task done");
+                    /* Stop statistics timer */
+//                    try {
+//                        stat.stopTimer();
+//                    } catch (Exception e) {
+//                        conn.backendService.signalActivity("Exception in stopping timer:" + e.toString());
+//                    }
                     taskScheduler.semaphoreSlaveDone.release();
                     break;
                 }
@@ -58,7 +67,7 @@ public class SlaveTaskThread extends Thread {
                 conn.backendService.signalActivity("Exception during terminal condition fetching:" + e.toString());
             }
 
-            /*schedule task*/
+            /* Schedule task */
             DownloadTask sTask;
             DownloadTask retTasks;
             try {

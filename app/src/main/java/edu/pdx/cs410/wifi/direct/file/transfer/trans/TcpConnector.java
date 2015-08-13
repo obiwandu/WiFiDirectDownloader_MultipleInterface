@@ -167,6 +167,7 @@ public class TcpConnector {
         int alreadyLen = 0;
         int currentLen = 0;
         int leftLen;
+        long threadId = Thread.currentThread().getId();
 
         while (true) {
             leftLen = dataLen - alreadyLen;
@@ -186,7 +187,8 @@ public class TcpConnector {
             /* update bw */
             bwMetric.bwMetric(bytesRead, isLAN);
             /* Statistic */
-            stat.stat(bytesRead);
+            stat.update(threadId, (long)bytesRead);
+//            stat.stat(bytesRead);
         }
         log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
 
