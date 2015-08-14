@@ -10,23 +10,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-
-import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
-import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;
-import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.ServerService;
 
 /**
  * Created by User on 7/6/2015.
  */
 public class TcpTrans {
-
-
     static public InetAddress connect(InetSocketAddress remoteAddr) throws Exception {
         InetAddress localIp = null;
         Socket socket = new Socket();

@@ -42,7 +42,7 @@ public class MasterService extends BackendService {
         stat = new Statistic(this);
         long chunkSize = 5120 * 1024;
         long minChunkSize = 500 * 1024;
-        int threadNum = 2;
+        int threadNum = 1;
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
@@ -66,7 +66,7 @@ public class MasterService extends BackendService {
         File recvFile = new File(recvFilePath, recvFileName);
 
         /*initialize TaskScheduler*/
-        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, threadNum);
+        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, threadNum, stat);
 
 //        tm.startTimer();
         /* Start statistics timer */

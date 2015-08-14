@@ -74,7 +74,7 @@ public class SlaveTaskThread extends Thread {
             DownloadTask sTask;
             DownloadTask retTasks;
             try {
-                retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, false);
+                retTasks = taskScheduler.scheduleTask(threadId, chunkSize, minChunkSize, false);
                 sTask = retTasks;
                 if (sTask != null) {
                     log.record("cur start:" + Long.toString(sTask.start) + "|cur end:" + Long.toString(sTask.end)
@@ -99,7 +99,7 @@ public class SlaveTaskThread extends Thread {
                     tempRecvFile.close();
                     dataCount += sTask.end - sTask.start + 1;
                     /*submit tasks*/
-                    taskScheduler.updateSlaveBw(slaveBw);
+//                    taskScheduler.updateSlaveBw(slaveBw);
                 }
             } catch (Exception e) {
                 conn.backendService.signalActivityException("Exception during remote downloading:" + e.toString());

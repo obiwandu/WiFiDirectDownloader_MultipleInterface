@@ -79,7 +79,7 @@ public class MasterTaskThread extends Thread {
             DownloadTask retTasks;
             try {
 //                retTasks = taskScheduler.scheduleTask(4 * 1024);
-                retTasks = taskScheduler.scheduleTask(chunkSize, minChunkSize, true);
+                retTasks = taskScheduler.scheduleTask(threadId, chunkSize, minChunkSize, true);
                 mTask = retTasks;
                 if (mTask != null) {
                     log.record("cur start:" + Long.toString(mTask.start) + "|cur end:" + Long.toString(mTask.end)
@@ -105,7 +105,7 @@ public class MasterTaskThread extends Thread {
 
                     dataCount += mTask.end - mTask.start + 1;
                     /*submit tasks*/
-                    taskScheduler.updateMasterBw(masterBw);
+//                    taskScheduler.updateMasterBw(masterBw);
                 }
             } catch (Exception e) {
                 masterService.signalActivityException("Exception during local downloading:" + e.toString());

@@ -16,21 +16,36 @@ public class Statistic {
     public HashMap<Long, ThreadStatistics> statMap;
     long curClock;
     BackendService service;
+    int threadNum;
 
     public Statistic(BackendService s) {
         service = s;
         statMap = new HashMap<Long, ThreadStatistics>();
         curClock = 0;
         isHarmonic = true;
+        threadNum = 0;
     }
 
     public void addThread(String threadName, boolean isLan) {
+        threadNum ++;
         long threadId = Thread.currentThread().getId();
         statMap.put(threadId, new ThreadStatistics(threadName, isLan));
+
     }
 
     public ThreadStatistics getThreadStat(long threadId) {
         return statMap.get(threadId);
+    }
+
+    public long[] toBwArray() {
+        long[] bwArray = new long[threadNum];
+        int index = 0;
+        Iterator it = statMap.keySet().iterator();
+        while (it.hasNext()) {
+            bwArray[index] = statMap.get(it.next()).bw;
+            index++;
+        }
+        return bwArray;
     }
 
     public void startTimer() throws Exception {

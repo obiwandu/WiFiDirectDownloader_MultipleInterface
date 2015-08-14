@@ -81,7 +81,7 @@ public class MultithreadMasterService extends BackendService {
         File recvFile = new File(recvFilePath, recvFileName);
 
         /*initialize TaskScheduler*/
-        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, slaveNum);
+        TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, slaveNum, stat);
 
 //        /* Start timer */
 //        tm.startTimer();

@@ -21,31 +21,14 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name=".oldClass.MainActivity"
-            android:label="@string/title_activity_main"
-            android:screenOrientation="portrait" >
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
-        <activity
-            android:name=".FileBrowser"
-            android:label="@string/title_activity_file_browser"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".oldClass.MainActivity" />
-        </activity>
-        <activity
-            android:name=".oldClass.ClientActivity"
-            android:label="@string/title_activity_client"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".oldClass.MainActivity" />
-        </activity>
+        <!--<activity-->
+            <!--android:name=".FileBrowser"-->
+            <!--android:label="@string/title_activity_file_browser"-->
+            <!--android:screenOrientation="portrait" >-->
+            <!--<meta-data-->
+                <!--android:name="android.support.PARENT_ACTIVITY"-->
+                <!--android:value=".oldClass.MainActivity" />-->
+        <!--</activity>-->
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -74,9 +57,6 @@
 
         <service
             android:name=".master.MultithreadMasterService"
-            android:exported="false" />
-        <service
-            android:name=".oldClass.ClientService"
             android:exported="false" />
         <service
             android:name=".master.MasterService"
