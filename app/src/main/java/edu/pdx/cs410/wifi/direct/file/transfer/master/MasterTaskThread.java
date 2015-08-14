@@ -11,7 +11,6 @@ import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
-import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 
 /**
@@ -45,8 +44,9 @@ public class MasterTaskThread extends Thread {
         boolean isDone;
         RandomAccessFile tempRecvFile;
         long threadId = Thread.currentThread().getId();
-        Log log = new Log("master_" + Integer.valueOf(threadIndex) + "_log");
-        stat.addThread("master_" + Integer.valueOf(threadIndex) + "_stat");
+        String threadName = "master" + Integer.toString(threadIndex);
+        Log log = new Log("log_" + threadName);
+        stat.addThread(threadName, false);
         ThreadStatistics thdStat = stat.getThreadStat(threadId);
 //        stat = new Statistic("master_" + Integer.valueOf(threadIndex) + "_stat");
         /* Start statistics timer */
@@ -71,7 +71,7 @@ public class MasterTaskThread extends Thread {
                     break;
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during terminal condition fetching:" + e.toString());
+                masterService.signalActivityException("Exception during terminal condition fetching:" + e.toString());
             }
 
             /*schedule task*/
@@ -90,7 +90,7 @@ public class MasterTaskThread extends Thread {
                             + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during task scheduling:" + e.toString());
+                masterService.signalActivityException("Exception during task scheduling:" + e.toString());
                 return;
             }
 
@@ -108,7 +108,7 @@ public class MasterTaskThread extends Thread {
                     taskScheduler.updateMasterBw(masterBw);
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during local downloading:" + e.toString());
+                masterService.signalActivityException("Exception during local downloading:" + e.toString());
                 return;
             }
 
@@ -116,11 +116,12 @@ public class MasterTaskThread extends Thread {
             float alreadyLen = (float) taskScheduler.leftTask.start;
             float progress = (alreadyLen * (float) 100) / totalLen;
             float masterPer = (float) (100 * dataCount) / (float) taskScheduler.leftTask.totalLen;
-            masterService.signalActivityProgress("Master " + Integer.valueOf(threadIndex) + " Data Per:"
-                                                + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, avg mBw:"
-                                                + stat.statMap.get(threadId).avgBw + "KB/s, sBw:"
-                                                + taskScheduler.sBw + "KB/s| Progress:" + progress + "% | Task left:"
-                                                + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+//            masterService.signalActivityProgress("Master " + Integer.valueOf(threadIndex) + " Data Per:"
+//                                                + masterPer + "% | mBw:" + taskScheduler.mBw + "KB/s, avg mBw:"
+//                                                + stat.statMap.get(threadId).avgBw + "KB/s, sBw:"
+//                                                + taskScheduler.sBw + "KB/s| Progress:" + progress + "% | Task left:"
+//                                                + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            masterService.signalActivityStat();
         }
     }
 }

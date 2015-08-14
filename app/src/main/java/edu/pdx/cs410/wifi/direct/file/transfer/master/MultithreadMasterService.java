@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
-import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 
 /**
@@ -31,7 +30,7 @@ public class MultithreadMasterService extends BackendService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        long totalLen = 0;
+        totalLen = 0;
         int masterLen;
         int slaveLen;
         int alreadyMasterLen;
@@ -46,8 +45,8 @@ public class MultithreadMasterService extends BackendService {
 //        long minChunkSize = 10 * 1024;
         long minChunkSize = 500 * 1024;
         String originalFileName = "unnamed";
-        TimeMetric tm = new TimeMetric();
-        Statistic stat = new Statistic();
+//        TimeMetric tm = new TimeMetric();
+        stat = new Statistic(this);
 
         url = (String) intent.getExtras().get("url");
         nrsPort = (Integer) intent.getExtras().get("port");
@@ -72,7 +71,7 @@ public class MultithreadMasterService extends BackendService {
             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
             totalLen = conn.getContentLength();
         } catch (Exception e) {
-            signalActivity("Exception during getting http length:" + e.toString());
+            signalActivityException("Exception during getting http length:" + e.toString());
         }
 
         /* Set recv file path */
@@ -84,13 +83,13 @@ public class MultithreadMasterService extends BackendService {
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, slaveNum);
 
-        /* Start timer */
-        tm.startTimer();
+//        /* Start timer */
+//        tm.startTimer();
         /* Start statistics timer */
         try {
             stat.startTimer();
         } catch (Exception e) {
-            signalActivity("Exception in starting timer:" + e.toString());
+            signalActivityException("Exception in starting timer:" + e.toString());
         }
 
         /*start master thread*/
@@ -98,7 +97,7 @@ public class MultithreadMasterService extends BackendService {
         try {
             taskScheduler.semaphoreMasterDone.acquire();
         } catch (Exception e) {
-            signalActivity("Exception during accquring master lock:" + e.toString());
+            signalActivityException("Exception during accquring master lock:" + e.toString());
         }
         masterThd.start();
 
@@ -112,7 +111,7 @@ public class MultithreadMasterService extends BackendService {
                 taskScheduler.semaphoreSlaveDone.acquire();
                 slaveThd.start();
             } catch (Exception e) {
-                this.signalActivity("Exception during slave transmission:" + e.toString());
+                signalActivityException("Exception during slave transmission:" + e.toString());
             }
         }
 
@@ -127,10 +126,10 @@ public class MultithreadMasterService extends BackendService {
             try {
                 stat.stopTimer();
             } catch (Exception e) {
-                signalActivity("Exception in stopping timer:" + e.toString());
+                signalActivityException("Exception in stopping timer:" + e.toString());
             }
-            long totalTime = tm.getTimeLapse();
-            int avgBw = (int) ((float) 1000 * ((float) taskScheduler.leftTask.totalLen / (float) ((int) totalTime * 1024)));
+//            long totalTime = tm.getTimeLapse();
+//            int avgBw = (int) ((float) 1000 * ((float) taskScheduler.leftTask.totalLen / (float) ((int) totalTime * 1024)));
 
             for (int i = 0; i < slaveNum; i++) {
                 MasterOperation.remoteStop(connList.get(i));
@@ -141,10 +140,10 @@ public class MultithreadMasterService extends BackendService {
             for (int i = 0; i < slaveNum; i++) {
                 taskScheduler.semaphoreSlaveDone.release();
             }
-            this.signalActivityComplete();
-            this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
+            signalActivityComplete();
+            signalActivity("All tasks have been done, downloading complete!");
         } catch (Exception e) {
-            this.signalActivity("Exception during closing file:" + e.toString());
+            signalActivityException("Exception during closing file:" + e.toString());
         }
     }
 

@@ -9,6 +9,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
@@ -31,14 +33,15 @@ public class SlaveService extends BackendService {
         masterIp = (InetAddress) intent.getExtras().get("masterIp");
         slaveIp = (InetAddress) intent.getExtras().get("slaveIp");
         resultReceiver = (ResultReceiver) intent.getExtras().get("slaveResult");
+        stat = new Statistic(this);
 
         try {
             InetSocketAddress localSockAddr = new InetSocketAddress(slaveIp, nrsPort);
             InetSocketAddress remoteSockAddr = new InetSocketAddress(masterIp, nrsPort);
 //            conn = new TcpConnectorLong(remoteSockAddr, localSockAddr, this, 1);
-            SlaveAcceptor.listen(remoteSockAddr, localSockAddr, this);
+            SlaveAcceptor.listen(remoteSockAddr, localSockAddr, this, stat);
         } catch (Exception e) {
-            signalActivity("Failure in downloading:" + e.toString());
+            signalActivityException("Exception in downloading:" + e.toString());
         }
     }
 

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ResultReceiver;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -155,6 +157,29 @@ public class SlaveActivity extends Activity {
                                 }
                             });
                         }
+                    }else if (resultCode == 3) {
+                        if (resultData != null) {
+                            final ListView lvStat = (ListView) findViewById(R.id.lvSlaveStat);
+                            lvStat.post(new Runnable() {
+                                public void run() {
+                                    String[] nameStat = (String[]) resultData.get("nameStat");
+                                    float[] proStat = (float[]) resultData.get("proStat");
+                                    long[] bwStat = (long[]) resultData.get("bwStat");
+                                    long[] avgBwStat = (long[]) resultData.get("avgBwStat");
+                                    long[] alBytesStat = (long[]) resultData.get("alBytesStat");
+                                    setThreadStaus(nameStat, proStat, bwStat, avgBwStat, alBytesStat);
+                                }
+                            });
+                        }
+                    } else if (resultCode == 4) {
+                        if (resultData != null) {
+                            final TextView tvMasterException = (TextView) findViewById(R.id.tvSlaveExceptionStatus);
+                            tvMasterException.post(new Runnable() {
+                                public void run() {
+                                    tvMasterException.setText((String) resultData.get("exception"));
+                                }
+                            });
+                        }
                     }
                 }
             });
@@ -166,5 +191,21 @@ public class SlaveActivity extends Activity {
             TextView serverServiceStatus = (TextView) findViewById(R.id.server_status_text);
             serverServiceStatus.setText("The server is already running");
         }
+    }
+
+    public void setThreadStaus(String[] nameStat, float[] proStat, long[] bwStat, long[] avgBwStat,  long[] alBytesStat) {
+        ListView lvStat = (ListView) findViewById(R.id.lvSlaveStat);
+        int thdNum = proStat.length;
+        String[] strStat = new String[thdNum];
+        for (int i = 0; i < thdNum; i++) {
+            strStat[i] = "Name:" + nameStat[i] + "|"
+                    + "Progress:" + Float.toString(proStat[i]) + "%\n"
+                    + "BW:" + Long.toString(bwStat[i]) + "KB/s|"
+                    + "AvgBW:" + Long.toString(avgBwStat[i]) + "KB/s\n"
+                    + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
+        }
+
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, strStat);
+        lvStat.setAdapter(arrayAdapter);
     }
 }

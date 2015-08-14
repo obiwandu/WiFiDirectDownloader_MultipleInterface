@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.R;
+import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.WiFiDirect;
 
 /**
@@ -44,6 +45,8 @@ public class MasterActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        initDir();
 
         EditText etURL = (EditText) findViewById(R.id.etURL);
         etURL.setText(url);
@@ -138,7 +141,7 @@ public class MasterActivity extends Activity {
                 masterServiceIntent.putExtra("minChunkSize", minChunkSize * 1024);
                 masterServiceIntent.putExtra("masterResult", new ResultReceiver(null) {
                     @Override
-                    protected void onReceiveResult(int resultCode, final Bundle resultData) {
+                    protected void onReceiveResult(final int resultCode, final Bundle resultData) {
                         if (resultCode == 1) {
                             if (resultData != null) {
                                 final TextView client_status_text = (TextView) findViewById(R.id.tvMasterExceptionStatus);
@@ -163,6 +166,33 @@ public class MasterActivity extends Activity {
                             if (resultData == null) {
                                 //Client service has shut down, the transfer may or may not have been successful. Refer to message
                                 transferActive = false;
+                            }
+                        } else if (resultCode == 3) {
+                            if (resultData != null) {
+                                final ListView lvStat = (ListView) findViewById(R.id.lvStat);
+                                lvStat.post(new Runnable() {
+                                    public void run() {
+                                        String[] nameStat = (String[]) resultData.get("nameStat");
+                                        float[] proStat = (float[]) resultData.get("proStat");
+                                        long[] bwStat = (long[]) resultData.get("bwStat");
+                                        long[] avgBwStat = (long[]) resultData.get("avgBwStat");
+                                        long[] alBytesStat = (long[]) resultData.get("alBytesStat");
+                                        setThreadStaus(nameStat, proStat, bwStat, avgBwStat, alBytesStat);
+
+                                        setMasterStatus("Total time:" + (String) resultData.get("totalTime") + "s"
+                                                + "\nTotal progress:" + (String) resultData.get("totalPro") + "%"
+                                                + "\nTotal avg BW:" + (String) resultData.get("totalAvgBw") + "KB/s");
+                                    }
+                                });
+                            }
+                        } else if (resultCode == 4) {
+                            if (resultData != null) {
+                                final TextView tvMasterException = (TextView) findViewById(R.id.tvMasterExceptionStatus);
+                                tvMasterException.post(new Runnable() {
+                                    public void run() {
+                                        tvMasterException.setText((String) resultData.get("exception"));
+                                    }
+                                });
                             }
                         }
                     }
@@ -214,6 +244,33 @@ public class MasterActivity extends Activity {
                 } else if (resultCode == 0) {
                     //Client service has shut down, the transfer may or may not have been successful. Refer to message
 //                        transferActive = false;
+                } else if (resultCode == 3) {
+                    if (resultData != null) {
+                        final ListView lvStat = (ListView) findViewById(R.id.lvStat);
+                        lvStat.post(new Runnable() {
+                            public void run() {
+                                String[] nameStat = (String[]) resultData.get("nameStat");
+                                float[] proStat = (float[]) resultData.get("proStat");
+                                long[] bwStat = (long[]) resultData.get("bwStat");
+                                long[] avgBwStat = (long[]) resultData.get("avgBwStat");
+                                long[] alBytesStat = (long[]) resultData.get("alBytesStat");
+                                setThreadStaus(nameStat, proStat, bwStat, avgBwStat, alBytesStat);
+
+                                setMasterProgress("Total time:" + (String) resultData.get("totalTime") + "s"
+                                        + "\nTotal progress:" + (String) resultData.get("totalPro") + "%"
+                                        + "\nTotal avg BW:" + (String) resultData.get("totalAvgBw") + "KB/s");
+                            }
+                        });
+                    }
+                } else if (resultCode == 4) {
+                    if (resultData != null) {
+                        final TextView tvMasterException = (TextView) findViewById(R.id.tvMasterExceptionStatus);
+                        tvMasterException.post(new Runnable() {
+                            public void run() {
+                                tvMasterException.setText((String) resultData.get("exception"));
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -240,9 +297,25 @@ public class MasterActivity extends Activity {
         fileTransferStatusText.setText(message);
     }
 
-    public void setTargetFileStatus(String message) {
+    public void setMasterProgress(String message) {
         TextView targetFileStatus = (TextView) findViewById(R.id.tvMasterProgress);
         targetFileStatus.setText(message);
+    }
+
+    public void setThreadStaus(String[] nameStat, float[] proStat, long[] bwStat, long[] avgBwStat,  long[] alBytesStat) {
+        ListView lvStat = (ListView) findViewById(R.id.lvStat);
+        int thdNum = proStat.length;
+        String[] strStat = new String[thdNum];
+        for (int i = 0; i < thdNum; i++) {
+            strStat[i] = "Name:" + nameStat[i] + "|"
+                        + "Progress:" + Float.toString(proStat[i]) + "%\n"
+                        + "BW:" + Long.toString(bwStat[i]) + "KB/s|"
+                        + "AvgBW:" + Long.toString(avgBwStat[i]) + "KB/s\n"
+                        + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
+        }
+
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, strStat);
+        lvStat.setAdapter(arrayAdapter);
     }
 
     public void displayPeers(final WifiP2pDeviceList peers) {

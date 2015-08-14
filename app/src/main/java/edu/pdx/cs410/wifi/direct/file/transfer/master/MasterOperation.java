@@ -54,16 +54,16 @@ public class MasterOperation  {
         MasterInvoker.remoteStop(conn);
     }
 
-    static public long httpDownload(DownloadTask task, File recvFile, BackendService masterService) throws Exception {
-        long bw;
-        if (task.isPartial){
-            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
-        } else {
-            bw = HttpDownload.download(task.url, recvFile, masterService);
-        }
-
-        return bw;
-    }
+//    static public long httpDownload(DownloadTask task, File recvFile, BackendService masterService) throws Exception {
+//        long bw;
+//        if (task.isPartial){
+//            bw = HttpDownload.partialDownload(task.url, recvFile, task, masterService);
+//        } else {
+//            bw = HttpDownload.download(task.url, recvFile, masterService);
+//        }
+//
+//        return bw;
+//    }
 
     static public long httpDownload(DownloadTask task, RandomAccessFile recvFile, BackendService masterService, ThreadStatistics stat) throws Exception {
         long bw;

@@ -70,8 +70,12 @@ public class MasterConnector {
         conn.recv(recvBuf, ProtocolHeader.HEADER_LEN);
         ProtocolHeader recvHeader = new ProtocolHeader(recvBuf);
         conn.backendService.signalActivity("Data header received, start receiving data from slave");
-        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1), stat);
+        conn.recv(recvFile, (int)(recvHeader.end - recvHeader.start + 1));
         long bw = recvHeader.bw;
+        /* Statistic */
+//        stat.updateMetric(recvHeader.end - recvHeader.start + 1, conn.backendService, true);
+        stat.updateSlaveBw(bw);
+        stat.updateBytes(recvHeader.end - recvHeader.start + 1);
         conn.backendService.signalActivity("Data got successfully");
 
         return bw;

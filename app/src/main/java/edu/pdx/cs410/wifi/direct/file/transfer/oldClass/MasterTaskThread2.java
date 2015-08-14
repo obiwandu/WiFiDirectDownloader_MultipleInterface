@@ -11,7 +11,6 @@ import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
-import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterOperation;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 
@@ -50,7 +49,7 @@ public class MasterTaskThread2 extends Thread{
         boolean isDone;
         RandomAccessFile tempRecvFile;
         Log log = new Log("master2_log");
-        stat.addThread("master2_stat");
+        stat.addThread("master2_stat", false);
         ThreadStatistics thdStat = stat.getThreadStat(Thread.currentThread().getId());
 //        stat = new Statistic("master2_stat");
 
@@ -68,7 +67,7 @@ public class MasterTaskThread2 extends Thread{
                     break;
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during terminal condition fetching:" + e.toString());
+                masterService.signalActivityException("Exception during terminal condition fetching:" + e.toString());
             }
 
             /*schedule task*/
@@ -87,7 +86,7 @@ public class MasterTaskThread2 extends Thread{
                             + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during task scheduling:" + e.toString());
+                masterService.signalActivityException("Exception during task scheduling:" + e.toString());
                 return;
             }
 
@@ -106,7 +105,7 @@ public class MasterTaskThread2 extends Thread{
                     taskScheduler.updateMasterBw(masterBw);
                 }
             } catch (Exception e) {
-                masterService.signalActivity("Exception during local downloading:" + e.toString());
+                masterService.signalActivityException("Exception during local downloading:" + e.toString());
                 return;
             }
 

@@ -10,7 +10,6 @@ import edu.pdx.cs410.wifi.direct.file.transfer.Log;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
 import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
-import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 
@@ -44,8 +43,9 @@ public class SlaveTaskThread extends Thread {
         long slaveBw = 0;
         RandomAccessFile tempRecvFile;
         boolean isDone;
-        Log log = new Log("slave_" + Integer.valueOf(slaveIndex) + "_log");
-        stat.addThread("slave_" + Integer.valueOf(slaveIndex) + "_stat");
+        String threadName = "slave" + Integer.toString(slaveIndex);
+        Log log = new Log("log_" + threadName);
+        stat.addThread(threadName, true);
         long threadId = Thread.currentThread().getId();
         ThreadStatistics thdStat = stat.getThreadStat(threadId);
 //        stat = new Statistic("slave_" + Integer.valueOf(slaveIndex) +"_stat");
@@ -67,7 +67,7 @@ public class SlaveTaskThread extends Thread {
                     break;
                 }
             } catch (Exception e) {
-                conn.backendService.signalActivity("Exception during terminal condition fetching:" + e.toString());
+                conn.backendService.signalActivityException("Exception during terminal condition fetching:" + e.toString());
             }
 
             /* Schedule task */
@@ -85,7 +85,7 @@ public class SlaveTaskThread extends Thread {
                             + "|cur left end:" + Long.toString(taskScheduler.leftTask.end));
                 }
             } catch (Exception e) {
-                conn.backendService.signalActivity("Exception during task scheduling:" + e.toString());
+                conn.backendService.signalActivityException("Exception during task scheduling:" + e.toString());
                 return;
             }
 
@@ -102,7 +102,7 @@ public class SlaveTaskThread extends Thread {
                     taskScheduler.updateSlaveBw(slaveBw);
                 }
             } catch (Exception e) {
-                conn.backendService.signalActivity("Exception during remote downloading:" + e.toString());
+                conn.backendService.signalActivityException("Exception during remote downloading:" + e.toString());
                 return;
             }
 
@@ -110,10 +110,11 @@ public class SlaveTaskThread extends Thread {
             float alreadyLen = (float)taskScheduler.leftTask.start;
             float progress = (alreadyLen * (float)100)/totalLen;
             float slavePer = (float)(100*dataCount)/(float)taskScheduler.leftTask.totalLen;
-            conn.backendService.signalActivityProgress("Slave " + Integer.valueOf(slaveIndex) + " Data Per:"
-                                                        + slavePer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:"
-                                                        + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:"
-                                                        + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+//            conn.backendService.signalActivityProgress("Slave " + Integer.valueOf(slaveIndex) + " Data Per:"
+//                                                        + slavePer + "% | mBw:" + taskScheduler.mBw + "KB/s, sBw:"
+//                                                        + taskScheduler.sBw + "KB/s | Progress:" + progress + "% | Task left:"
+//                                                        + Long.toString(taskScheduler.leftTask.end - taskScheduler.leftTask.start));
+            conn.backendService.signalActivityStat();
         }
     }
 }

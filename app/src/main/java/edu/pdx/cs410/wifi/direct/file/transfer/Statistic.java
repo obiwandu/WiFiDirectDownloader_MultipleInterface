@@ -10,24 +10,23 @@ import java.util.TimerTask;
  * Created by User on 8/7/2015.
  */
 public class Statistic {
-
-
-
     public boolean isHarmonic;
     Timer timer;
     TimerTask timerTask;
     public HashMap<Long, ThreadStatistics> statMap;
     long curClock;
+    BackendService service;
 
-    public Statistic() {
+    public Statistic(BackendService s) {
+        service = s;
         statMap = new HashMap<Long, ThreadStatistics>();
         curClock = 0;
         isHarmonic = true;
     }
 
-    public void addThread(String threadName) {
+    public void addThread(String threadName, boolean isLan) {
         long threadId = Thread.currentThread().getId();
-        statMap.put(threadId, new ThreadStatistics(threadName));
+        statMap.put(threadId, new ThreadStatistics(threadName, isLan));
     }
 
     public ThreadStatistics getThreadStat(long threadId) {
@@ -54,9 +53,10 @@ public class Statistic {
                     Iterator it = statMap.keySet().iterator();
                     while(it.hasNext()) {
                         ThreadStatistics curStat = statMap.get(it.next());
-                        curStat.calBw(curClock, isHarmonic);
+                        curStat.updateBw(curClock, isHarmonic);
                         /* Record bytes transfered */
                         curStat.stat();
+                        service.signalActivityStat();
                     }
                     curClock ++;
                 } catch (Exception e) {

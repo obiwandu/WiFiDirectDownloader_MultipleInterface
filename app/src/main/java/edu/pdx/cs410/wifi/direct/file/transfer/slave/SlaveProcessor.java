@@ -6,6 +6,7 @@ import java.net.SocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.ProtocolHeader;
+import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnector;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
@@ -37,23 +38,23 @@ public class SlaveProcessor {
         return task;
     }
 
-    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr, BackendService slaveService) throws Exception {
-//        String req = request.toString();
-        String req = new String(request);
-        DownloadTask task = parseRequest(req);
-        slaveService.signalActivity("Start downloading...");
-        SlaveInvoker.downLoad(task, sockAddr, slaveService);
-    }
+//    static public void processRequest(byte[] request, InetSocketAddress[] sockAddr, BackendService slaveService) throws Exception {
+////        String req = request.toString();
+//        String req = new String(request);
+//        DownloadTask task = parseRequest(req);
+//        slaveService.signalActivity("Start downloading...");
+//        SlaveInvoker.downLoad(task, sockAddr, slaveService);
+//    }
+//
+//    static public void processRequest(InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, String url, BackendService slaveService) throws Exception {
+////        String req = request.toString();
+//        DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
+//        SlaveInvoker.downLoad(remoteAddr, localAddr, task, slaveService);
+//    }
 
-    static public void processRequest(InetSocketAddress remoteAddr, InetSocketAddress localAddr, ProtocolHeader header, String url, BackendService slaveService) throws Exception {
+    static public void processRequest(ProtocolHeader header, String url, TcpConnector conn, ThreadStatistics stat) throws Exception {
 //        String req = request.toString();
         DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
-        SlaveInvoker.downLoad(remoteAddr, localAddr, task, slaveService);
-    }
-
-    static public void processRequest(ProtocolHeader header, String url, TcpConnector conn) throws Exception {
-//        String req = request.toString();
-        DownloadTask task = new DownloadTask(header.start, header.end, 0, url);
-        SlaveInvoker.downLoad(task, conn);
+        SlaveInvoker.downLoad(task, conn, stat);
     }
 }

@@ -3,6 +3,7 @@ package edu.pdx.cs410.wifi.direct.file.transfer;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import edu.pdx.cs410.wifi.direct.file.transfer.oldClass.TimeMetric;
 import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
 
 /**

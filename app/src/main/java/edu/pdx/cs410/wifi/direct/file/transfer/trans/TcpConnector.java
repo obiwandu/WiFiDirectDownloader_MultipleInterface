@@ -105,71 +105,47 @@ public class TcpConnector {
 //        return bwMetric.bw;
 //    }
 
-    /* Data len is not limited */
-    public long recv(RandomAccessFile recvFile, int dataLen) throws Exception {
-        BwMetric bwMetric = new BwMetric(backendService, dataLen);
-
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        int alreadyLen = 0;
-        int currentLen = 0;
-        int leftLen;
-//        int realLen = 0;
-//        int absStart = 0;
-//        int absEnd = 0;
-
-        while (true) {
-            leftLen = dataLen - alreadyLen;
-            currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
-
-            bytesRead = is.read(buffer, 0, currentLen);
-//            absStart = alreadyLen;
-//            absEnd = absStart + bytesRead - 1;
-            /* update alreadyLen */
-            alreadyLen += bytesRead;
-            if (bytesRead <= 0) {
-                break;
-            }
-            if (leftLen == 0) {
-                break;
-            }
-
-//            /* Skip first 2KB data */
-//            int offset = 0;
-//            if (absStart < 2048) {
-//                if (absEnd < 2048) {
-//                    /* Useless data, skip */
-//                } else {
-//                    /* Fist useful data block */
-////                    offset = absEnd - 2048 + 1;
-//                    offset = 2048 - absStart;
-//                    recvFile.write(buffer, offset, bytesRead - offset);
-//                    realLen += bytesRead - offset;
-//                }
-//            } else {
-//                recvFile.write(buffer, 0, bytesRead);
-//                realLen += bytesRead;
+//    /* Data len is not limited */
+//    public long recv(RandomAccessFile recvFile, int dataLen) throws Exception {
+//        BwMetric bwMetric = new BwMetric(backendService, dataLen);
+//        byte[] buffer = new byte[4096];
+//        int bytesRead;
+//        int alreadyLen = 0;
+//        int currentLen = 0;
+//        int leftLen;
+//
+//        while (true) {
+//            leftLen = dataLen - alreadyLen;
+//            currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
+//            bytesRead = is.read(buffer, 0, currentLen);
+//
+//            /* update alreadyLen */
+//            alreadyLen += bytesRead;
+//            if (bytesRead <= 0) {
+//                break;
 //            }
-            recvFile.write(buffer, 0, bytesRead);
-            /* update bw */
-            bwMetric.bwMetric(bytesRead, isLAN);
-        }
-        log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
-
-        return bwMetric.bw;
-    }
+//            if (leftLen == 0) {
+//                break;
+//            }
+//
+//            recvFile.write(buffer, 0, bytesRead);
+//            /* update bw */
+//            bwMetric.bwMetric(bytesRead, isLAN);
+//        }
+//        log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
+//
+//        return bwMetric.bw;
+//    }
 
     /* Data len is not limited, with statistic */
-    public long recv(RandomAccessFile recvFile, int dataLen, ThreadStatistics stat) throws Exception {
-        BwMetric bwMetric = new BwMetric(backendService, dataLen);
-
+    public void recv(RandomAccessFile recvFile, int dataLen) throws Exception {
+//        BwMetric bwMetric = new BwMetric(backendService, dataLen);
         byte[] buffer = new byte[4096];
         int bytesRead;
         int alreadyLen = 0;
         int currentLen = 0;
         int leftLen;
 
-        stat.startMetric( dataLen);
         while (true) {
             leftLen = dataLen - alreadyLen;
             currentLen = (leftLen < buffer.length) ? leftLen : buffer.length;
@@ -185,16 +161,13 @@ public class TcpConnector {
             }
 
             recvFile.write(buffer, 0, bytesRead);
-            /* update bw */
-            bwMetric.bwMetric(bytesRead, isLAN);
-            /* Statistic */
-            stat.updateMetric((long) bytesRead, backendService, isLAN);
-//            stat.stat(bytesRead);
+//            /* update bw */
+//            bwMetric.bwMetric(bytesRead, isLAN);
         }
         log.record("RECV:expect data len:" + Integer.toString(dataLen) + "|actual data len:" + Integer.toString(alreadyLen));
 
 //        return bwMetric.bw;
-        return stat.bw;
+        return;
     }
 
     public void recv(byte[] recvBuf, int dataLen) throws Exception {

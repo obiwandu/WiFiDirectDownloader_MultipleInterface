@@ -1,24 +1,16 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.master;
 
-import android.app.IntentService;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.ResultReceiver;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URL;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
 import edu.pdx.cs410.wifi.direct.file.transfer.TaskScheduler;
-import edu.pdx.cs410.wifi.direct.file.transfer.TimeMetric;
-import edu.pdx.cs410.wifi.direct.file.transfer.trans.DownloadTask;
-import edu.pdx.cs410.wifi.direct.file.transfer.trans.HttpDownload;
 
 /**
  * Created by User on 7/9/2015.
@@ -35,7 +27,7 @@ public class MasterService extends BackendService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int totalLen = 0;
+        totalLen = 0;
         int masterLen;
         int slaveLen;
         int alreadyMasterLen;
@@ -46,8 +38,8 @@ public class MasterService extends BackendService {
         long masterBw = 0;
         long slaveBw = 0;
         String originalFileName = "unnamed";
-        TimeMetric tm = new TimeMetric();
-        Statistic stat = new Statistic();
+//        TimeMetric tm = new TimeMetric();
+        stat = new Statistic(this);
         long chunkSize = 5120 * 1024;
         long minChunkSize = 500 * 1024;
         int threadNum = 2;
@@ -65,7 +57,7 @@ public class MasterService extends BackendService {
             totalLen = conn.getContentLength();
             originalFileName = "weixin622android580.apk";
         } catch (Exception e) {
-            signalActivity("Exception during getting http length:" + e.toString());
+            signalActivityException("Exception during getting http length:" + e.toString());
         }
 
         /* set recv file path */
@@ -76,12 +68,12 @@ public class MasterService extends BackendService {
         /*initialize TaskScheduler*/
         TaskScheduler taskScheduler = new TaskScheduler(totalLen, url, threadNum);
 
-        tm.startTimer();
+//        tm.startTimer();
         /* Start statistics timer */
         try {
             stat.startTimer();
         } catch (Exception e) {
-            signalActivity("Exception in starting timer:" + e.toString());
+            signalActivityException("Exception in starting timer:" + e.toString());
         }
 
         for (int i = 0; i < threadNum; i ++) {
@@ -90,7 +82,7 @@ public class MasterService extends BackendService {
             try {
                 taskScheduler.semaphoreMasterDone.acquire();
             } catch (Exception e) {
-                signalActivity("Exception during accquring master lock:" + e.toString());
+                signalActivityException("Exception during accquring master lock:" + e.toString());
             }
             masterThd.start();
         }
@@ -105,18 +97,18 @@ public class MasterService extends BackendService {
             try {
                 stat.stopTimer();
             } catch (Exception e) {
-                signalActivity("Exception in stopping timer:" + e.toString());
+                signalActivityException("Exception in stopping timer:" + e.toString());
             }
-            long totalTime = tm.getTimeLapse();
-            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
+//            long totalTime = tm.getTimeLapse();
+//            int avgBw = (int)((float)1000 * ((float)taskScheduler.leftTask.totalLen/(float)((int)totalTime * 1024)));
 
             for (int i = 0; i < threadNum; i ++) {
                 taskScheduler.semaphoreMasterDone.release();
             }
-            this.signalActivityComplete();
-            this.signalActivity("All tasks have been done, downloading complete! Time consume: " + Long.toString(totalTime / (long) 1000) + " (s) | Avg bw: " + Integer.toString(avgBw) + "KB/s");
+            signalActivityComplete();
+            signalActivity("All tasks have been done, downloading complete!");
         } catch (Exception e) {
-            this.signalActivity("Exception during closing file:" + e.toString());
+            signalActivityException("Exception during closing file:" + e.toString());
         }
     }
 }
