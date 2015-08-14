@@ -1,4 +1,4 @@
-package edu.pdx.cs410.wifi.direct.file.transfer.trans;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.master.MasterService;

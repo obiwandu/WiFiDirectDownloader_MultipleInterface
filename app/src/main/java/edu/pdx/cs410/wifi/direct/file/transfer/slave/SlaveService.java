@@ -1,8 +1,6 @@
 package edu.pdx.cs410.wifi.direct.file.transfer.slave;
 
-import android.app.IntentService;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import java.net.InetAddress;
@@ -10,8 +8,6 @@ import java.net.InetSocketAddress;
 
 import edu.pdx.cs410.wifi.direct.file.transfer.BackendService;
 import edu.pdx.cs410.wifi.direct.file.transfer.Statistic;
-import edu.pdx.cs410.wifi.direct.file.transfer.ThreadStatistics;
-import edu.pdx.cs410.wifi.direct.file.transfer.trans.TcpConnectorLong;
 
 /**
  * Created by User on 7/9/2015.

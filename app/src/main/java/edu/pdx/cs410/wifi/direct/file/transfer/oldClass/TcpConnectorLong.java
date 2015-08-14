@@ -1,4 +1,4 @@
-package edu.pdx.cs410.wifi.direct.file.transfer.trans;
+package edu.pdx.cs410.wifi.direct.file.transfer.oldClass;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -68,8 +68,8 @@ public class TcpConnectorLong {
         }
     }
 
-    public long recv(RandomAccessFile recvFile, int dataLen) throws Exception {
-        BwMetric bwMetric = new BwMetric(masterService, dataLen);
+    public void recv(RandomAccessFile recvFile, int dataLen) throws Exception {
+//        BwMetric bwMetric = new BwMetric(masterService, dataLen);
 
 //        InputStream is = socket.getInputStream();
         byte[] buffer = new byte[4096];
@@ -95,13 +95,14 @@ public class TcpConnectorLong {
             }
 
             /* update bw */
-            bwMetric.bwMetric(bytesRead, isMaster);
+//            bwMetric.bwMetric(bytesRead, isMaster);
 
             recvFile.write(buffer, 0, bytesRead);
         }
 //        is.close();
 
-        return bwMetric.bw;
+//        return bwMetric.bw;
+        return;
     }
 
     public void recv(byte[] recvBuf, int dataLen) throws Exception {
