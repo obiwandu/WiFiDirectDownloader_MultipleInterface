@@ -11,12 +11,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/etURL"
-            android:text="URL:"/>
+            android:text="URL:"
+            android:textStyle="bold"
+            android:textSize="12dp"/>
         <EditText
             android:id="@+id/etURL"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"/>
+            android:layout_marginLeft="50dp"
+            android:textSize="12dp"/>
     </RelativeLayout>
 
     <Button
@@ -47,22 +50,26 @@
             android:id="@+id/tvMasterWifiStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp" />
+            android:paddingTop="3dp"
+            android:textSize="12dp"/>
         <TextView
             android:id="@+id/tvMasterStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp" />
+            android:paddingTop="3dp"
+            android:textSize="12dp" />
         <TextView
             android:id="@+id/tvMasterExceptionStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp" />
+            android:paddingTop="3dp"
+            android:textSize="12dp"/>
         <TextView
             android:id="@+id/tvMasterProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp" />
+            android:paddingTop="3dp"
+            android:textSize="12dp"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -73,7 +80,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/etChunkSize"
-            android:text="Chunk Size:"/>
+            android:text="Chunk Size:"
+            android:textStyle="bold"
+            android:textSize="12dp" />
         <EditText
             android:id="@+id/etChunkSize"
             android:inputType="number"
@@ -81,14 +90,17 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="120dp"/>
+            android:layout_marginLeft="120dp"
+            android:textSize="12dp" />
         <TextView
             android:id="@+id/tvChunkSizeUnit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/etChunkSize"
             android:layout_marginLeft="220dp"
-            android:text="KB"/>
+            android:text="KB"
+            android:textStyle="bold"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tvMinChunkSize"
@@ -96,7 +108,9 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/tvChunkSize"
             android:layout_alignBottom="@+id/etMinChunkSize"
-            android:text="Min Chunk Size:"/>
+            android:text="Min Chunk Size:"
+            android:textStyle="bold"
+            android:textSize="12dp" />
         <EditText
             android:id="@+id/etMinChunkSize"
             android:inputType="number"
@@ -105,14 +119,17 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/etChunkSize"
             android:layout_alignTop="@+id/etChunkSize"
-            android:layout_marginTop="40dp"/>
+            android:layout_marginTop="40dp"
+            android:textSize="12dp"/>
         <TextView
             android:id="@+id/tvMinChunkSizeUnit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/etMinChunkSize"
             android:layout_marginLeft="220dp"
-            android:text="KB"/>
+            android:text="KB"
+            android:textStyle="bold"
+            android:textSize="12dp" />
     </RelativeLayout>
 
     <ListView

@@ -314,7 +314,7 @@ public class MasterActivity extends Activity {
                         + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
         }
 
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, strStat);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.info_list_item, strStat);
         lvStat.setAdapter(arrayAdapter);
     }
 
@@ -335,7 +335,7 @@ public class MasterActivity extends Activity {
         //Set list view as clickable
         peerView.setClickable(true);
         //Make adapter to connect peer data to list view
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, peersStringArrayList.toArray());
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.device_list_item, peersStringArrayList.toArray());
         //Show peer data in listview
         peerView.setAdapter(arrayAdapter);
         peerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

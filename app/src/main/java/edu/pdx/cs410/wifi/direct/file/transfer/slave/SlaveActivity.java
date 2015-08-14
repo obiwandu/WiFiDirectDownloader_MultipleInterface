@@ -205,7 +205,7 @@ public class SlaveActivity extends Activity {
                     + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
         }
 
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, strStat);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.info_list_item, strStat);
         lvStat.setAdapter(arrayAdapter);
     }
 }
