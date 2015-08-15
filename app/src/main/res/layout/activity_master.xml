@@ -22,56 +22,6 @@
             android:textSize="12dp"/>
     </RelativeLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:onClick="onLocalDownload"
-        android:text="LocalDownload" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:onClick="onStart"
-        android:text="RemoteDownload" />
-
-    <ListView
-        android:id="@+id/lvStat"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-    </ListView>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/tvMasterWifiStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:textSize="12dp"/>
-        <TextView
-            android:id="@+id/tvMasterStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:textSize="12dp" />
-        <TextView
-            android:id="@+id/tvMasterExceptionStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:textSize="12dp"/>
-        <TextView
-            android:id="@+id/tvMasterProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="3dp"
-            android:textSize="12dp"/>
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
@@ -132,10 +82,59 @@
             android:textSize="12dp" />
     </RelativeLayout>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:onClick="onLocalDownload"
+        android:text="LocalDownload" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:onClick="onStart"
+        android:text="RemoteDownload" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tvMasterWifiStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="MasterWiFiStatus"/>
+        <TextView
+            android:id="@+id/tvMasterStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="MasterStatus"/>
+        <TextView
+            android:id="@+id/tvMasterProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="MasterProgress: Not started"/>
+        <TextView
+            android:id="@+id/tvMasterExceptionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"/>
+    </LinearLayout>
+
     <ListView
         android:id="@+id/peers_listview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
+    </ListView>
+
+    <ListView
+        android:id="@+id/lvStat"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
     </ListView>
 
 </LinearLayout>

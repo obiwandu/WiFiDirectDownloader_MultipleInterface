@@ -127,7 +127,7 @@ public class SlaveActivity extends Activity {
                 protected void onReceiveResult(int resultCode, final Bundle resultData) {
                     if (resultCode == 1) {
                         if (resultData != null) {
-                            final TextView server_file_status_text = (TextView) findViewById(R.id.tvSlaveExceptionStatus);
+                            final TextView server_file_status_text = (TextView) findViewById(R.id.tvSlaveStatus);
 
                             server_file_status_text.post(new Runnable() {
                                 public void run() {
@@ -198,9 +198,9 @@ public class SlaveActivity extends Activity {
         int thdNum = proStat.length;
         String[] strStat = new String[thdNum];
         for (int i = 0; i < thdNum; i++) {
-            strStat[i] = "Name:" + nameStat[i] + "|"
+            strStat[i] = "Name:" + nameStat[i] + "\t\t|\t\t"
                     + "Progress:" + Float.toString(proStat[i]) + "%\n"
-                    + "BW:" + Long.toString(bwStat[i]) + "KB/s|"
+                    + "BW:" + Long.toString(bwStat[i]) + "KB/s\t\t|\t\t"
                     + "AvgBW:" + Long.toString(avgBwStat[i]) + "KB/s\n"
                     + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
         }

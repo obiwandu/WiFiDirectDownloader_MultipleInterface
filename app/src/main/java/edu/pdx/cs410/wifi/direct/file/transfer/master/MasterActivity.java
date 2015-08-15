@@ -144,7 +144,7 @@ public class MasterActivity extends Activity {
                     protected void onReceiveResult(final int resultCode, final Bundle resultData) {
                         if (resultCode == 1) {
                             if (resultData != null) {
-                                final TextView client_status_text = (TextView) findViewById(R.id.tvMasterExceptionStatus);
+                                final TextView client_status_text = (TextView) findViewById(R.id.tvMasterStatus);
 
                                 client_status_text.post(new Runnable() {
                                     public void run() {
@@ -179,7 +179,7 @@ public class MasterActivity extends Activity {
                                         long[] alBytesStat = (long[]) resultData.get("alBytesStat");
                                         setThreadStaus(nameStat, proStat, bwStat, avgBwStat, alBytesStat);
 
-                                        setMasterStatus("Total time:" + (String) resultData.get("totalTime") + "s"
+                                        setMasterProgress("Total time:" + (String) resultData.get("totalTime") + "s"
                                                 + "\nTotal progress:" + (String) resultData.get("totalPro") + "%"
                                                 + "\nTotal avg BW:" + (String) resultData.get("totalAvgBw") + "KB/s");
                                     }
@@ -223,7 +223,7 @@ public class MasterActivity extends Activity {
             protected void onReceiveResult(int resultCode, final Bundle resultData) {
                 if (resultCode == 1) {
                     if (resultData != null) {
-                        final TextView client_status_text = (TextView) findViewById(R.id.tvMasterExceptionStatus);
+                        final TextView client_status_text = (TextView) findViewById(R.id.tvMasterStatus);
 
                         client_status_text.post(new Runnable() {
                             public void run() {
@@ -307,9 +307,9 @@ public class MasterActivity extends Activity {
         int thdNum = proStat.length;
         String[] strStat = new String[thdNum];
         for (int i = 0; i < thdNum; i++) {
-            strStat[i] = "Name:" + nameStat[i] + "|"
+            strStat[i] = "Name:" + nameStat[i] + "\t\t|\t\t"
                         + "Progress:" + Float.toString(proStat[i]) + "%\n"
-                        + "BW:" + Long.toString(bwStat[i]) + "KB/s|"
+                        + "BW:" + Long.toString(bwStat[i]) + "KB/s\t\t|\t\t"
                         + "AvgBW:" + Long.toString(avgBwStat[i]) + "KB/s\n"
                         + "AlreadyBytes:" + Long.toString(alBytesStat[i]) + "B";
         }

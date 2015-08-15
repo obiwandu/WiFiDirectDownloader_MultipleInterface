@@ -83,11 +83,11 @@ public class WiFiSlaveBroadcastReceiver extends BroadcastReceiver {
 //            activity.wifiInfo = wifiInfo;
 
             if (networkState.isConnected()) {
-                activity.setSlaveStatus("WiFi Direct Connection Status: Connected | Is Group Owner: " + wifiInfo.isGroupOwner);
+                activity.setSlaveWiFiStatus("WiFi Direct Connection Status: Connected | Is Group Owner: " + wifiInfo.isGroupOwner);
 //                activity.masterIp = wifiInfo.groupOwnerAddress.toString();
                 if (!wifiInfo.isGroupOwner) {
                     try {
-                        activity.setSlaveWiFiStatus("WiFi Direct Connection Info is exchanging...");
+                        activity.setSlaveStatus("WiFi Direct Connection Info is exchanging...");
                         activity.masterIp = wifiInfo.groupOwnerAddress;
                         InetSocketAddress remoteAddr = new InetSocketAddress(wifiInfo.groupOwnerAddress, 8001);  // specify a port number here
 
@@ -98,10 +98,10 @@ public class WiFiSlaveBroadcastReceiver extends BroadcastReceiver {
                     }
                 }
                 else{
-                    activity.setSlaveStatus("Error: Slave can not be GO!");
+                    activity.setSlaveExceptionStatus("Exception: Slave can not be GO!");
                 }
             } else {
-                activity.setSlaveStatus("Connection Status: Disconnected");
+                activity.setSlaveWiFiStatus("WiFi Direct Connection Status: Disconnected");
                 manager.cancelConnect(channel, null);
             }
 
@@ -116,7 +116,7 @@ public class WiFiSlaveBroadcastReceiver extends BroadcastReceiver {
             switch (msg.what) {
                 case 1:
                     activity.slaveIp = (InetAddress)msg.obj;
-                    activity.setSlaveWiFiStatus("master IP: " + activity.masterIp.getHostAddress()
+                    activity.setSlaveStatus("master IP: " + activity.masterIp.getHostAddress()
                                                   + " | slave IP:" + activity.slaveIp.getHostAddress());
                     break;
                 case 2:

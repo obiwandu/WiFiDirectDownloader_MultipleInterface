@@ -94,11 +94,11 @@ public class WiFiMasterBroadcastReceiver extends BroadcastReceiver {
                 //set client state so that all needed fields to make a transfer are ready
                 activity.setTransferStatus(true);
 //                activity.setNetworkToReadyState(true, wifiInfo, device);
-                activity.setMasterStatus("WiFi Direct Connection Status: Connected, GO: " + wifiInfo.isGroupOwner);
+                activity.setMasterWifiStatus("WiFi Direct Connection Status: Connected, GO: " + wifiInfo.isGroupOwner);
                 if (wifiInfo.isGroupOwner) {
                     /*connect to master to make master know slave's ip*/
                     try {
-                        activity.setMasterWifiStatus("WiFi Direct Connection Info is exchanging...");
+                        activity.setMasterStatus("WiFi Direct Connection Info is exchanging...");
                         activity.masterIp = wifiInfo.groupOwnerAddress;
                         InetSocketAddress localAddr = new InetSocketAddress(wifiInfo.groupOwnerAddress, 8001);  // specify a port for this transmission
                         Thread conn = new Thread(new FirstRecvThd(localAddr, handler));
@@ -108,12 +108,12 @@ public class WiFiMasterBroadcastReceiver extends BroadcastReceiver {
                     }
                 }
                 else{
-                    activity.setMasterStatus("Error: Master is GO(Master must be GO)");
+                    activity.setMasterExceptionStatus("Exception: Master is GO(Master must be GO)");
                 }
             } else {
                 //set variables to disable file transfer and reset client back to original state
                 activity.setTransferStatus(false);
-                activity.setMasterStatus("Connection Status: Disconnected");
+                activity.setMasterWifiStatus("WiFi Direct Connection Status: Disconnected");
                 manager.cancelConnect(channel, null);
             }
             //activity.setClientStatus(networkState.isConnected());
@@ -131,10 +131,10 @@ public class WiFiMasterBroadcastReceiver extends BroadcastReceiver {
                 case 1:
                     activity.slaveIp = (InetAddress)msg.obj;
                     activity.slaveList.add((InetAddress) msg.obj);
-                    activity.setMasterWifiStatus("master IP: " + activity.masterIp.getHostAddress()
+                    activity.setMasterStatus("master IP: " + activity.masterIp.getHostAddress()
                             + " | slave IP:" + activity.slaveIp.getHostAddress());
                     int slaveNumber = activity.slaveList.size();
-                    activity.setMasterStatus("WiFi Direct Connection Status:Connected, slave number = " + Integer.toString(slaveNumber));
+                    activity.setMasterWifiStatus("WiFi Direct Connection Status:Connected, slave number = " + Integer.toString(slaveNumber));
                     break;
                 case 2:
                     String str_msg = (String)msg.obj;
