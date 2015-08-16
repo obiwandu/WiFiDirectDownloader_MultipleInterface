@@ -12,6 +12,7 @@ public class ThreadStatistics {
     public long alreadyBytes;
     public long lastBytes;
     public long bw;
+    public long slaveBw;
     public long avgBw;
     boolean isLan;
     //        public long lastTime;
@@ -34,7 +35,7 @@ public class ThreadStatistics {
             lastBytes = alreadyBytes;
         } else {
             avgBw = (long) ((float) alreadyBytes / (float) ((clock + 1) * 1024));
-            curBw = bw;
+            curBw = slaveBw;
         }
 
         calBw(curBw, clock, isHarmonic);
@@ -46,10 +47,10 @@ public class ThreadStatistics {
 //        lastBytes = alreadyBytes;
 
         if (!isHarmonic) {
-                /*EWMA*/
+            /*EWMA*/
             bw = (long)(0.9 * (float)bw + 0.1 * (float)curBw);
         } else {
-                /*Harmonic*/
+            /*Harmonic*/
             if (curBw != 0) {
                 if (bw != 0) {
                     bw = (long) ((float) (clock + 1) / (((float) clock / (float) bw) + ((float) 1 / (float) curBw)));
@@ -78,7 +79,7 @@ public class ThreadStatistics {
     }
 
     public void updateSlaveBw(long curBw) throws Exception {
-        bw = curBw;
+        slaveBw = curBw;
     }
 
     public void updateBytes(long transBytes) throws Exception {

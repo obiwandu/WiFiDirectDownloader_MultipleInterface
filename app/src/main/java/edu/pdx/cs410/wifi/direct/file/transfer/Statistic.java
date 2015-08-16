@@ -22,7 +22,7 @@ public class Statistic {
         service = s;
         statMap = new HashMap<Long, ThreadStatistics>();
         curClock = 0;
-        isHarmonic = true;
+        isHarmonic = false;
         threadNum = 0;
     }
 
@@ -56,6 +56,7 @@ public class Statistic {
 
     public void stopTimer() throws Exception {
         if (timer != null) {
+            timerTask.run();
             timer.cancel();
         }
     }
